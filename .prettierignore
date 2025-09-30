@@ -1,0 +1,10 @@
+dist/
+node_modules/
+*.d.ts
+pnpm-lock.yaml
+.vite/
+public/
+*.min.js
+*.min.css
+coverage/
+.nyc_output/
