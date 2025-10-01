@@ -2,7 +2,6 @@
 import { computed, ref } from 'vue';
 import { useWindowScroll } from '@vueuse/core';
 import { useRouter } from 'vue-router';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { Menu, X, CheckCircle, Zap, Building, Github, Mail, Users, Settings } from 'lucide-vue-next';
 
 // 使用 VueUse 的 useWindowScroll 获取滚动位置
@@ -21,11 +20,6 @@ const navigateToAudience = () => {
   isDrawerOpen.value = false; // 导航后关闭drawer
 };
 
-const navigateToScreen = () => {
-  router.push('/screen');
-  isDrawerOpen.value = false;
-};
-
 const navigateToAdmin = () => {
   router.push('/admin');
   isDrawerOpen.value = false;
@@ -41,16 +35,6 @@ const contactUs = () => {
 // 跳转到GitHub
 const openGitHub = () => {
   window.open('https://github.com/CompPsyUnion/motion-vote', '_blank');
-  isDrawerOpen.value = false;
-};
-
-// 切换Drawer状态
-const toggleDrawer = () => {
-  isDrawerOpen.value = !isDrawerOpen.value;
-};
-
-// 关闭Drawer
-const closeDrawer = () => {
   isDrawerOpen.value = false;
 };
 
@@ -121,7 +105,7 @@ const useCases = [
 <template>
   <div class="drawer">
     <!-- Drawer Toggle Input -->
-    <input id="mobile-drawer" type="checkbox" class="drawer-toggle" v-model="isDrawerOpen" />
+    <input id="mobile-drawer" v-model="isDrawerOpen" type="checkbox" class="drawer-toggle" />
 
     <!-- Main Content -->
     <div class="drawer-content min-h-screen bg-base-100">
@@ -148,7 +132,7 @@ const useCases = [
               <li><a @click="scrollToSection('how-it-works')">How It Works</a></li>
               <li><a @click="scrollToSection('use-cases')">Use Cases</a></li>
               <li>
-                <button @click="openGitHub" class="btn btn-ghost btn-sm">
+                <button class="btn btn-ghost btn-sm" @click="openGitHub">
                   <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 24 24">
                     <path
                       d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"
@@ -157,7 +141,9 @@ const useCases = [
                   GitHub
                 </button>
               </li>
-              <li><button @click="navigateToAdmin" class="btn btn-primary btn-sm">Control</button></li>
+              <li>
+                <button class="btn btn-primary btn-sm" @click="navigateToAdmin">Control</button>
+              </li>
             </ul>
           </div>
 
@@ -204,8 +190,8 @@ const useCases = [
             </div>
 
             <div class="flex flex-col sm:flex-row gap-4 justify-center">
-              <button @click="navigateToAudience" class="btn btn-primary btn-lg">Join as Audience</button>
-              <button @click="contactUs" class="btn btn-outline btn-lg">Contact us</button>
+              <button class="btn btn-primary btn-lg" @click="navigateToAudience">Join as Audience</button>
+              <button class="btn btn-outline btn-lg" @click="contactUs">Contact us</button>
             </div>
           </div>
         </div>
@@ -320,10 +306,10 @@ const useCases = [
             Join thousands of organizations using Motion Vote to make their meetings more engaging and democratic.
           </p>
           <div class="flex flex-col sm:flex-row gap-4 justify-center">
-            <button @click="navigateToAdmin" class="btn btn-neutral btn-lg px-8">Start Creating</button>
+            <button class="btn btn-neutral btn-lg px-8" @click="navigateToAdmin">Start Creating</button>
             <button
-              @click="navigateToAudience"
               class="btn btn-outline btn-lg px-8 text-white border-white hover:bg-white hover:text-primary"
+              @click="navigateToAudience"
             >
               Join a Vote
             </button>
@@ -360,7 +346,7 @@ const useCases = [
         </nav>
         <nav>
           <header class="footer-title">Community</header>
-          <a @click="openGitHub" class="link link-hover cursor-pointer">GitHub Repository</a>
+          <a class="link link-over cursor-pointer" @click="openGitHub">GitHub Repository</a>
           <a class="link link-hover">Documentation</a>
           <a class="link link-hover">Contribute</a>
           <a class="link link-hover">Report Issues</a>
@@ -369,7 +355,7 @@ const useCases = [
           <header class="footer-title">Legal</header>
           <a class="link link-hover">Privacy Policy</a>
           <a class="link link-hover">Terms of Service</a>
-          <a @click="contactUs" class="link link-hover cursor-pointer">Contact</a>
+          <a class="link link-over cursor-pointer" @click="contactUs">Contact</a>
         </nav>
       </footer>
 
@@ -398,8 +384,8 @@ const useCases = [
           <!-- Navigation Links -->
           <li>
             <a
-              @click="scrollToSection('features')"
               class="flex items-center space-x-3 p-3 rounded-lg hover:bg-base-300 transition-colors"
+              @click="scrollToSection('features')"
             >
               <CheckCircle class="w-5 h-5" />
               <span>Features</span>
@@ -407,8 +393,8 @@ const useCases = [
           </li>
           <li>
             <a
-              @click="scrollToSection('how-it-works')"
               class="flex items-center space-x-3 p-3 rounded-lg hover:bg-base-300 transition-colors"
+              @click="scrollToSection('how-it-works')"
             >
               <Zap class="w-5 h-5" />
               <span>How It Works</span>
@@ -416,8 +402,8 @@ const useCases = [
           </li>
           <li>
             <a
-              @click="scrollToSection('use-cases')"
               class="flex items-center space-x-3 p-3 rounded-lg hover:bg-base-300 transition-colors"
+              @click="scrollToSection('use-cases')"
             >
               <Building class="w-5 h-5" />
               <span>Use Cases</span>
@@ -429,13 +415,13 @@ const useCases = [
 
           <!-- Action Buttons -->
           <li>
-            <button @click="navigateToAudience" class="btn btn-primary w-full justify-start">
+            <button class="btn btn-primary w-full justify-start" @click="navigateToAudience">
               <Users class="w-5 h-5 mr-2" />
               Join as Audience
             </button>
           </li>
           <li>
-            <button @click="navigateToAdmin" class="btn btn-secondary w-full justify-start">
+            <button class="btn btn-secondary w-full justify-start" @click="navigateToAdmin">
               <Settings class="w-5 h-5 mr-2" />
               Control Panel
             </button>
@@ -446,13 +432,13 @@ const useCases = [
 
           <!-- External Links -->
           <li>
-            <button @click="openGitHub" class="btn btn-ghost w-full justify-start">
+            <button class="btn btn-ghost w-full justify-start" @click="openGitHub">
               <Github class="w-5 h-5 mr-2" />
               GitHub Repository
             </button>
           </li>
           <li>
-            <button @click="contactUs" class="btn btn-ghost w-full justify-start">
+            <button class="btn btn-ghost w-full justify-start" @click="contactUs">
               <Mail class="w-5 h-5 mr-2" />
               Contact Us
             </button>

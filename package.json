@@ -10,7 +10,9 @@
     "lint": "eslint . --ext .vue,.js,.ts --fix",
     "lint:check": "eslint . --ext .vue,.js,.ts",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "lint:fix": "eslint . --ext .vue,.js,.ts --fix && prettier --write .",
+    "code-style": "npm run lint:fix && npm run format"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.13",

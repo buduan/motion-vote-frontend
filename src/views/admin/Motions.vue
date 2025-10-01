@@ -149,7 +149,11 @@
         <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
           <div>
             <p class="text-sm text-gray-700">
-              显示第 <span class="font-medium">1</span> 到 <span class="font-medium">10</span> 条， 共
+              显示第
+              <span class="font-medium">1</span>
+              到
+              <span class="font-medium">10</span>
+              条， 共
               <span class="font-medium">{{ filteredMotions.length }}</span>
               条结果
             </p>
