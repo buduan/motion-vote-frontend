@@ -1,0 +1,16 @@
+@import 'tailwindcss';
+@import './theme/default.css';
+@plugin 'daisyui' {
+  themes: default --default;
+}
+
+:root {
+  font-family: system-ui, 'SF Pro Display', 'Noto Sans SC', sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}

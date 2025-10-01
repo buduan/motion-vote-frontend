@@ -9,18 +9,8 @@
       <button
         class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
       >
-        <svg
-          class="w-4 h-4 mr-2"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M12 4v16m8-8H4"
-          ></path>
+        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
         </svg>
         添加用户
       </button>
@@ -31,12 +21,7 @@
       <div class="bg-white rounded-lg shadow p-6">
         <div class="flex items-center">
           <div class="p-2 bg-blue-100 rounded-lg">
-            <svg
-              class="w-6 h-6 text-blue-600"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
+            <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 stroke-linecap="round"
                 stroke-linejoin="round"
@@ -57,12 +42,7 @@
       <div class="bg-white rounded-lg shadow p-6">
         <div class="flex items-center">
           <div class="p-2 bg-green-100 rounded-lg">
-            <svg
-              class="w-6 h-6 text-green-600"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
+            <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 stroke-linecap="round"
                 stroke-linejoin="round"
@@ -83,12 +63,7 @@
       <div class="bg-white rounded-lg shadow p-6">
         <div class="flex items-center">
           <div class="p-2 bg-purple-100 rounded-lg">
-            <svg
-              class="w-6 h-6 text-purple-600"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
+            <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 stroke-linecap="round"
                 stroke-linejoin="round"
@@ -109,12 +84,7 @@
       <div class="bg-white rounded-lg shadow p-6">
         <div class="flex items-center">
           <div class="p-2 bg-yellow-100 rounded-lg">
-            <svg
-              class="w-6 h-6 text-yellow-600"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
+            <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 stroke-linecap="round"
                 stroke-linejoin="round"
@@ -138,9 +108,7 @@
       <div class="p-6">
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2"
-              >搜索用户</label
-            >
+            <label class="block text-sm font-medium text-gray-700 mb-2">搜索用户</label>
             <input
               v-model="searchQuery"
               type="text"
@@ -149,9 +117,7 @@
             />
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2"
-              >角色筛选</label
-            >
+            <label class="block text-sm font-medium text-gray-700 mb-2">角色筛选</label>
             <select
               v-model="roleFilter"
               class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
@@ -162,9 +128,7 @@
             </select>
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2"
-              >状态筛选</label
-            >
+            <label class="block text-sm font-medium text-gray-700 mb-2">状态筛选</label>
             <select
               v-model="statusFilter"
               class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
@@ -192,52 +156,20 @@
         <table class="min-w-full divide-y divide-gray-200">
           <thead class="bg-gray-50">
             <tr>
-              <th
-                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-              >
-                用户信息
-              </th>
-              <th
-                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-              >
-                角色
-              </th>
-              <th
-                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-              >
-                状态
-              </th>
-              <th
-                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-              >
-                最后登录
-              </th>
-              <th
-                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-              >
-                注册时间
-              </th>
-              <th
-                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-              >
-                操作
-              </th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">用户信息</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">角色</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">状态</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">最后登录</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">注册时间</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
             </tr>
           </thead>
           <tbody class="bg-white divide-y divide-gray-200">
-            <tr
-              v-for="user in filteredUsers"
-              :key="user.id"
-              class="hover:bg-gray-50"
-            >
+            <tr v-for="user in filteredUsers" :key="user.id" class="hover:bg-gray-50">
               <td class="px-6 py-4 whitespace-nowrap">
                 <div class="flex items-center">
-                  <div
-                    class="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center"
-                  >
-                    <span class="text-sm font-medium text-gray-600">{{
-                      user.name.charAt(0).toUpperCase()
-                    }}</span>
+                  <div class="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
+                    <span class="text-sm font-medium text-gray-600">{{ user.name.charAt(0).toUpperCase() }}</span>
                   </div>
                   <div class="ml-4">
                     <div class="text-sm font-medium text-gray-900">
@@ -260,10 +192,7 @@
                   class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
                   :class="getStatusClass(user.status)"
                 >
-                  <div
-                    class="w-1.5 h-1.5 rounded-full mr-1.5"
-                    :class="getStatusDotClass(user.status)"
-                  ></div>
+                  <div class="w-1.5 h-1.5 rounded-full mr-1.5" :class="getStatusDotClass(user.status)"></div>
                   {{ getStatusText(user.status) }}
                 </span>
               </td>
@@ -275,12 +204,7 @@
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                 <div class="flex items-center space-x-2">
-                  <button
-                    @click="editUser(user)"
-                    class="text-indigo-600 hover:text-indigo-900"
-                  >
-                    编辑
-                  </button>
+                  <button @click="editUser(user)" class="text-indigo-600 hover:text-indigo-900">编辑</button>
                   <button
                     @click="toggleUserStatus(user)"
                     :class="
@@ -291,12 +215,7 @@
                   >
                     {{ user.status === 'active' ? '禁用' : '启用' }}
                   </button>
-                  <button
-                    @click="deleteUser(user)"
-                    class="text-red-600 hover:text-red-900"
-                  >
-                    删除
-                  </button>
+                  <button @click="deleteUser(user)" class="text-red-600 hover:text-red-900">删除</button>
                 </div>
               </td>
             </tr>
@@ -379,8 +298,7 @@ const filteredUsers = computed(() => {
       user.email.toLowerCase().includes(searchQuery.value.toLowerCase());
 
     const matchesRole = !roleFilter.value || user.role === roleFilter.value;
-    const matchesStatus =
-      !statusFilter.value || user.status === statusFilter.value;
+    const matchesStatus = !statusFilter.value || user.status === statusFilter.value;
 
     return matchesSearch && matchesRole && matchesStatus;
   });

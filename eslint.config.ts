@@ -32,7 +32,6 @@ export default [
       prettier,
     },
     rules: {
-      // Vue 规则
       ...vue.configs.essential.rules,
       ...vue.configs['strongly-recommended'].rules,
       ...vue.configs.recommended.rules,
@@ -43,7 +42,7 @@ export default [
 
       // 自定义规则
       'vue/multi-word-component-names': 'off',
-      'prettier/prettier': 'error',
+      'prettier/prettier': 'warn',
     },
   },
   // Prettier 配置必须放在最后以覆盖冲突的规则

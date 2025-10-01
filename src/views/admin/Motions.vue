@@ -9,18 +9,8 @@
       <button
         class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
       >
-        <svg
-          class="w-4 h-4 mr-2"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M12 4v16m8-8H4"
-          ></path>
+        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
         </svg>
         创建新议题
       </button>
@@ -31,9 +21,7 @@
       <div class="p-6">
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2"
-              >搜索议题</label
-            >
+            <label class="block text-sm font-medium text-gray-700 mb-2">搜索议题</label>
             <input
               v-model="searchQuery"
               type="text"
@@ -42,9 +30,7 @@
             />
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2"
-              >状态筛选</label
-            >
+            <label class="block text-sm font-medium text-gray-700 mb-2">状态筛选</label>
             <select
               v-model="statusFilter"
               class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
@@ -56,9 +42,7 @@
             </select>
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2"
-              >创建时间</label
-            >
+            <label class="block text-sm font-medium text-gray-700 mb-2">创建时间</label>
             <input
               v-model="dateFilter"
               type="date"
@@ -83,39 +67,15 @@
         <table class="min-w-full divide-y divide-gray-200">
           <thead class="bg-gray-50">
             <tr>
-              <th
-                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-              >
-                议题信息
-              </th>
-              <th
-                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-              >
-                状态
-              </th>
-              <th
-                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-              >
-                投票统计
-              </th>
-              <th
-                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-              >
-                创建时间
-              </th>
-              <th
-                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-              >
-                操作
-              </th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">议题信息</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">状态</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">投票统计</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">创建时间</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
             </tr>
           </thead>
           <tbody class="bg-white divide-y divide-gray-200">
-            <tr
-              v-for="motion in filteredMotions"
-              :key="motion.id"
-              class="hover:bg-gray-50"
-            >
+            <tr v-for="motion in filteredMotions" :key="motion.id" class="hover:bg-gray-50">
               <td class="px-6 py-4">
                 <div class="flex items-start">
                   <div class="flex-1">
@@ -133,20 +93,14 @@
                   class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
                   :class="getStatusClass(motion.status)"
                 >
-                  <div
-                    class="w-1.5 h-1.5 rounded-full mr-1.5"
-                    :class="getStatusDotClass(motion.status)"
-                  ></div>
+                  <div class="w-1.5 h-1.5 rounded-full mr-1.5" :class="getStatusDotClass(motion.status)"></div>
                   {{ getStatusText(motion.status) }}
                 </span>
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
-                <div class="text-sm text-gray-900">
-                  总计: {{ motion.votes.total }}
-                </div>
+                <div class="text-sm text-gray-900">总计: {{ motion.votes.total }}</div>
                 <div class="text-xs text-gray-500">
-                  赞成: {{ motion.votes.agree }} | 反对:
-                  {{ motion.votes.disagree }} | 弃权: {{ motion.votes.abstain }}
+                  赞成: {{ motion.votes.agree }} | 反对: {{ motion.votes.disagree }} | 弃权: {{ motion.votes.abstain }}
                 </div>
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -154,18 +108,8 @@
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                 <div class="flex items-center space-x-2">
-                  <button
-                    @click="viewMotion(motion)"
-                    class="text-blue-600 hover:text-blue-900"
-                  >
-                    查看
-                  </button>
-                  <button
-                    @click="editMotion(motion)"
-                    class="text-indigo-600 hover:text-indigo-900"
-                  >
-                    编辑
-                  </button>
+                  <button @click="viewMotion(motion)" class="text-blue-600 hover:text-blue-900">查看</button>
+                  <button @click="editMotion(motion)" class="text-indigo-600 hover:text-indigo-900">编辑</button>
                   <button
                     v-if="motion.status === 'pending'"
                     @click="startMotion(motion)"
@@ -180,12 +124,7 @@
                   >
                     结束
                   </button>
-                  <button
-                    @click="deleteMotion(motion)"
-                    class="text-red-600 hover:text-red-900"
-                  >
-                    删除
-                  </button>
+                  <button @click="deleteMotion(motion)" class="text-red-600 hover:text-red-900">删除</button>
                 </div>
               </td>
             </tr>
@@ -194,9 +133,7 @@
       </div>
 
       <!-- 分页 -->
-      <div
-        class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6"
-      >
+      <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
         <div class="flex-1 flex justify-between sm:hidden">
           <button
             class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
@@ -209,21 +146,16 @@
             下一页
           </button>
         </div>
-        <div
-          class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between"
-        >
+        <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
           <div>
             <p class="text-sm text-gray-700">
-              显示第 <span class="font-medium">1</span> 到
-              <span class="font-medium">10</span> 条， 共
+              显示第 <span class="font-medium">1</span> 到 <span class="font-medium">10</span> 条， 共
               <span class="font-medium">{{ filteredMotions.length }}</span>
               条结果
             </p>
           </div>
           <div>
-            <nav
-              class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px"
-            >
+            <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
               <button
                 class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
               >
@@ -282,8 +214,7 @@ const motions = ref([
   {
     id: 2,
     title: '办公环境改善方案',
-    description:
-      '针对当前办公环境存在的问题，提出改善方案，包括空调系统升级、办公桌椅更换、绿植布置等。',
+    description: '针对当前办公环境存在的问题，提出改善方案，包括空调系统升级、办公桌椅更换、绿植布置等。',
     status: 'ended',
     votes: { total: 189, agree: 134, disagree: 32, abstain: 23 },
     createdAt: '2024-01-14 09:15',
@@ -291,8 +222,7 @@ const motions = ref([
   {
     id: 3,
     title: '年度预算分配讨论',
-    description:
-      '讨论2024年度预算分配方案，包括各部门预算、项目投资、设备采购等方面的资金安排。',
+    description: '讨论2024年度预算分配方案，包括各部门预算、项目投资、设备采购等方面的资金安排。',
     status: 'pending',
     votes: { total: 0, agree: 0, disagree: 0, abstain: 0 },
     createdAt: '2024-01-13 16:45',
@@ -300,8 +230,7 @@ const motions = ref([
   {
     id: 4,
     title: '新产品开发计划',
-    description:
-      '关于新产品线的开发计划，包括市场调研、技术方案、时间安排和预算评估。',
+    description: '关于新产品线的开发计划，包括市场调研、技术方案、时间安排和预算评估。',
     status: 'ended',
     votes: { total: 167, agree: 98, disagree: 45, abstain: 24 },
     createdAt: '2024-01-12 11:20',
@@ -322,15 +251,11 @@ const filteredMotions = computed(() => {
     const matchesSearch =
       !searchQuery.value ||
       motion.title.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-      motion.description
-        .toLowerCase()
-        .includes(searchQuery.value.toLowerCase());
+      motion.description.toLowerCase().includes(searchQuery.value.toLowerCase());
 
-    const matchesStatus =
-      !statusFilter.value || motion.status === statusFilter.value;
+    const matchesStatus = !statusFilter.value || motion.status === statusFilter.value;
 
-    const matchesDate =
-      !dateFilter.value || motion.createdAt.startsWith(dateFilter.value);
+    const matchesDate = !dateFilter.value || motion.createdAt.startsWith(dateFilter.value);
 
     return matchesSearch && matchesStatus && matchesDate;
   });

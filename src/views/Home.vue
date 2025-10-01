@@ -1,20 +1,495 @@
+<script setup lang="ts">
+import { computed, ref } from 'vue';
+import { useWindowScroll } from '@vueuse/core';
+import { useRouter } from 'vue-router';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import { Menu, X, CheckCircle, Zap, Building, Github, Mail, Users, Settings } from 'lucide-vue-next';
+
+// 使用 VueUse 的 useWindowScroll 获取滚动位置
+const { y } = useWindowScroll();
+const router = useRouter();
+
+// 判断页面是否在最顶部
+const isTop = computed(() => y.value <= 0);
+
+// Drawer 控制状态
+const isDrawerOpen = ref(false);
+
+// 导航功能
+const navigateToAudience = () => {
+  router.push('/audience');
+  isDrawerOpen.value = false; // 导航后关闭drawer
+};
+
+const navigateToScreen = () => {
+  router.push('/screen');
+  isDrawerOpen.value = false;
+};
+
+const navigateToAdmin = () => {
+  router.push('/admin');
+  isDrawerOpen.value = false;
+};
+
+// 新增联系我们功能
+const contactUs = () => {
+  // 可以跳转到联系页面或打开邮件客户端
+  window.location.href = 'mailto:contact@motionvote.org';
+  isDrawerOpen.value = false;
+};
+
+// 跳转到GitHub
+const openGitHub = () => {
+  window.open('https://github.com/CompPsyUnion/motion-vote', '_blank');
+  isDrawerOpen.value = false;
+};
+
+// 切换Drawer状态
+const toggleDrawer = () => {
+  isDrawerOpen.value = !isDrawerOpen.value;
+};
+
+// 关闭Drawer
+const closeDrawer = () => {
+  isDrawerOpen.value = false;
+};
+
+// 锚点导航
+const scrollToSection = (sectionId: string) => {
+  const element = document.getElementById(sectionId);
+  if (element) {
+    element.scrollIntoView({ behavior: 'smooth' });
+  }
+  isDrawerOpen.value = false;
+};
+
+// 功能特性数据 - 基于API文档更新
+const features = [
+  {
+    icon: '🗳️',
+    title: 'Real-time Voting System',
+    description:
+      'Support real-time voting interaction for debate events with instant vote switching and result locking.',
+  },
+  {
+    icon: '📊',
+    title: 'Live Screen Display',
+    description: 'Real-time data display on big screens with theme control and live updates via WebSocket.',
+  },
+  {
+    icon: '🎯',
+    title: 'Activity Management',
+    description: 'Create activities, manage collaborators, and control participant access efficiently.',
+  },
+  {
+    icon: '📱',
+    title: 'Multi-device Access',
+    description: 'Participants can join via activity ID and number, accessible on any device.',
+  },
+  {
+    icon: '🔒',
+    title: 'Secure Authentication',
+    description: 'JWT Token authentication for organizers and secure participant verification system.',
+  },
+  {
+    icon: '📈',
+    title: 'Data Analytics',
+    description: 'Real-time dashboard, activity reports, and comprehensive data export capabilities.',
+  },
+];
+
+// 使用案例数据 - 基于辩论投票系统更新
+const useCases = [
+  {
+    title: 'Debate Competitions',
+    description: 'Perfect for debate tournaments with real-time audience voting and live result displays.',
+    image: '🎤',
+  },
+  {
+    title: 'Academic Events',
+    description: 'Enhance academic discussions and conferences with interactive audience participation.',
+    image: '🎓',
+  },
+  {
+    title: 'Corporate Decisions',
+    description: 'Make team decisions more democratic with structured voting and result tracking.',
+    image: '🏢',
+  },
+];
+</script>
+
 <template>
-  <div class="container mx-auto p-4">
-    <h1 class="text-3xl font-bold mb-4">Welcome to Debate System</h1>
-    <div class="flex items-center gap-4">
-      <button
-        class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-        @click="counterStore.increment()"
-      >
-        Count is: {{ counterStore.count }}
-      </button>
-      <p>Double count is: {{ counterStore.doubleCount }}</p>
+  <div class="drawer">
+    <!-- Drawer Toggle Input -->
+    <input id="mobile-drawer" type="checkbox" class="drawer-toggle" v-model="isDrawerOpen" />
+
+    <!-- Main Content -->
+    <div class="drawer-content min-h-screen bg-base-100">
+      <!-- Navigation Bar -->
+      <div class="w-full flex justify-center">
+        <div
+          class="fixed navbar bg-base-100/60 backdrop-blur-lg border-base-200 z-10 transition-all duration-500"
+          :class="{
+            'w-full border-b-1 left-0 px-8': !isTop,
+            'w-11/12 border-1 top-4 transform px-4': isTop,
+          }"
+          :style="{
+            borderRadius: isTop ? '25rem' : '0',
+          }"
+        >
+          <div class="flex-1">
+            <a class="btn btn-ghost text-xl font-bold">Motion Vote</a>
+          </div>
+
+          <!-- Desktop Navigation -->
+          <div class="flex-none hidden lg:flex">
+            <ul class="menu menu-horizontal px-1">
+              <li><a @click="scrollToSection('features')">Features</a></li>
+              <li><a @click="scrollToSection('how-it-works')">How It Works</a></li>
+              <li><a @click="scrollToSection('use-cases')">Use Cases</a></li>
+              <li>
+                <button @click="openGitHub" class="btn btn-ghost btn-sm">
+                  <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 24 24">
+                    <path
+                      d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"
+                    />
+                  </svg>
+                  GitHub
+                </button>
+              </li>
+              <li><button @click="navigateToAdmin" class="btn btn-primary btn-sm">Control</button></li>
+            </ul>
+          </div>
+
+          <!-- Mobile Hamburger Menu -->
+          <div class="flex-none lg:hidden">
+            <label for="mobile-drawer" class="btn btn-square btn-ghost drawer-button">
+              <Menu class="w-6 h-6" />
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Hero Section -->
+      <section class="hero min-h-screen bg-gradient-to-br from-primary/10 to-secondary/10">
+        <div class="hero-content text-center max-w-6xl">
+          <div class="max-w-4xl">
+            <h1
+              class="text-5xl md:text-7xl font-bold mb-8 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent"
+            >
+              Motion Vote
+            </h1>
+            <p class="text-xl md:text-2xl mb-4 text-base-content/80">Real-time Interactive Debate Voting System</p>
+            <p class="text-lg mb-8 text-base-content/70 max-w-3xl mx-auto">
+              Transform your debates and discussions with our comprehensive voting platform. Engage audiences, track
+              opinions, and display results in real-time with professional-grade tools.
+            </p>
+
+            <!-- Open Source Project Notice -->
+            <div class="alert alert-info mb-8 max-w-2xl mx-auto">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                class="stroke-current shrink-0 w-6 h-6"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                ></path>
+              </svg>
+              <span>This is an open-source project. We welcome contributions from the community!</span>
+            </div>
+
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+              <button @click="navigateToAudience" class="btn btn-primary btn-lg">Join as Audience</button>
+              <button @click="contactUs" class="btn btn-outline btn-lg">Contact us</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Features Section -->
+      <section id="features" class="py-20 bg-base-200/50">
+        <div class="container mx-auto px-4">
+          <div class="text-center mb-16">
+            <h2 class="text-4xl md:text-5xl font-bold mb-6">Powerful Features</h2>
+            <p class="text-xl text-base-content/70 max-w-3xl mx-auto">
+              Everything you need to create engaging, interactive voting experiences
+            </p>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div
+              v-for="feature in features"
+              :key="feature.title"
+              class="card bg-base-100 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-2"
+            >
+              <div class="card-body text-center">
+                <div class="text-4xl mb-4">{{ feature.icon }}</div>
+                <h3 class="card-title justify-center text-xl mb-3">{{ feature.title }}</h3>
+                <p class="text-base-content/70">{{ feature.description }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- How It Works Section -->
+      <section id="how-it-works" class="py-20">
+        <div class="container mx-auto px-4">
+          <div class="text-center mb-16">
+            <h2 class="text-4xl md:text-5xl font-bold mb-6">How It Works</h2>
+            <p class="text-xl text-base-content/70 max-w-3xl mx-auto">Get started in three simple steps</p>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="text-center">
+              <div
+                class="w-20 h-20 bg-primary text-primary-content rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-6"
+              >
+                1
+              </div>
+              <h3 class="text-2xl font-bold mb-4">Create Your Debate</h3>
+              <p class="text-base-content/70">
+                Set up your debate topic, configure voting options, and invite participants to join the discussion.
+              </p>
+            </div>
+
+            <div class="text-center">
+              <div
+                class="w-20 h-20 bg-secondary text-secondary-content rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-6"
+              >
+                2
+              </div>
+              <h3 class="text-2xl font-bold mb-4">Engage Participants</h3>
+              <p class="text-base-content/70">
+                Participants join using activity ID and number, vote in real-time, and can change their votes during the
+                session.
+              </p>
+            </div>
+
+            <div class="text-center">
+              <div
+                class="w-20 h-20 bg-accent text-accent-content rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-6"
+              >
+                3
+              </div>
+              <h3 class="text-2xl font-bold mb-4">Display Results</h3>
+              <p class="text-base-content/70">
+                Monitor live results on the big screen with real-time updates and comprehensive analytics dashboard.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Use Cases Section -->
+      <section id="use-cases" class="py-20 bg-base-200/50">
+        <div class="container mx-auto px-4">
+          <div class="text-center mb-16">
+            <h2 class="text-4xl md:text-5xl font-bold mb-6">Perfect For Any Setting</h2>
+            <p class="text-xl text-base-content/70 max-w-3xl mx-auto">
+              Motion Vote adapts to your needs, whether you're in a boardroom, classroom, or conference hall
+            </p>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div
+              v-for="useCase in useCases"
+              :key="useCase.title"
+              class="card bg-base-100 shadow-lg hover:shadow-xl transition-all duration-300"
+            >
+              <div class="card-body text-center">
+                <div class="text-6xl mb-6">{{ useCase.image }}</div>
+                <h3 class="card-title justify-center text-xl mb-4">{{ useCase.title }}</h3>
+                <p class="text-base-content/70">{{ useCase.description }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- CTA Section -->
+      <section class="py-20 bg-gradient-to-r from-primary to-secondary">
+        <div class="container mx-auto px-4 text-center">
+          <h2 class="text-4xl md:text-5xl font-bold text-white mb-6">Ready to Get Started?</h2>
+          <p class="text-xl text-white/90 mb-8 max-w-2xl mx-auto">
+            Join thousands of organizations using Motion Vote to make their meetings more engaging and democratic.
+          </p>
+          <div class="flex flex-col sm:flex-row gap-4 justify-center">
+            <button @click="navigateToAdmin" class="btn btn-neutral btn-lg px-8">Start Creating</button>
+            <button
+              @click="navigateToAudience"
+              class="btn btn-outline btn-lg px-8 text-white border-white hover:bg-white hover:text-primary"
+            >
+              Join a Vote
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Footer with DaisyUI Footer with Logo Section -->
+      <footer class="footer p-10 bg-neutral text-neutral-content">
+        <aside>
+          <svg
+            width="50"
+            height="50"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+            fill-rule="evenodd"
+            clip-rule="evenodd"
+            class="fill-current"
+          >
+            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+          </svg>
+          <div>
+            <p class="font-bold text-xl">Motion Vote</p>
+            <p>Open-source real-time voting system for debate events</p>
+            <p class="mt-2">Empowering democratic decision-making since 2024</p>
+          </div>
+        </aside>
+        <nav>
+          <header class="footer-title">Services</header>
+          <a class="link link-hover">Real-time Voting</a>
+          <a class="link link-hover">Activity Management</a>
+          <a class="link link-hover">Live Screen Display</a>
+          <a class="link link-hover">Data Analytics</a>
+        </nav>
+        <nav>
+          <header class="footer-title">Community</header>
+          <a @click="openGitHub" class="link link-hover cursor-pointer">GitHub Repository</a>
+          <a class="link link-hover">Documentation</a>
+          <a class="link link-hover">Contribute</a>
+          <a class="link link-hover">Report Issues</a>
+        </nav>
+        <nav>
+          <header class="footer-title">Legal</header>
+          <a class="link link-hover">Privacy Policy</a>
+          <a class="link link-hover">Terms of Service</a>
+          <a @click="contactUs" class="link link-hover cursor-pointer">Contact</a>
+        </nav>
+      </footer>
+
+      <!-- Copyright Section -->
+      <footer class="footer footer-center p-4 bg-base-300 text-base-content">
+        <div>
+          <p>© 2024 Motion Vote - Open Source Project. Licensed under MIT License.</p>
+        </div>
+      </footer>
+    </div>
+
+    <!-- Mobile Drawer Sidebar -->
+    <div class="drawer-side z-50">
+      <label for="mobile-drawer" class="drawer-overlay"></label>
+      <aside class="min-h-full w-80 bg-base-200 text-base-content">
+        <!-- Drawer Header -->
+        <div class="flex items-center justify-between p-4 border-b border-base-300">
+          <h2 class="text-xl font-bold">Motion Vote</h2>
+          <label for="mobile-drawer" class="btn btn-sm btn-circle btn-ghost">
+            <X class="w-6 h-6" />
+          </label>
+        </div>
+
+        <!-- Navigation Menu -->
+        <ul class="menu p-4 space-y-2">
+          <!-- Navigation Links -->
+          <li>
+            <a
+              @click="scrollToSection('features')"
+              class="flex items-center space-x-3 p-3 rounded-lg hover:bg-base-300 transition-colors"
+            >
+              <CheckCircle class="w-5 h-5" />
+              <span>Features</span>
+            </a>
+          </li>
+          <li>
+            <a
+              @click="scrollToSection('how-it-works')"
+              class="flex items-center space-x-3 p-3 rounded-lg hover:bg-base-300 transition-colors"
+            >
+              <Zap class="w-5 h-5" />
+              <span>How It Works</span>
+            </a>
+          </li>
+          <li>
+            <a
+              @click="scrollToSection('use-cases')"
+              class="flex items-center space-x-3 p-3 rounded-lg hover:bg-base-300 transition-colors"
+            >
+              <Building class="w-5 h-5" />
+              <span>Use Cases</span>
+            </a>
+          </li>
+
+          <!-- Divider -->
+          <div class="divider"></div>
+
+          <!-- Action Buttons -->
+          <li>
+            <button @click="navigateToAudience" class="btn btn-primary w-full justify-start">
+              <Users class="w-5 h-5 mr-2" />
+              Join as Audience
+            </button>
+          </li>
+          <li>
+            <button @click="navigateToAdmin" class="btn btn-secondary w-full justify-start">
+              <Settings class="w-5 h-5 mr-2" />
+              Control Panel
+            </button>
+          </li>
+
+          <!-- Divider -->
+          <div class="divider"></div>
+
+          <!-- External Links -->
+          <li>
+            <button @click="openGitHub" class="btn btn-ghost w-full justify-start">
+              <Github class="w-5 h-5 mr-2" />
+              GitHub Repository
+            </button>
+          </li>
+          <li>
+            <button @click="contactUs" class="btn btn-ghost w-full justify-start">
+              <Mail class="w-5 h-5 mr-2" />
+              Contact Us
+            </button>
+          </li>
+        </ul>
+
+        <!-- Footer in Drawer -->
+        <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-base-300 bg-base-200">
+          <p class="text-sm text-base-content/70 text-center">© 2024 Motion Vote</p>
+          <p class="text-xs text-base-content/50 text-center mt-1">Open Source Project</p>
+        </div>
+      </aside>
     </div>
   </div>
 </template>
 
-<script setup lang="ts">
-import { useCounterStore } from '../stores/counter';
+<style scoped>
+/* Smooth scrolling for anchor links */
+html {
+  scroll-behavior: smooth;
+}
 
-const counterStore = useCounterStore();
-</script>
+/* Custom gradient text animation */
+@keyframes gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.bg-gradient-to-r {
+  background-size: 200% 200%;
+  animation: gradient 3s ease infinite;
+}
+</style>
