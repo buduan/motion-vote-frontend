@@ -25,14 +25,11 @@ const navigateToAdmin = () => {
   isDrawerOpen.value = false;
 };
 
-// 新增联系我们功能
 const contactUs = () => {
-  // 可以跳转到联系页面或打开邮件客户端
-  window.location.href = 'mailto:contact@motionvote.org';
+  window.location.href = 'mailto:computerpsychounion@nottingham.edu.cn';
   isDrawerOpen.value = false;
 };
 
-// 跳转到GitHub
 const openGitHub = () => {
   window.open('https://github.com/CompPsyUnion/motion-vote', '_blank');
   isDrawerOpen.value = false;
@@ -130,19 +127,15 @@ const useCases = [
             <ul class="menu menu-horizontal px-1">
               <li><a @click="scrollToSection('features')">Features</a></li>
               <li><a @click="scrollToSection('how-it-works')">How It Works</a></li>
-              <li><a @click="scrollToSection('use-cases')">Use Cases</a></li>
+              <li><a @click="contactUs">Contact</a></li>
               <li>
                 <button class="btn btn-ghost btn-sm" @click="openGitHub">
-                  <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 24 24">
-                    <path
-                      d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"
-                    />
-                  </svg>
+                  <Github class="w-5 h-5" />
                   GitHub
                 </button>
               </li>
               <li>
-                <button class="btn btn-primary btn-sm" @click="navigateToAdmin">Control</button>
+                <button class="btn btn-primary btn-sm ml-2" @click="navigateToAdmin">Control</button>
               </li>
             </ul>
           </div>
@@ -190,8 +183,14 @@ const useCases = [
             </div>
 
             <div class="flex flex-col sm:flex-row gap-4 justify-center">
-              <button class="btn btn-primary btn-lg" @click="navigateToAudience">Join as Audience</button>
-              <button class="btn btn-outline btn-lg" @click="contactUs">Contact us</button>
+              <button class="btn btn-primary btn-lg" @click="navigateToAudience">
+                <Users />
+                Join as Audience
+              </button>
+              <button class="btn btn-outline btn-lg" @click="openGitHub">
+                <Github class="w-5 h-5" />
+                GitHub
+              </button>
             </div>
           </div>
         </div>
@@ -318,7 +317,7 @@ const useCases = [
       </section>
 
       <!-- Footer with DaisyUI Footer with Logo Section -->
-      <footer class="footer p-10 bg-neutral text-neutral-content">
+      <footer class="footer md:footer-horizontal footer-vertical p-10 bg-neutral text-neutral-content">
         <aside>
           <svg
             width="50"
@@ -334,7 +333,7 @@ const useCases = [
           <div>
             <p class="font-bold text-xl">Motion Vote</p>
             <p>Open-source real-time voting system for debate events</p>
-            <p class="mt-2">Empowering democratic decision-making since 2024</p>
+            <p>Made with ♥️ by CPU</p>
           </div>
         </aside>
         <nav>
@@ -348,8 +347,8 @@ const useCases = [
           <header class="footer-title">Community</header>
           <a class="link link-over cursor-pointer" @click="openGitHub">GitHub Repository</a>
           <a class="link link-hover">Documentation</a>
-          <a class="link link-hover">Contribute</a>
-          <a class="link link-hover">Report Issues</a>
+          <a class="link link-hover" href="https://github.com/CompPsyUnion/motion-vote/contribute">Contribute</a>
+          <a class="link link-hover" href="https://github.com/CompPsyUnion/motion-vote/issues">Report Issues</a>
         </nav>
         <nav>
           <header class="footer-title">Legal</header>
@@ -362,7 +361,7 @@ const useCases = [
       <!-- Copyright Section -->
       <footer class="footer footer-center p-4 bg-base-300 text-base-content">
         <div>
-          <p>© 2024 Motion Vote - Open Source Project. Licensed under MIT License.</p>
+          <p>© 2025 Computer Psycho Union,UNNC - Open Source Project. Apache-2.0 license.</p>
         </div>
       </footer>
     </div>
@@ -447,7 +446,7 @@ const useCases = [
 
         <!-- Footer in Drawer -->
         <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-base-300 bg-base-200">
-          <p class="text-sm text-base-content/70 text-center">© 2024 Motion Vote</p>
+          <p class="text-sm text-base-content/70 text-center">© 2025 Computer Psycho Union,UNNC</p>
           <p class="text-xs text-base-content/50 text-center mt-1">Open Source Project</p>
         </div>
       </aside>
