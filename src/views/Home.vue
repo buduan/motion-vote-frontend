@@ -210,7 +210,7 @@ const useCases = [
             <div
               v-for="feature in features"
               :key="feature.title"
-              class="card bg-base-100 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-2"
+              class="card bg-base-100 border-1 border-base-300 transition-all duration-300"
             >
               <div class="card-body text-center">
                 <div class="text-4xl mb-4">{{ feature.icon }}</div>
@@ -285,7 +285,7 @@ const useCases = [
             <div
               v-for="useCase in useCases"
               :key="useCase.title"
-              class="card bg-base-100 shadow-lg hover:shadow-xl transition-all duration-300"
+              class="card bg-base-100 border-1 border-base-300 transition-all duration-300"
             >
               <div class="card-body text-center">
                 <div class="text-6xl mb-6">{{ useCase.image }}</div>
@@ -455,11 +455,6 @@ const useCases = [
 </template>
 
 <style scoped>
-/* Smooth scrolling for anchor links */
-html {
-  scroll-behavior: smooth;
-}
-
 /* Custom gradient text animation */
 @keyframes gradient {
   0% {

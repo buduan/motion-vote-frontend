@@ -140,8 +140,8 @@
           </div>
           <div class="flex items-end">
             <button
-              @click="resetFilters"
               class="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              @click="resetFilters"
             >
               重置筛选
             </button>
@@ -204,18 +204,18 @@
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                 <div class="flex items-center space-x-2">
-                  <button @click="editUser(user)" class="text-indigo-600 hover:text-indigo-900">编辑</button>
+                  <button class="text-indigo-600 hover:text-indigo-900" @click="editUser(user)">编辑</button>
                   <button
-                    @click="toggleUserStatus(user)"
                     :class="
                       user.status === 'active'
                         ? 'text-red-600 hover:text-red-900'
                         : 'text-green-600 hover:text-green-900'
                     "
+                    @click="toggleUserStatus(user)"
                   >
                     {{ user.status === 'active' ? '禁用' : '启用' }}
                   </button>
-                  <button @click="deleteUser(user)" class="text-red-600 hover:text-red-900">删除</button>
+                  <button class="text-red-600 hover:text-red-900" @click="deleteUser(user)">删除</button>
                 </div>
               </td>
             </tr>
