@@ -1,13 +1,17 @@
 @import 'tailwindcss';
 @import './theme/default.css';
+@import './theme/dedark.css';
+
 @plugin 'daisyui' {
-  themes: default --default;
+  themes: default --default, dedark --prefersdark;
 }
 
 :root {
-  font-family: system-ui, 'SF Pro Display', 'Noto Sans SC', sans-serif;
+  font-family: system-ui, 'SF Pro Display', 'Noto Sans', 'Noto Sans SC', sans-serif;
   line-height: 1.5;
   font-weight: 400;
+
+  color: var(--color-base-content);
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;

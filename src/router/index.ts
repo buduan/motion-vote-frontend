@@ -36,11 +36,6 @@ const router = createRouter({
           name: 'vote-activity',
           component: () => import('@/views/Vote.vue'),
         },
-        {
-          path: 'demo/mouse-glow',
-          name: 'mouse-glow-demo',
-          component: () => import('@/components/MouseGlowDemo.vue'),
-        },
       ],
     },
     // 认证相关路由
