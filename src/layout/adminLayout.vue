@@ -1,41 +1,28 @@
 <template>
-  <div class="navbar bg-base-100 shadow-sm">
+  <div
+    class="navbar bg-base-100/75 backdrop-blur-xl shadow-2xl shadow-base-content/5 fixed top-0 border-1 border-base-300/50"
+  >
     <div class="flex-1">
       <a class="btn btn-ghost text-xl">Console</a>
     </div>
     <div class="flex-none">
       <ul class="menu menu-horizontal px-1">
         <li>
-          <details>
-            <summary>Activities</summary>
-            <ul class="bg-base-100 rounded-t-none p-2">
-              <li><RouterLink to="/admin/activities/lists">Lists</RouterLink></li>
-              <li><RouterLink to="/admin/activities/create">Create</RouterLink></li>
-            </ul>
-          </details>
+          <RouterLink to="/admin">Dashboard</RouterLink>
         </li>
         <li>
-          <details>
-            <summary>Users</summary>
-            <ul class="bg-base-100 rounded-t-none p-2">
-              <li><RouterLink to="/admin/users/lists">Lists</RouterLink></li>
-              <li><RouterLink to="/admin/users/create">Create</RouterLink></li>
-            </ul>
-          </details>
+          <RouterLink to="/admin/activities">Activities</RouterLink>
         </li>
         <li>
-          <details>
-            <summary>Settings</summary>
-            <ul class="bg-base-100 rounded-t-none p-2">
-              <li><RouterLink to="/admin/settings/general">General</RouterLink></li>
-              <li><RouterLink to="/admin/settings/super">Super</RouterLink></li>
-            </ul>
-          </details>
+          <RouterLink to="/admin/users">Users</RouterLink>
+        </li>
+        <li>
+          <RouterLink to="/admin/settings/general">Settings</RouterLink>
         </li>
       </ul>
     </div>
   </div>
-  <router-view />
+  <router-view class="pt-16" />
 </template>
 
 <script setup lang="ts">
