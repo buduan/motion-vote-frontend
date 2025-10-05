@@ -28,7 +28,7 @@
   --radius-box: 1rem;
   --size-selector: 0.25rem;
   --size-field: 0.25rem;
-  --border: 1.5px;
-  --depth: 0;
-  --noise: 1;
+  --border: 1px;
+  --depth: 1;
+  --noise: 0;
 }

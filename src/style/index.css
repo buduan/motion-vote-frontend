@@ -6,6 +6,19 @@
   themes: default --default, dedark --prefersdark;
 }
 
+@font-face {
+  font-family: 'D-DIN';
+  src: url('../assets/fonts/D-DIN-Bold.woff2') format('woff2'),
+    url('../assets/fonts/D-DIN-Bold.woff') format('woff');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+.font-number {
+  font-family: 'D-DIN', 'SF Pro', sans-serif;
+}
+
 :root {
   font-family: system-ui, 'SF Pro Display', 'Noto Sans', 'Noto Sans SC', sans-serif;
   line-height: 1.5;
