@@ -6,10 +6,10 @@
         <!-- 使用Vue绑定变量控制的tab切换 -->
         <div class="tabs tabs-box justify-center mb-6">
           <button class="tab" :class="{ 'tab-active': activeTab === 'login' }" @click="activeTab = 'login'">
-            登录
+            Login
           </button>
           <button class="tab" :class="{ 'tab-active': activeTab === 'register' }" @click="activeTab = 'register'">
-            注册
+            Register
           </button>
         </div>
         <Transition name="fade" mode="out-in">
@@ -24,7 +24,7 @@
               <span>Password</span>
             </label>
             <div class="flex justify-between items-center">
-              <a href="/auth/forgot-password" class="text-info text-sm">忘记密码？</a>
+              <a href="/auth/forgot-password" class="text-info text-sm">Forgot Password?</a>
               <button class="btn btn-primary">Login</button>
             </div>
           </div>
