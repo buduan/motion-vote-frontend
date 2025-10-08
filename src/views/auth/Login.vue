@@ -55,7 +55,7 @@
               <span>Confirm Password</span>
             </label>
             <label for="register-checkbox" class="flex items-center">
-              <input type="checkbox" id="register-checkbox" class="checkbox checkbox-primary" />
+              <input id="register-checkbox" type="checkbox" class="checkbox checkbox-primary" />
               <span class="ml-2">I agree to the terms and conditions</span>
             </label>
             <button class="btn btn-primary">Register</button>

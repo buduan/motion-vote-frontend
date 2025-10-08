@@ -23,11 +23,11 @@ const intervalId = ref<number | null>(null);
 // 监听 duration 变化，自动更新时间
 watch(
   () => props.duration,
-  (newDuration) => {
+  newDuration => {
     if (!isRunning.value) {
       time.value = newDuration;
     }
-  }
+  },
 );
 
 // 格式化时间显示为 MM:SS
@@ -40,7 +40,7 @@ const formattedTime = computed(() => {
 // 开始或继续计时器
 const start = () => {
   if (isRunning.value) return; // 已经在运行中
-  
+
   if (time.value <= 0) {
     time.value = props.duration; // 如果时间已耗尽，重置时间
   }
@@ -49,7 +49,7 @@ const start = () => {
   intervalId.value = window.setInterval(() => {
     if (time.value > 0) {
       time.value--;
-      
+
       // 时间耗尽时触发事件
       if (time.value === 0) {
         pause();
@@ -62,7 +62,7 @@ const start = () => {
 // 暂停计时器
 const pause = () => {
   if (!isRunning.value) return;
-  
+
   isRunning.value = false;
   if (intervalId.value !== null) {
     clearInterval(intervalId.value);
