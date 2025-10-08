@@ -36,6 +36,11 @@ const router = createRouter({
           name: 'vote-activity',
           component: () => import('@/views/Vote.vue'),
         },
+        {
+          path: 'timer-demo',
+          name: 'timer-demo',
+          component: () => import('@/views/demo/Timer.vue'),
+        },
       ],
     },
     // 认证相关路由
