@@ -5,20 +5,20 @@
       <div class="selector">
         <select v-model="selectedOption" class="select">
           <option value="topic">Topic</option>
-          <option value="pros">Pros</option>
-          <option value="cons">Cons</option>
+          <option value="pro">Pros</option>
+          <option value="con">Cons</option>
           <option value="both">Both</option>
         </select>
       </div>
     </div>
   </Transition>
   <!-- Logo -->
-  <div class="absolute top-4 left-4 h-16 w-auto">
+  <div class="absolute top-4 left-4 h-12 w-auto">
     <img src="@/assets/logo.jpg" alt="Logo" class="w-16 h-16" />
   </div>
 
   <div
-    class="p-12 flex flex-col h-screen"
+    class="p-16 flex flex-col h-screen"
     :class="{
       'items-center align-center text-center': selectedOption === 'topic',
       'items-start': selectedOption === 'pros' || selectedOption === 'cons' || selectedOption === 'both',
@@ -27,7 +27,7 @@
     }"
   >
     <!-- Debate Topic -->
-    <div class="w-full" :class="{ 'h-3/5 overflow-hidden': selectedOption !== 'topic' }">
+    <div class="w-full mt-4" :class="{ 'h-3/5 overflow-hidden': selectedOption !== 'topic' }">
       <h3 v-if="selectedOption === 'topic'" class="text-4xl/[1.5] font-bold mb-4">这里是活动名称</h3>
       <h1
         class="text-9xl/[1.5] font-black mb-4"
@@ -42,9 +42,19 @@
     </div>
 
     <!-- Vote -->
-    <div v-if="selectedOption !== 'topic'" class="w-full flex justify-between">
-      <h2 class="text-8xl/[1.5] font-black mb-4">正方</h2>
-      <h2 class="text-8xl/[1.5] font-bold mb-4 text-blue-500 font-number">90.0%</h2>
+    <div v-if="selectedOption !== 'topic'" class="w-full">
+      <div class="w-full flex justify-between">
+        <h2 class="text-8xl/[1.5] font-black mb-4">
+          {{ selectedOption === 'pro' ? '正方' : '反方' }}
+        </h2>
+        <h2
+          class="text-8xl/[1.5] font-bold mb-4 font-number"
+          :class="selectedOption === 'pro' ? 'text-blue-500' : 'text-red-500'"
+        >
+          90.0%
+        </h2>
+      </div>
+      <VoteBar :side="selectedOption" :percent="90" class="w-full h-16" />
     </div>
   </div>
 </template>
@@ -53,6 +63,7 @@
 // 大屏展示页面
 import { ref, watch } from 'vue';
 import { useMouse } from '@vueuse/core';
+import VoteBar from '@/components/screen/voteBar.vue';
 
 const selectedOption = ref('topic');
 const showSelector = ref(false);
