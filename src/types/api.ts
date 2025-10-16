@@ -1,5 +1,5 @@
 // API 响应基础类型
-export interface ApiResponse<T = any> {
+export interface ApiResponse<T = unknown> {
   success: boolean;
   message: string;
   timestamp: string;
@@ -52,6 +52,25 @@ export interface RegisterRequest {
 export interface LoginResponse {
   token: string;
   user: User;
+}
+
+export interface SendVerificationCodeRequest {
+  email: string;
+}
+
+export interface SendVerificationCodeResponse {
+  session: string;
+}
+
+export interface ForgotPasswordRequest {
+  email: string;
+  code: string;
+  session: string;
+  newPassword: string;
+}
+
+export interface RefreshTokenResponse {
+  token: string;
 }
 
 // 活动相关类型

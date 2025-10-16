@@ -3,10 +3,15 @@ import './style/index.css';
 import App from './App.vue';
 import router from './router';
 import pinia from './stores';
+import { useAuthStore } from './stores/auth';
 
 const app = createApp(App);
 
-app.use(router);
 app.use(pinia);
+app.use(router);
+
+// 初始化auth store
+const authStore = useAuthStore();
+authStore.init();
 
 app.mount('#app');
