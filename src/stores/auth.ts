@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import { AuthApi } from '@/api/auth';
+import { UserApi } from '@/api/user';
 import type { User, LoginRequest, RegisterRequest } from '@/types/api';
 import toast from '@/utils/toast';
 
@@ -97,25 +98,6 @@ export const useAuthStore = defineStore('auth', () => {
     }
   };
 
-  // 获取当前用户信息
-  const fetchCurrentUser = async () => {
-    if (!token.value) return { success: false };
-
-    isLoading.value = true;
-    try {
-      const response = await AuthApi.getCurrentUser();
-      if (response.success && response.data) {
-        setUser(response.data);
-        return { success: true };
-      }
-      return { success: false };
-    } catch (error) {
-      return { success: false, error: error };
-    } finally {
-      isLoading.value = false;
-    }
-  };
-
   // 刷新token
   const refreshToken = async () => {
     try {
@@ -168,15 +150,29 @@ export const useAuthStore = defineStore('auth', () => {
     }
   };
 
-  // 初始化：如果有token，尝试获取用户信息
+  // 获取用户信息
+  const fetchUserProfile = async () => {
+    try {
+      const user = await UserApi.getProfile();
+      if (user) {
+        setUser(user);
+        return { success: true };
+      }
+      return { success: false };
+    } catch (error) {
+      // 获取用户信息失败，可能token已失效
+      await logout();
+      return { success: false, error };
+    }
+  };
+
+  // 初始化 - 从localStorage恢复认证状态
   const init = async () => {
     if (token.value) {
-      const result = await fetchCurrentUser();
+      // 如果有token，获取用户信息
+      const result = await fetchUserProfile();
       if (result.success) {
         scheduleTokenRefresh();
-      } else {
-        clearToken();
-        clearUser();
       }
     }
   };
@@ -198,7 +194,7 @@ export const useAuthStore = defineStore('auth', () => {
     register,
     logout,
     refreshToken,
-    fetchCurrentUser,
+    fetchUserProfile,
     init,
   };
 });

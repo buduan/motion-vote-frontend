@@ -26,7 +26,7 @@
               </div>
             </summary>
             <ul class="bg-base-100 rounded-box z-10 p-2 shadow-xl">
-              <li><a @click="handleLogout">登出</a></li>
+              <li><a @click="handleLogout">Logout</a></li>
             </ul>
           </details>
         </li>
@@ -45,18 +45,18 @@ import toast from '@/utils/toast';
 const router = useRouter();
 const authStore = useAuthStore();
 
-// 获取用户名首字母
+// Get user initials
 const userInitials = computed(() => {
   if (!authStore.user) return 'U';
   const name = authStore.user.name || authStore.user.email;
   return name.substring(0, 2).toUpperCase();
 });
 
-// 登出
+// Logout
 const handleLogout = async () => {
-  if (toast.confirm('确定要登出吗？')) {
+  if (toast.confirm('Are you sure you want to logout?')) {
     await authStore.logout();
-    toast.success('已成功登出');
+    toast.success('Successfully logged out');
     router.push('/auth/login');
   }
 };

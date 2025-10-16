@@ -3,125 +3,125 @@
     <h1 class="text-4xl font-bold mb-8">Motion Vote</h1>
     <div class="card w-96 bg-base-100 shadow-base-300 shadow-2xl">
       <div class="card-body">
-        <!-- Tab切换 -->
+        <!-- Tab Switch -->
         <div class="tabs tabs-box justify-center mb-6">
           <button class="tab" :class="{ 'tab-active': activeTab === 'login' }" @click="activeTab = 'login'">
-            登录
+            Login
           </button>
           <button class="tab" :class="{ 'tab-active': activeTab === 'register' }" @click="activeTab = 'register'">
-            注册
+            Register
           </button>
         </div>
 
         <Transition name="fade" mode="out-in">
-          <!-- 登录表单 -->
+          <!-- Login Form -->
           <div v-if="activeTab === 'login'" class="flex flex-col gap-4">
             <label class="floating-label">
               <input
                 v-model="loginForm.email"
                 type="email"
-                placeholder="邮箱"
+                placeholder="Email"
                 class="input input-md border-0 bg-base-200 min-w-full"
                 @keyup.enter="handleLogin"
               />
-              <span>邮箱</span>
+              <span>Email</span>
             </label>
             <label class="floating-label">
               <input
                 v-model="loginForm.password"
                 type="password"
-                placeholder="密码"
+                placeholder="Password"
                 class="input input-md border-0 bg-base-200 min-w-full"
                 @keyup.enter="handleLogin"
               />
-              <span>密码</span>
+              <span>Password</span>
             </label>
             <div class="flex justify-between items-center">
-              <router-link to="/auth/forgot-password" class="link link-info text-sm">忘记密码？</router-link>
+              <router-link to="/auth/forgot-password" class="link link-info text-sm">Forgot Password?</router-link>
               <button class="btn btn-primary" :disabled="isLoading" @click="handleLogin">
                 <span v-if="isLoading" class="loading loading-spinner loading-sm"></span>
-                {{ isLoading ? '登录中...' : '登录' }}
+                {{ isLoading ? 'Logging in...' : 'Login' }}
               </button>
             </div>
           </div>
 
-          <!-- 注册表单 -->
+          <!-- Register Form -->
           <div v-else-if="activeTab === 'register'" class="flex flex-col gap-4">
             <label class="floating-label">
               <input
                 v-model="registerForm.name"
                 type="text"
-                placeholder="用户名"
+                placeholder="Username"
                 class="input input-md border-0 bg-base-200 min-w-full"
               />
-              <span>用户名</span>
+              <span>Username</span>
             </label>
             <label class="floating-label">
               <input
                 v-model="registerForm.email"
                 type="email"
-                placeholder="邮箱"
+                placeholder="Email"
                 class="input input-md border-0 bg-base-200 min-w-full"
               />
-              <span>邮箱</span>
+              <span>Email</span>
             </label>
             <div class="flex flex-row gap-2">
               <label class="floating-label w-full">
                 <input
                   v-model="registerForm.code"
                   type="text"
-                  placeholder="验证码"
+                  placeholder="Verification Code"
                   class="input input-md border-0 bg-base-200"
                 />
-                <span>验证码</span>
+                <span>Code</span>
               </label>
               <button
                 class="btn btn-primary"
                 :disabled="!canSendCode || codeCooldown > 0"
                 @click="handleSendCode('register')"
               >
-                {{ codeCooldown > 0 ? `${codeCooldown}s` : '发送验证码' }}
+                {{ codeCooldown > 0 ? `${codeCooldown}s` : 'Send Code' }}
               </button>
             </div>
             <label class="floating-label">
               <input
                 v-model="registerForm.password"
                 type="password"
-                placeholder="密码"
+                placeholder="Password"
                 class="input input-md border-0 bg-base-200 min-w-full"
               />
-              <span>密码</span>
+              <span>Password</span>
             </label>
             <label class="floating-label">
               <input
                 v-model="confirmPassword"
                 type="password"
-                placeholder="确认密码"
+                placeholder="Confirm Password"
                 class="input input-md border-0 bg-base-200 min-w-full"
               />
-              <span>确认密码</span>
+              <span>Confirm Password</span>
             </label>
             <label class="flex items-center cursor-pointer">
               <input v-model="agreeTerms" type="checkbox" class="checkbox checkbox-primary" />
-              <span class="ml-2">我同意服务条款和隐私政策</span>
+              <span class="ml-2">I agree to the terms and privacy policy</span>
             </label>
             <button class="btn btn-primary" :disabled="!canRegister || isLoading" @click="handleRegister">
               <span v-if="isLoading" class="loading loading-spinner loading-sm"></span>
-              {{ isLoading ? '注册中...' : '注册' }}
+              {{ isLoading ? 'Registering...' : 'Register' }}
             </button>
           </div>
         </Transition>
       </div>
     </div>
 
-    <!-- Token刷新提示对话框 -->
+    <!-- Token Refresh Dialog -->
     <dialog ref="refreshDialog" class="modal">
       <div class="modal-box">
-        <h3 class="font-bold text-lg">Token即将过期</h3>
-        <p class="py-4">您的登录状态即将过期，是否刷新Token以保持登录？</p>
+        <h3 class="font-bold text-lg">Token Expiring Soon</h3>
+        <p class="py-4">Your session is about to expire. Would you like to refresh your token to stay logged in?</p>
         <div class="modal-action">
-          <button class="btn btn-ghost" @click="handleRefreshDecline">稍后</button>
-          <button class="btn btn-primary" @click="handleRefreshToken">刷新Token</button>
+          <button class="btn btn-ghost" @click="handleRefreshDecline">Later</button>
+          <button class="btn btn-primary" @click="handleRefreshToken">Refresh Token</button>
         </div>
       </div>
     </dialog>
@@ -186,21 +186,21 @@ const canRegister = computed(() => {
   );
 });
 
-// 发送验证码
+// Send verification code
 const handleSendCode = async (type: 'register' | 'forgot') => {
   const email = type === 'register' ? registerForm.value.email : '';
 
   if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    toast.error('请输入有效的邮箱地址');
+    toast.error('Please enter a valid email address');
     return;
   }
 
   try {
-    const response = await AuthApi.sendVerificationCode({ email });
+    const response = await AuthApi.sendVerificationCode(email);
     if (response.success && response.data) {
       registerForm.value.session = response.data.session;
 
-      // 开始倒计时
+      // Start countdown
       codeCooldown.value = 60;
       codeCooldownTimer.value = setInterval(() => {
         codeCooldown.value--;
@@ -210,20 +210,20 @@ const handleSendCode = async (type: 'register' | 'forgot') => {
         }
       }, 1000);
 
-      toast.success('验证码已发送到您的邮箱');
+      toast.success('Verification code sent to your email');
     } else {
-      toast.error(response.message || '发送验证码失败');
+      toast.error(response.message || 'Failed to send verification code');
     }
   } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : '发送验证码失败';
+    const errorMessage = error instanceof Error ? error.message : 'Failed to send verification code';
     toast.error(errorMessage);
   }
 };
 
-// 登录
+// Login
 const handleLogin = async () => {
   if (!loginForm.value.email || !loginForm.value.password) {
-    toast.error('请输入邮箱和密码');
+    toast.error('Please enter email and password');
     return;
   }
 
@@ -234,18 +234,18 @@ const handleLogin = async () => {
   if (result.success) {
     router.push('/');
   } else {
-    toast.error(result.message || '登录失败');
+    toast.error(result.message || 'Login failed');
   }
 };
 
-// 注册
+// Register
 const handleRegister = async () => {
   if (!canRegister.value) {
     return;
   }
 
   if (registerForm.value.password.length < 6) {
-    toast.error('密码长度至少6位');
+    toast.error('Password must be at least 6 characters');
     return;
   }
 
@@ -254,30 +254,31 @@ const handleRegister = async () => {
   isLoading.value = false;
 
   if (result?.success) {
-    toast.success(result?.message || '注册成功');
+    toast.success(result?.message || 'Registration successful');
     activeTab.value = 'login';
     loginForm.value.email = registerForm.value.email;
   } else {
-    toast.error(result?.message || '注册失败');
+    toast.error(result?.message || 'Registration failed');
   }
 };
 
-// Token刷新
+// Token refresh
 const handleRefreshToken = async () => {
   refreshDialog.value?.close();
   const result = await authStore.refreshToken();
   if (result.success) {
-    toast.success('Token刷新成功');
+    toast.success('Token refreshed successfully');
   } else {
-    toast.error('Token刷新失败，请重新登录');
+    toast.error('Token refresh failed, please login again');
     router.push('/auth/login');
   }
 };
+
 const handleRefreshDecline = () => {
   refreshDialog.value?.close();
 };
 
-// 检查Token是否即将过期
+// Check if token is expiring soon
 const checkTokenExpiry = () => {
   if (authStore.isTokenExpiringSoon && refreshDialog.value && !refreshDialog.value.open) {
     refreshDialog.value.showModal();

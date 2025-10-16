@@ -5,7 +5,6 @@ import type {
   LoginResponse,
   RegisterRequest,
   User,
-  SendVerificationCodeRequest,
   SendVerificationCodeResponse,
   ForgotPasswordRequest,
   RefreshTokenResponse,
@@ -30,19 +29,10 @@ export class AuthApi {
   }
 
   /**
-   * 获取当前用户信息
-   */
-  static async getCurrentUser(): Promise<ApiResponse<User>> {
-    return HttpClient.get<User>('/auth/me');
-  }
-
-  /**
    * 发送验证码
    */
-  static async sendVerificationCode(
-    data: SendVerificationCodeRequest,
-  ): Promise<ApiResponse<SendVerificationCodeResponse>> {
-    return HttpClient.post<SendVerificationCodeResponse>('/auth/send-code', data);
+  static async sendVerificationCode(email: string): Promise<ApiResponse<SendVerificationCodeResponse>> {
+    return HttpClient.get<SendVerificationCodeResponse>('/auth/getcode', { params: { email } });
   }
 
   /**
