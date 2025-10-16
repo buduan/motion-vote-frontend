@@ -1,6 +1,10 @@
 import axios, { type AxiosInstance, type AxiosRequestConfig, type AxiosResponse } from 'axios';
 import type { ApiResponse, ErrorResponse } from '@/types/api';
 
+// 调试：打印环境变量
+console.log('🔧 API Base URL:', import.meta.env.VITE_API_BASE_URL);
+console.log('🔧 All ENV:', import.meta.env);
+
 // 创建axios实例
 const http: AxiosInstance = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL || '/api',

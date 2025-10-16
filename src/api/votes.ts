@@ -1,5 +1,5 @@
 import { HttpClient } from '@/utils/http';
-import type { ApiResponse, VoteRequest, VoteStatus, VoteResults, Vote } from '@/types/api';
+import type { ApiResponse, VoteStatus, VoteResults, Vote } from '@/types/api';
 
 /**
  * 投票系统API
@@ -7,29 +7,39 @@ import type { ApiResponse, VoteRequest, VoteStatus, VoteResults, Vote } from '@/
 export class VotesApi {
   /**
    * 提交投票
+   * @param debateId 辩题ID
+   * @param sessionToken 会话令牌
+   * @param position 投票立场：pro(正方)/con(反方)/abstain(弃权)
    */
-  static async submitVote(data: VoteRequest): Promise<ApiResponse<Vote>> {
-    return HttpClient.post<Vote>('/votes', data);
+  static async submitVote(
+    debateId: string,
+    sessionToken: string,
+    position: 'pro' | 'con' | 'abstain'
+  ): Promise<ApiResponse<Vote>> {
+    return HttpClient.post<Vote>(`/votes/debates/${debateId}`, {
+      sessionToken,
+      position,
+    });
   }
 
   /**
    * 获取参与者投票状态
+   * 需要 sessionToken 参数
    */
   static async getVoteStatus(
-    activityId: string,
-    participantNumber: string,
     debateId: string,
+    sessionToken: string,
   ): Promise<ApiResponse<VoteStatus>> {
-    return HttpClient.get<VoteStatus>(`/votes/status`, {
-      params: { activityId, participantNumber, debateId },
+    return HttpClient.get<VoteStatus>(`/votes/debates/${debateId}`, {
+      params: { sessionToken },
     });
   }
 
   /**
    * 获取辩题投票结果
    */
-  static async getVoteResults(activityId: string, debateId: string): Promise<ApiResponse<VoteResults>> {
-    return HttpClient.get<VoteResults>(`/activities/${activityId}/debates/${debateId}/results`);
+  static async getVoteResults(debateId: string): Promise<ApiResponse<VoteResults>> {
+    return HttpClient.get<VoteResults>(`/votes/debates/${debateId}/results`);
   }
 
   /**
@@ -40,7 +50,8 @@ export class VotesApi {
   }
 
   /**
-   * 获取投票历史
+   * 获取投票历史、
+   * 
    */
   static async getVoteHistory(activityId: string, debateId: string): Promise<ApiResponse<Vote[]>> {
     return HttpClient.get<Vote[]>(`/activities/${activityId}/debates/${debateId}/votes`);
