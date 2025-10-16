@@ -33,6 +33,11 @@ const router = createRouter({
           component: () => import('@/views/Audience.vue'),
         },
         {
+          path: 'vote',
+          name: 'vote',
+          component: () => import('@/views/Vote.vue'),
+        },
+        {
           path: 'vote/:activityId',
           name: 'vote-activity',
           component: () => import('@/views/Vote.vue'),
