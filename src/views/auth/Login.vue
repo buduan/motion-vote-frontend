@@ -92,15 +92,59 @@
               />
               <span>Password</span>
             </label>
+            <!-- Password Validation Feedback -->
+            <div v-if="registerForm.password" class="space-y-2">
+              <!-- Password Strength Indicator -->
+              <div class="flex items-center gap-2">
+                <span class="text-sm font-semibold">Strength:</span>
+                <div class="flex gap-1">
+                  <div
+                    v-for="i in 5"
+                    :key="i"
+                    :class="[
+                      'h-1 w-3 rounded-full transition-colors',
+                      i <= passwordStrength ? `bg-${passwordStrengthColor}` : 'bg-base-300',
+                    ]"
+                  />
+                </div>
+                <span :class="`text-sm font-semibold text-${passwordStrengthColor}`">
+                  {{ passwordStrengthLabel }}
+                </span>
+              </div>
+
+              <!-- Error Messages -->
+              <div v-if="passwordValidation.errors.length" class="space-y-1">
+                <div v-for="(error, idx) in passwordValidation.errors" :key="`error-${idx}`" class="text-sm text-error">
+                  • {{ error }}
+                </div>
+              </div>
+
+              <!-- Warning Messages -->
+              <div v-if="passwordValidation.warnings.length" class="space-y-1">
+                <div
+                  v-for="(warning, idx) in passwordValidation.warnings"
+                  :key="`warning-${idx}`"
+                  class="text-sm text-warning"
+                >
+                  ⚠ {{ warning }}
+                </div>
+              </div>
+            </div>
+
             <label class="floating-label">
               <input
                 v-model="confirmPassword"
                 type="password"
                 placeholder="Confirm Password"
                 class="input input-md border-0 bg-base-200 min-w-full"
+                :class="confirmPassword && confirmPassword !== registerForm.password ? 'input-error' : ''"
               />
               <span>Confirm Password</span>
             </label>
+            <!-- Password Match Validation -->
+            <div v-if="confirmPassword && confirmPassword !== registerForm.password" class="text-sm text-error">
+              • Passwords do not match
+            </div>
             <label class="flex items-center cursor-pointer">
               <input v-model="agreeTerms" type="checkbox" class="checkbox checkbox-primary" />
               <span class="ml-2">I agree to the terms and privacy policy</span>
@@ -134,6 +178,12 @@ import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
 import { AuthApi } from '@/api/auth';
 import toast from '@/utils/toast';
+import {
+  validateRegisterPassword,
+  getPasswordStrength,
+  getPasswordStrengthLabel,
+  getPasswordStrengthColor,
+} from '@/utils/passwordValidator';
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -173,13 +223,33 @@ const canSendCode = computed(() => {
   return registerForm.value.email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(registerForm.value.email);
 });
 
+// Password validation
+const passwordValidation = computed(() => {
+  return validateRegisterPassword(registerForm.value.password);
+});
+
+const passwordStrength = computed(() => {
+  return getPasswordStrength(registerForm.value.password);
+});
+
+const passwordStrengthLabel = computed(() => {
+  return getPasswordStrengthLabel(passwordStrength.value);
+});
+
+const passwordStrengthColor = computed(() => {
+  return getPasswordStrengthColor(passwordStrength.value);
+});
+
+const passwordsMatch = computed(() => {
+  return confirmPassword.value === registerForm.value.password;
+});
+
 const canRegister = computed(() => {
   return (
     registerForm.value.name &&
     registerForm.value.email &&
-    registerForm.value.password &&
-    confirmPassword.value &&
-    registerForm.value.password === confirmPassword.value &&
+    passwordValidation.value.isValid &&
+    passwordsMatch.value &&
     registerForm.value.code &&
     registerForm.value.session &&
     agreeTerms.value
@@ -244,8 +314,14 @@ const handleRegister = async () => {
     return;
   }
 
-  if (registerForm.value.password.length < 6) {
-    toast.error('Password must be at least 6 characters');
+  // Additional validation
+  if (!passwordValidation.value.isValid) {
+    toast.error(passwordValidation.value.errors[0] || 'Invalid password');
+    return;
+  }
+
+  if (!passwordsMatch.value) {
+    toast.error('Passwords do not match');
     return;
   }
 
