@@ -1,5 +1,14 @@
 import { HttpClient } from '@/utils/http';
-import type { ApiResponse, LoginRequest, LoginResponse, RegisterRequest, User } from '@/types/api';
+import type {
+  ApiResponse,
+  LoginRequest,
+  LoginResponse,
+  RegisterRequest,
+  User,
+  SendVerificationCodeResponse,
+  ForgotPasswordRequest,
+  RefreshTokenResponse,
+} from '@/types/api';
 
 /**
  * 认证相关API
@@ -20,23 +29,30 @@ export class AuthApi {
   }
 
   /**
-   * 获取当前用户信息
+   * 发送验证码
    */
-  static async getCurrentUser(): Promise<ApiResponse<User>> {
-    return HttpClient.get<User>('/auth/me');
+  static async sendVerificationCode(email: string): Promise<ApiResponse<SendVerificationCodeResponse>> {
+    return HttpClient.get<SendVerificationCodeResponse>('/auth/getcode', { params: { email } });
   }
 
   /**
-   * 用户登出
+   * 刷新Token
    */
-  static async logout(): Promise<ApiResponse<void>> {
-    return HttpClient.post<void>('/auth/logout');
+  static async refreshToken(): Promise<ApiResponse<RefreshTokenResponse>> {
+    return HttpClient.post<RefreshTokenResponse>('/auth/refresh', {});
   }
 
   /**
-   * 刷新token
+   * 注销Token（登出）
    */
-  static async refreshToken(): Promise<ApiResponse<LoginResponse>> {
-    return HttpClient.post<LoginResponse>('/auth/refresh');
+  static async revokeToken(): Promise<ApiResponse<void>> {
+    return HttpClient.post<void>('/auth/revoke', {});
+  }
+
+  /**
+   * 忘记密码（重置密码）
+   */
+  static async forgotPassword(data: ForgotPasswordRequest): Promise<ApiResponse<void>> {
+    return HttpClient.post<void>('/auth/forgot-password', data);
   }
 }

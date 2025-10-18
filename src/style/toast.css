@@ -1,0 +1,174 @@
+/* Vue Toastification Theme-Aware Styling for daisyUI */
+
+/* Override default toast container */
+.Vue-Toastification__container {
+  z-index: 9999;
+}
+
+/* Base toast styling with daisyUI theme colors */
+.Vue-Toastification__toast {
+  border-radius: 0.5rem;
+  box-shadow:
+    0 10px 15px -3px rgba(0, 0, 0, 0.1),
+    0 4px 6px -4px rgba(0, 0, 0, 0.1);
+  border: 1px solid hsl(var(--b3));
+  background-color: hsl(var(--b1));
+  color: hsl(var(--bc));
+  font-family: inherit;
+  padding: 1rem 1.25rem;
+  min-height: auto;
+}
+
+/* Success toast */
+.Vue-Toastification__toast--success {
+  background-color: hsl(var(--su));
+  color: hsl(var(--suc));
+  border-color: hsl(var(--su) / 0.3);
+}
+
+.Vue-Toastification__toast--success .Vue-Toastification__icon {
+  color: hsl(var(--suc));
+}
+
+.Vue-Toastification__toast--success .Vue-Toastification__progress-bar {
+  background-color: hsl(var(--suc) / 0.7);
+}
+
+/* Error toast */
+.Vue-Toastification__toast--error {
+  background-color: hsl(var(--er));
+  color: hsl(var(--erc));
+  border-color: hsl(var(--er) / 0.3);
+}
+
+.Vue-Toastification__toast--error .Vue-Toastification__icon {
+  color: hsl(var(--erc));
+}
+
+.Vue-Toastification__toast--error .Vue-Toastification__progress-bar {
+  background-color: hsl(var(--erc) / 0.7);
+}
+
+/* Warning toast */
+.Vue-Toastification__toast--warning {
+  background-color: hsl(var(--wa));
+  color: hsl(var(--wac));
+  border-color: hsl(var(--wa) / 0.3);
+}
+
+.Vue-Toastification__toast--warning .Vue-Toastification__icon {
+  color: hsl(var(--wac));
+}
+
+.Vue-Toastification__toast--warning .Vue-Toastification__progress-bar {
+  background-color: hsl(var(--wac) / 0.7);
+}
+
+/* Info toast */
+.Vue-Toastification__toast--info {
+  background-color: hsl(var(--in));
+  color: hsl(var(--inc));
+  border-color: hsl(var(--in) / 0.3);
+}
+
+.Vue-Toastification__toast--info .Vue-Toastification__icon {
+  color: hsl(var(--inc));
+}
+
+.Vue-Toastification__toast--info .Vue-Toastification__progress-bar {
+  background-color: hsl(var(--inc) / 0.7);
+}
+
+/* Default toast */
+.Vue-Toastification__toast--default {
+  background-color: hsl(var(--b2));
+  color: hsl(var(--bc));
+  border-color: hsl(var(--b3));
+}
+
+.Vue-Toastification__toast--default .Vue-Toastification__progress-bar {
+  background-color: hsl(var(--p));
+}
+
+/* Toast body */
+.Vue-Toastification__toast-body {
+  padding: 0;
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+/* Close button */
+.Vue-Toastification__close-button {
+  opacity: 0.7;
+  color: currentColor;
+  font-weight: bold;
+  font-size: 1.25rem;
+  padding: 0;
+  margin-left: 0.75rem;
+  transition: opacity 0.2s ease-in-out;
+}
+
+.Vue-Toastification__close-button:hover {
+  opacity: 1;
+}
+
+/* Progress bar */
+.Vue-Toastification__progress-bar {
+  height: 3px;
+  border-radius: 0 0 0.5rem 0.5rem;
+}
+
+/* Icon styling */
+.Vue-Toastification__icon {
+  margin-right: 0.75rem;
+  display: flex;
+  align-items: center;
+  font-size: 1.25rem;
+}
+
+/* Animations - match daisyUI feel */
+.Vue-Toastification__fade-enter-active,
+.Vue-Toastification__fade-leave-active,
+.Vue-Toastification__fade-move {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.Vue-Toastification__fade-enter-from {
+  opacity: 0;
+  transform: translateX(2rem);
+}
+
+.Vue-Toastification__fade-leave-to {
+  opacity: 0;
+  transform: translateX(2rem) scale(0.95);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .Vue-Toastification__toast {
+    padding: 0.875rem 1rem;
+    font-size: 0.8125rem;
+    margin: 0.5rem;
+  }
+
+  .Vue-Toastification__icon {
+    font-size: 1.125rem;
+    margin-right: 0.625rem;
+  }
+}
+
+/* Dark mode enhancement (respects daisyUI theme) */
+[data-theme='dark'] .Vue-Toastification__toast,
+[data-theme='night'] .Vue-Toastification__toast,
+[data-theme='dracula'] .Vue-Toastification__toast,
+[data-theme='black'] .Vue-Toastification__toast,
+[data-theme='forest'] .Vue-Toastification__toast,
+[data-theme='halloween'] .Vue-Toastification__toast,
+[data-theme='synthwave'] .Vue-Toastification__toast,
+[data-theme='business'] .Vue-Toastification__toast,
+[data-theme='coffee'] .Vue-Toastification__toast {
+  box-shadow:
+    0 10px 15px -3px rgb(0 0 0 / 0.3),
+    0 4px 6px -4px rgb(0 0 0 / 0.3);
+}
