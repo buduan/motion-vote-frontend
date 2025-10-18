@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router';
+import { useAuthStore } from '@/stores/auth';
 import DefaultLayout from '@/layout/defaultLayout.vue';
 import AdminLayout from '@/layout/adminLayout.vue';
 import Home from '@/views/Home.vue';
@@ -68,6 +69,7 @@ const router = createRouter({
     {
       path: '/admin',
       component: AdminLayout,
+      meta: { requiresAuth: true },
       children: [
         {
           path: '',
@@ -160,6 +162,26 @@ const router = createRouter({
       ],
     },
   ],
+});
+
+// 路由守卫
+router.beforeEach((to, _from, next) => {
+  const authStore = useAuthStore();
+
+  // 检查是否需要认证
+  if (to.matched.some(record => record.meta.requiresAuth)) {
+    if (!authStore.isAuthenticated) {
+      // 未登录，跳转到登录页
+      next({
+        name: 'login',
+        query: { redirect: to.fullPath },
+      });
+    } else {
+      next();
+    }
+  } else {
+    next();
+  }
 });
 
 export default router;

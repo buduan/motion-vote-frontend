@@ -2,14 +2,10 @@
   <div class="timer-demo">
     <div class="demo-container">
       <h1>辩论计时器测试 Demo</h1>
-      
+
       <!-- 计时器显示区域 -->
       <div class="timer-section">
-        <Timer 
-          ref="timerRef" 
-          :duration="duration" 
-          @timeup="handleTimeUp"
-        />
+        <Timer ref="timerRef" :duration="duration" @timeup="handleTimeUp" />
       </div>
 
       <!-- 状态显示 -->
@@ -32,26 +28,9 @@
 
       <!-- 控制按钮 -->
       <div class="controls-section">
-        <button 
-          class="btn btn-primary" 
-          @click="timerRef?.start()"
-          :disabled="timerRef?.isRunning"
-        >
-          ▶️ 开始
-        </button>
-        <button 
-          class="btn btn-warning" 
-          @click="timerRef?.pause()"
-          :disabled="!timerRef?.isRunning"
-        >
-          ⏸️ 暂停
-        </button>
-        <button 
-          class="btn btn-secondary" 
-          @click="timerRef?.reset()"
-        >
-          🔄 重置
-        </button>
+        <button class="btn btn-primary" :disabled="timerRef?.isRunning" @click="timerRef?.start()">▶️ 开始</button>
+        <button class="btn btn-warning" :disabled="!timerRef?.isRunning" @click="timerRef?.pause()">⏸️ 暂停</button>
+        <button class="btn btn-secondary" @click="timerRef?.reset()">🔄 重置</button>
       </div>
 
       <!-- 时长设置 -->
@@ -64,13 +43,13 @@
           <button class="btn btn-preset" @click="setDuration(180)">3分钟</button>
           <button class="btn btn-preset" @click="setDuration(300)">5分钟</button>
         </div>
-        
+
         <div class="custom-duration">
           <label for="customDuration">自定义时长（秒）:</label>
-          <input 
+          <input
             id="customDuration"
-            v-model.number="customDuration" 
-            type="number" 
+            v-model.number="customDuration"
+            type="number"
             min="1"
             max="3600"
             class="duration-input"
@@ -83,17 +62,11 @@
       <div class="log-section">
         <h3>事件日志</h3>
         <div class="log-container">
-          <div 
-            v-for="(log, index) in logs" 
-            :key="index" 
-            class="log-item"
-          >
+          <div v-for="(log, index) in logs" :key="index" class="log-item">
             <span class="log-time">{{ log.time }}</span>
             <span class="log-message">{{ log.message }}</span>
           </div>
-          <div v-if="logs.length === 0" class="log-empty">
-            暂无日志记录
-          </div>
+          <div v-if="logs.length === 0" class="log-empty">暂无日志记录</div>
         </div>
       </div>
     </div>
@@ -135,7 +108,7 @@ const addLog = (message: string) => {
   const now = new Date();
   const time = now.toLocaleTimeString('zh-CN');
   logs.value.unshift({ time, message });
-  
+
   // 只保留最近 20 条日志
   if (logs.value.length > 20) {
     logs.value.pop();

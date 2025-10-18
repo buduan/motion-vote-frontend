@@ -1,9 +1,11 @@
-import axios, { type AxiosInstance, type AxiosRequestConfig, type AxiosResponse } from 'axios';
+import axios, {
+  type AxiosInstance,
+  type AxiosRequestConfig,
+  type AxiosResponse,
+  type AxiosRequestHeaders,
+} from 'axios';
 import type { ApiResponse, ErrorResponse } from '@/types/api';
-
-// 调试：打印环境变量
-console.log('🔧 API Base URL:', import.meta.env.VITE_API_BASE_URL);
-console.log('🔧 All ENV:', import.meta.env);
+import toast from '@/utils/toast';
 
 // 创建axios实例
 const http: AxiosInstance = axios.create({
@@ -18,9 +20,12 @@ const http: AxiosInstance = axios.create({
 http.interceptors.request.use(
   config => {
     // 从localStorage获取token
-    const token = localStorage.getItem('token');
+    // The app stores token as 'auth_token' (auth store). Keep backwards compatibility with 'token'.
+    const token = localStorage.getItem('auth_token') || localStorage.getItem('token');
     if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+      // ensure headers object exists and set Authorization
+      if (!config.headers) config.headers = {} as AxiosRequestHeaders;
+      (config.headers as AxiosRequestHeaders).Authorization = `Bearer ${token}`;
     }
     return config;
   },
@@ -36,17 +41,32 @@ http.interceptors.response.use(
   },
   error => {
     // 处理401未授权错误
-    if (error.response?.status === 401) {
-      // 清除token
+    const status = error.response?.status;
+    const message = error.response?.data?.message || error.message || '请求失败';
+
+    if (status === 401) {
+      // 清除 known token keys
+      localStorage.removeItem('auth_token');
       localStorage.removeItem('token');
       // 跳转到登录页面
       window.location.href = '/auth/login';
     }
 
-    // 处理其他错误
+    // 在开发模式下，把错误打印到控制台并提示 toast，便于调试
+    try {
+      if (import.meta.env.DEV) {
+        // eslint-disable-next-line no-console
+        console.error('[HTTP Error]', { status, message, details: error.response?.data });
+        toast.error(message);
+      }
+    } catch {
+      // ignore
+    }
+
+    // 处理其他错误，返回统一格式
     const errorResponse: ErrorResponse = {
       success: false,
-      message: error.response?.data?.message || error.message || '请求失败',
+      message,
       timestamp: new Date().toISOString(),
       error: error.response?.data?.error,
     };
@@ -57,27 +77,27 @@ http.interceptors.response.use(
 
 // 封装请求方法
 export class HttpClient {
-  static async get<T = any>(url: string, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
+  static async get<T = unknown>(url: string, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
     const response = await http.get<ApiResponse<T>>(url, config);
     return response.data;
   }
 
-  static async post<T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
-    const response = await http.post<ApiResponse<T>>(url, data, config);
+  static async post<T = unknown>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
+    const response = await http.post<ApiResponse<T>>(url, data as unknown, config);
     return response.data;
   }
 
-  static async put<T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
-    const response = await http.put<ApiResponse<T>>(url, data, config);
+  static async put<T = unknown>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
+    const response = await http.put<ApiResponse<T>>(url, data as unknown, config);
     return response.data;
   }
 
-  static async patch<T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
-    const response = await http.patch<ApiResponse<T>>(url, data, config);
+  static async patch<T = unknown>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
+    const response = await http.patch<ApiResponse<T>>(url, data as unknown, config);
     return response.data;
   }
 
-  static async delete<T = any>(url: string, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
+  static async delete<T = unknown>(url: string, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
     const response = await http.delete<ApiResponse<T>>(url, config);
     return response.data;
   }
