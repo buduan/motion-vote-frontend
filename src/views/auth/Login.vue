@@ -302,7 +302,9 @@ const handleLogin = async () => {
   isLoading.value = false;
 
   if (result.success) {
-    router.push('/');
+    // 登录成功后跳转到 admin 页面
+    const redirect = (router.currentRoute.value.query.redirect as string) || '/admin';
+    router.push(redirect);
   } else {
     toast.error(result.message || 'Login failed');
   }
@@ -363,9 +365,10 @@ const checkTokenExpiry = () => {
 
 // 生命周期
 onMounted(() => {
-  // 如果已经登录，跳转到首页
+  // 如果已经登录，跳转到 admin 页面
   if (authStore.isAuthenticated) {
-    router.push('/');
+    const redirect = (router.currentRoute.value.query.redirect as string) || '/admin';
+    router.push(redirect);
   }
 
   // 定期检查Token状态
@@ -386,7 +389,8 @@ watch(
   () => authStore.isAuthenticated,
   newVal => {
     if (newVal) {
-      router.push('/');
+      const redirect = (router.currentRoute.value.query.redirect as string) || '/admin';
+      router.push(redirect);
     }
   },
 );

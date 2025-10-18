@@ -18,7 +18,7 @@
         </li>
         <li>
           <details>
-            <summary>
+            <summary class="flex items-center">
               <div class="avatar avatar-placeholder">
                 <div class="w-8 mask mask-squircle bg-neutral text-neutral-content">
                   <span class="text-xs">{{ userInitials }}</span>

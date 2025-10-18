@@ -1,132 +1,86 @@
-import { useToast, type PluginOptions, POSITION } from 'vue-toastification';
-
 /**
- * Toast notification utility with vue-toastification
- * Automatically adapts to current daisyUI theme
+ * Toast notification utilities using vue-sonner
+ * 统一的通知系统，基于 vue-sonner
  */
 
-// Get toast instance
-const toast = useToast();
+import { toast as sonnerToast } from 'vue-sonner';
 
-class ToastService {
-  /**
-   * 显示成功提示
-   */
-  success(message: string) {
-    toast.success(message, {
-      position: POSITION.TOP_RIGHT,
-      timeout: 3000,
-      closeOnClick: true,
-      pauseOnFocusLoss: true,
-      pauseOnHover: true,
-      draggable: true,
-      draggablePercent: 0.6,
-      showCloseButtonOnHover: false,
-      hideProgressBar: false,
-      closeButton: 'button',
-      icon: true,
-      rtl: false,
-    });
-  }
-
-  /**
-   * 显示错误提示
-   */
-  error(message: string) {
-    toast.error(message, {
-      position: POSITION.TOP_RIGHT,
-      timeout: 5000,
-      closeOnClick: true,
-      pauseOnFocusLoss: true,
-      pauseOnHover: true,
-      draggable: true,
-      draggablePercent: 0.6,
-      showCloseButtonOnHover: false,
-      hideProgressBar: false,
-      closeButton: 'button',
-      icon: true,
-      rtl: false,
-    });
-  }
-
-  /**
-   * 显示信息提示
-   */
-  info(message: string) {
-    toast.info(message, {
-      position: POSITION.TOP_RIGHT,
-      timeout: 3000,
-      closeOnClick: true,
-      pauseOnFocusLoss: true,
-      pauseOnHover: true,
-      draggable: true,
-      draggablePercent: 0.6,
-      showCloseButtonOnHover: false,
-      hideProgressBar: false,
-      closeButton: 'button',
-      icon: true,
-      rtl: false,
-    });
-  }
-
-  /**
-   * 显示警告提示
-   */
-  warning(message: string) {
-    toast.warning(message, {
-      position: POSITION.TOP_RIGHT,
-      timeout: 4000,
-      closeOnClick: true,
-      pauseOnFocusLoss: true,
-      pauseOnHover: true,
-      draggable: true,
-      draggablePercent: 0.6,
-      showCloseButtonOnHover: false,
-      hideProgressBar: false,
-      closeButton: 'button',
-      icon: true,
-      rtl: false,
-    });
-  }
-
-  /**
-   * 确认对话框
-   * Note: vue-toastification doesn't have built-in confirm dialog
-   * Using native confirm for now, can be replaced with a modal component
-   */
-  confirm(message: string): boolean {
-    return confirm(message);
-  }
+/**
+ * Success toast notification
+ */
+function success(message: string, duration?: number) {
+  sonnerToast.success(message, {
+    duration: duration ?? 3000,
+  });
 }
 
-export const toastService = new ToastService();
+/**
+ * Error toast notification
+ */
+function error(message: string, duration?: number) {
+  sonnerToast.error(message, {
+    duration: duration ?? 5000,
+  });
+}
 
-export default toastService;
+/**
+ * Info toast notification
+ */
+function info(message: string, duration?: number) {
+  sonnerToast.info(message, {
+    duration: duration ?? 3000,
+  });
+}
 
-// Export toast options for main.ts configuration
-export const getToastOptions = (): PluginOptions => {
-  return {
-    position: POSITION.TOP_RIGHT,
-    timeout: 3000,
-    closeOnClick: true,
-    pauseOnFocusLoss: true,
-    pauseOnHover: true,
-    draggable: true,
-    draggablePercent: 0.6,
-    showCloseButtonOnHover: false,
-    hideProgressBar: false,
-    closeButton: 'button',
-    icon: true,
-    rtl: false,
-    transition: 'Vue-Toastification__fade',
-    maxToasts: 5,
-    newestOnTop: true,
-    filterBeforeCreate: (toast, toasts) => {
-      // Prevent duplicate toasts with same message
-      if (toasts.filter(t => t.content === toast.content).length !== 0) {
-        return false;
-      }
-      return toast;
-    },
-  };
+/**
+ * Warning toast notification
+ */
+function warning(message: string, duration?: number) {
+  sonnerToast.warning(message, {
+    duration: duration ?? 4000,
+  });
+}
+
+/**
+ * Loading toast notification
+ * Returns a dismiss function
+ */
+function loading(message: string) {
+  const toastId = sonnerToast.loading(message);
+  return () => sonnerToast.dismiss(toastId);
+}
+
+/**
+ * Promise toast notification
+ * Shows loading state and auto-updates on success/error
+ */
+function promise<T>(
+  promiseToResolve: Promise<T>,
+  messages: {
+    loading: string;
+    success: string | ((data: T) => string);
+    error: string | ((error: Error) => string);
+  },
+) {
+  return sonnerToast.promise(promiseToResolve, messages);
+}
+
+/**
+ * Confirmation dialog (using native confirm for now)
+ * Can be upgraded to a custom modal component later
+ */
+function confirm(message: string): boolean {
+  return window.confirm(message);
+}
+
+const toast = {
+  success,
+  error,
+  info,
+  warning,
+  loading,
+  promise,
+  confirm,
 };
+
+export default toast;

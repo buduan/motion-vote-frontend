@@ -12,6 +12,7 @@
       </div>
     </div>
   </Transition>
+
   <!-- Logo -->
   <div class="absolute top-4 left-4 h-12 w-auto">
     <img src="@/assets/logo.jpg" alt="Logo" class="w-16 h-16" />
@@ -21,14 +22,16 @@
     class="p-16 flex flex-col h-screen"
     :class="{
       'items-center align-center text-center': selectedOption === 'topic',
-      'items-start': selectedOption === 'pros' || selectedOption === 'cons' || selectedOption === 'both',
+      'items-start': selectedOption === 'pro' || selectedOption === 'con' || selectedOption === 'both',
       'justify-center': selectedOption === 'topic',
-      'justify-start': selectedOption === 'pros' || selectedOption === 'cons' || selectedOption === 'both',
+      'justify-start': selectedOption === 'pro' || selectedOption === 'con' || selectedOption === 'both',
     }"
   >
     <!-- Debate Topic -->
     <div class="w-full mt-4" :class="{ 'h-3/5 overflow-hidden': selectedOption !== 'topic' }">
-      <h3 v-if="selectedOption === 'topic'" class="text-4xl/[1.5] font-bold mb-4">这里是活动名称</h3>
+      <h3 v-if="selectedOption === 'topic'" class="text-4xl/[1.5] font-bold mb-4">
+        {{ activityName || '加载中...' }}
+      </h3>
       <h1
         class="text-9xl/[1.5] font-black mb-4"
         :class="
@@ -37,36 +40,87 @@
             : ''
         "
       >
-        电影解说丰富/消解了艺术价值
+        {{ debateTitle || '等待辩题...' }}
       </h1>
     </div>
 
-    <!-- Vote -->
-    <div v-if="selectedOption !== 'topic'" class="w-full">
-      <div class="w-full flex justify-between">
-        <h2 class="text-8xl/[1.5] font-black mb-4">
-          {{ selectedOption === 'pro' ? '正方' : '反方' }}
-        </h2>
-        <h2
-          class="text-8xl/[1.5] font-bold mb-4 font-number"
-          :class="selectedOption === 'pro' ? 'text-blue-500' : 'text-red-500'"
-        >
-          90.0%
-        </h2>
+    <!-- Vote Statistics -->
+    <div v-if="selectedOption !== 'topic' && currentDebateStats" class="w-full">
+      <!-- Pro Side -->
+      <div v-if="selectedOption === 'pro' || selectedOption === 'both'" class="w-full mb-8">
+        <div class="w-full flex justify-between">
+          <h2 class="text-8xl/[1.5] font-black mb-4">正方</h2>
+          <h2 class="text-8xl/[1.5] font-bold mb-4 font-number text-blue-500">
+            {{ currentDebateStats.proPercentage.toFixed(1) }}%
+          </h2>
+        </div>
+        <VoteBar side="pro" :percent="currentDebateStats.proPercentage" class="w-full h-16" />
+        <p class="text-2xl mt-2 text-gray-500">{{ currentDebateStats.proVotes }} 票</p>
       </div>
-      <VoteBar :side="selectedOption" :percent="90" class="w-full h-16" />
+
+      <!-- Con Side -->
+      <div v-if="selectedOption === 'con' || selectedOption === 'both'" class="w-full">
+        <div class="w-full flex justify-between">
+          <h2 class="text-8xl/[1.5] font-black mb-4">反方</h2>
+          <h2 class="text-8xl/[1.5] font-bold mb-4 font-number text-red-500">
+            {{ currentDebateStats.conPercentage.toFixed(1) }}%
+          </h2>
+        </div>
+        <VoteBar side="con" :percent="currentDebateStats.conPercentage" class="w-full h-16" />
+        <p class="text-2xl mt-2 text-gray-500">{{ currentDebateStats.conVotes }} 票</p>
+      </div>
+
+      <!-- Total Votes Info -->
+      <div v-if="selectedOption === 'both'" class="w-full mt-4 text-center">
+        <p class="text-xl text-gray-400">
+          总投票数: {{ currentDebateStats.totalVotes }} | 弃权: {{ currentDebateStats.abstainVotes }}
+        </p>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div v-if="!currentDebateStats && selectedOption !== 'topic'" class="w-full text-center">
+      <p class="text-3xl text-gray-400">等待投票数据...</p>
     </div>
   </div>
+
+  <!-- Connection Status - Bottom Right Corner -->
+  <Transition name="fade">
+    <div v-if="showConnectionStatus" class="fixed bottom-4 right-4 z-50">
+      <div class="badge" :class="isConnected ? 'badge-success' : 'badge-error'">
+        {{ isConnected ? '已连接' : '未连接' }}
+      </div>
+    </div>
+  </Transition>
 </template>
 
 <script setup lang="ts">
 // 大屏展示页面
-import { ref, watch } from 'vue';
+import { ref, watch, computed, onMounted, onUnmounted } from 'vue';
+import { useRoute } from 'vue-router';
 import { useMouse } from '@vueuse/core';
+import { useScreenSocket } from '@/composables/useScreenSocket';
 import VoteBar from '@/components/screen/voteBar.vue';
 
+const route = useRoute();
 const selectedOption = ref('topic');
 const showSelector = ref(false);
+
+// 获取 activityId（从路由参数或使用默认值）
+const activityId = computed(() => {
+  return (route.params.activityId as string) || '';
+});
+
+// WebSocket 连接
+const { statistics, isConnected, showConnectionStatus, connect, disconnect } = useScreenSocket({
+  activityId: activityId.value,
+  autoConnect: false,
+});
+
+// 从统计数据中提取信息
+const activityName = computed(() => statistics.value?.data?.activityName || '');
+const debateTitle = computed(() => statistics.value?.data?.currentDebate?.title || '等待辩题...');
+const currentDebateStats = computed(() => statistics.value?.data?.currentDebateStats);
 
 // 使用VueUse的useMouse钩子获取鼠标位置
 const { x, y } = useMouse();
@@ -88,6 +142,18 @@ watch([x, y], () => {
   hideTimer = setTimeout(() => {
     showSelector.value = false;
   }, 3000);
+});
+
+// 组件挂载时连接 WebSocket
+onMounted(() => {
+  if (activityId.value) {
+    connect();
+  }
+});
+
+// 组件卸载时断开连接
+onUnmounted(() => {
+  disconnect();
 });
 </script>
 

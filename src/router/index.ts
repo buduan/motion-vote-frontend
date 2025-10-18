@@ -168,6 +168,12 @@ const router = createRouter({
 router.beforeEach((to, _from, next) => {
   const authStore = useAuthStore();
 
+  // 如果已登录且访问登录页，重定向到 admin
+  if (to.name === 'login' && authStore.isAuthenticated) {
+    next({ name: 'admin-dashboard' });
+    return;
+  }
+
   // 检查是否需要认证
   if (to.matched.some(record => record.meta.requiresAuth)) {
     if (!authStore.isAuthenticated) {
