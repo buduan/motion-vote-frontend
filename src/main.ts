@@ -15,7 +15,7 @@ app.use(router);
 // Register Toaster component globally
 app.component('Toaster', Toaster);
 
-// 初始化auth store，恢复认证状态
+// Initialize auth store, restore authentication state
 const authStore = useAuthStore();
 authStore.init();
 

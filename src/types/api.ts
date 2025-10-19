@@ -1,4 +1,4 @@
-// API 响应基础类型
+// API response base type
 export interface ApiResponse<T = unknown> {
   success: boolean;
   message: string;
@@ -13,7 +13,7 @@ export interface ErrorResponse {
   error?: string;
 }
 
-// 分页响应类型
+// Paginated response type
 export interface PaginatedResponse<T> {
   items: T[];
   total: number;
@@ -22,7 +22,7 @@ export interface PaginatedResponse<T> {
   totalPages: number;
 }
 
-// 用户相关类型
+// User related types
 export interface User {
   id: string;
   email: string;
@@ -73,7 +73,7 @@ export interface RefreshTokenResponse {
   token: string;
 }
 
-// 活动相关类型
+// Activity related types
 export interface Activity {
   id: string;
   title: string;
@@ -103,7 +103,7 @@ export interface CreateActivityRequest {
   maxParticipants?: number;
 }
 
-// 辩题相关类型
+// Debate related types
 export interface Debate {
   id: string;
   title: string;
@@ -127,7 +127,7 @@ export interface CreateDebateRequest {
   order?: number;
 }
 
-// 协作者相关类型
+// Collaborator related types
 export interface Collaborator {
   id: string;
   userId: string;
@@ -144,7 +144,7 @@ export interface InviteCollaboratorRequest {
   permissions: ('view' | 'edit' | 'control')[];
 }
 
-// 参与者相关类型
+// Participant related types
 export interface Participant {
   id: string;
   participantNumber: string;
@@ -159,7 +159,7 @@ export interface CreateParticipantsRequest {
   prefix?: string;
 }
 
-// 投票相关类型
+// Vote related types
 export interface Vote {
   id: string;
   participantId: string;
@@ -211,7 +211,7 @@ export interface VoteHistoryItem {
   abstainCount: number;
 }
 
-// 大屏展示相关类型
+// Screen display related types
 export interface ScreenConfig {
   activityId: string;
   currentDebateId?: string;
@@ -230,7 +230,7 @@ export interface ScreenData {
   config: ScreenConfig;
 }
 
-// 统计相关类型
+// Statistics related types
 export interface DashboardData {
   totalParticipants: number;
   activeParticipants: number;
@@ -264,7 +264,7 @@ export interface ActivityReport {
   }>;
 }
 
-// 站点信息类型
+// Site info types
 export interface SiteInfo {
   title: string;
   description: string;
@@ -275,7 +275,7 @@ export interface SiteInfo {
   footerText?: string;
 }
 
-// 查询参数类型
+// Query parameter types
 export interface PaginationParams {
   page?: number;
   limit?: number;

@@ -7,7 +7,7 @@ import Home from '@/views/Home.vue';
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
-    // 默认布局路由 - 用于首页、大屏展示、观众页面
+    // Default layout routes - for home page, screen display, audience page
     {
       path: '/',
       component: DefaultLayout,
@@ -49,7 +49,7 @@ const router = createRouter({
         },
       ],
     },
-    // 认证相关路由
+    // Authentication related routes
     {
       path: '/auth',
       children: [
@@ -65,7 +65,7 @@ const router = createRouter({
         },
       ],
     },
-    // 管理后台布局路由
+    // Admin backend layout routes
     {
       path: '/admin',
       component: AdminLayout,
@@ -76,10 +76,10 @@ const router = createRouter({
           name: 'admin-dashboard',
           component: () => import('@/views/admin/Dashboard.vue'),
         },
-        // 活动管理
+        // Activity management
         {
           path: 'activities',
-          name: 'admin-activities',
+          name: 'activities',
           component: () => import('@/views/admin/Activities.vue'),
         },
         {
@@ -97,10 +97,10 @@ const router = createRouter({
           name: 'admin-activities-edit',
           component: () => import('@/views/admin/ActivityEdit.vue'),
         },
-        // 辩题管理
+        // Debate management
         {
           path: 'debates',
-          name: 'admin-debates',
+          name: 'debates',
           component: () => import('@/views/admin/Debates.vue'),
         },
         {
@@ -118,10 +118,10 @@ const router = createRouter({
           name: 'admin-debates-edit',
           component: () => import('@/views/admin/DebateEdit.vue'),
         },
-        // 参与者管理
+        // Participant management
         {
           path: 'participants',
-          name: 'admin-participants',
+          name: 'participants',
           component: () => import('@/views/admin/Participants.vue'),
         },
         // 投票管理
@@ -136,22 +136,22 @@ const router = createRouter({
           name: 'admin-users',
           component: () => import('@/views/admin/Users.vue'),
         },
-        // 协作者管理
+        // Collaborator management
         {
           path: 'collaborators',
-          name: 'admin-collaborators',
+          name: 'collaborators',
           component: () => import('@/views/admin/Collaborators.vue'),
         },
-        // 大屏控制
+        // Screen control
         {
           path: 'screen-control',
-          name: 'admin-screen-control',
+          name: 'screen-control',
           component: () => import('@/views/admin/ScreenControl.vue'),
         },
-        // 统计报告
+        // Statistics reports
         {
           path: 'statistics',
-          name: 'admin-statistics',
+          name: 'statistics',
           component: () => import('@/views/admin/Statistics.vue'),
         },
         {
@@ -164,20 +164,20 @@ const router = createRouter({
   ],
 });
 
-// 路由守卫
+// Route guards
 router.beforeEach((to, _from, next) => {
   const authStore = useAuthStore();
 
-  // 如果已登录且访问登录页，重定向到 admin
+  // If already logged in and accessing login page, redirect to admin
   if (to.name === 'login' && authStore.isAuthenticated) {
     next({ name: 'admin-dashboard' });
     return;
   }
 
-  // 检查是否需要认证
+  // Check if authentication is required
   if (to.matched.some(record => record.meta.requiresAuth)) {
     if (!authStore.isAuthenticated) {
-      // 未登录，跳转到登录页
+      // Not logged in, redirect to login page
       next({
         name: 'login',
         query: { redirect: to.fullPath },

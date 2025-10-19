@@ -125,7 +125,7 @@ const router = useRouter();
 
 // Helper function to extract number from message and convert to English
 const extractWaitTimeMessage = (message: string): string => {
-  // Match patterns like "请等待60秒" or "wait 60 seconds" or "60秒后重试"
+  // Match patterns like "Please wait 60 seconds" or "wait 60 seconds" or "retry after 60 seconds"
   const numberMatch = message.match(/(\d+)/);
   if (numberMatch) {
     const seconds = numberMatch[1];
@@ -138,7 +138,7 @@ const extractWaitTimeMessage = (message: string): string => {
   return message;
 };
 
-// 表单数据
+// Form data
 const form = ref({
   email: '',
   code: '',
@@ -149,12 +149,12 @@ const form = ref({
 const confirmPassword = ref('');
 const isLoading = ref(false);
 
-// 验证码相关
+// Verification code related
 const codeCooldown = ref(0);
 const codeCooldownTimer = ref<ReturnType<typeof setInterval> | null>(null);
 const isSendingCode = ref(false);
 
-// 计算属性
+// Computed properties
 const canSendCode = computed(() => {
   return form.value.email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.value.email);
 });
@@ -224,11 +224,11 @@ const handleSendCode = async () => {
   } catch (error: unknown) {
     dismissLoading();
 
-    // 处理不同的错误类型
+    // Handle different error types
     let errorMessage = 'Failed to send verification code';
 
     if (error && typeof error === 'object') {
-      // 检查是否是 422 错误（验证错误）
+      // Check if it's a 422 error (validation error)
       if ('response' in error) {
         const axiosError = error as { response?: { status?: number; data?: { message?: string } } };
         if (axiosError.response?.status === 422) {

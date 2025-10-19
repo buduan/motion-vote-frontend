@@ -189,7 +189,7 @@ const authStore = useAuthStore();
 
 // Helper function to extract number from message and convert to English
 const extractWaitTimeMessage = (message: string): string => {
-  // Match patterns like "请等待60秒" or "wait 60 seconds" or "60秒后重试"
+  // Match patterns like "Please wait 60 seconds" or "wait 60 seconds" or "retry after 60 seconds"
   const numberMatch = message.match(/(\d+)/);
   if (numberMatch) {
     const seconds = numberMatch[1];
@@ -202,16 +202,16 @@ const extractWaitTimeMessage = (message: string): string => {
   return message;
 };
 
-// Tab状态
+// Tab state
 const activeTab = ref<'login' | 'register'>('login');
 
-// 登录表单
+// Login form
 const loginForm = ref({
   email: '',
   password: '',
 });
 
-// 注册表单
+// Register form
 const registerForm = ref({
   name: '',
   email: '',
@@ -224,16 +224,16 @@ const confirmPassword = ref('');
 const agreeTerms = ref(false);
 const isLoading = ref(false);
 
-// 验证码相关
+// Verification code related
 const codeCooldown = ref(0);
 const codeCooldownTimer = ref<ReturnType<typeof setInterval> | null>(null);
 const isSendingCode = ref(false);
 
-// Token刷新对话框
+// Token refresh dialog
 const refreshDialog = ref<HTMLDialogElement | null>(null);
 const tokenCheckTimer = ref<ReturnType<typeof setInterval> | null>(null);
 
-// 计算属性
+// Computed properties
 const canSendCode = computed(() => {
   return registerForm.value.email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(registerForm.value.email);
 });
@@ -307,11 +307,11 @@ const handleSendCode = async (type: 'register' | 'forgot') => {
   } catch (error: unknown) {
     dismissLoading();
 
-    // 处理不同的错误类型
+    // Handle different error types
     let errorMessage = 'Failed to send verification code';
 
     if (error && typeof error === 'object') {
-      // 检查是否是 422 错误（验证错误）
+      // Check if it's a 422 error (validation error)
       if ('response' in error) {
         const axiosError = error as { response?: { status?: number; data?: { message?: string } } };
         if (axiosError.response?.status === 422) {
@@ -345,7 +345,7 @@ const handleLogin = async () => {
   isLoading.value = false;
 
   if (result.success) {
-    // 登录成功后跳转到 admin 页面
+    // Redirect to admin page after successful login
     const redirect = (router.currentRoute.value.query.redirect as string) || '/admin';
     router.push(redirect);
   } else {
@@ -406,16 +406,16 @@ const checkTokenExpiry = () => {
   }
 };
 
-// 生命周期
+// Lifecycle
 onMounted(() => {
-  // 如果已经登录，跳转到 admin 页面
+  // If already logged in, redirect to admin page
   if (authStore.isAuthenticated) {
-    const redirect = (router.currentRoute.value.query.redirect as string) || '/admin';
-    router.push(redirect);
+    router.push('/admin');
+    return;
   }
 
-  // 定期检查Token状态
-  tokenCheckTimer.value = setInterval(checkTokenExpiry, 30000); // 每30秒检查一次
+  // Periodically check token status
+  tokenCheckTimer.value = setInterval(checkTokenExpiry, 30000); // Check every 30 seconds
 });
 
 onUnmounted(() => {
@@ -427,7 +427,7 @@ onUnmounted(() => {
   }
 });
 
-// 监听认证状态变化
+// Listen for authentication state changes
 watch(
   () => authStore.isAuthenticated,
   newVal => {
