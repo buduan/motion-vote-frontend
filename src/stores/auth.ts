@@ -75,8 +75,24 @@ export const useAuthStore = defineStore('auth', () => {
       }
       return { success: false, message: response.message || '登录失败' };
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : '登录失败';
-      return { success: false, message: message || '登录失败' };
+      // 从错误响应中提取消息
+      let message = '登录失败';
+
+      // 检查是否是 401 错误（密码错误）
+      if (error && typeof error === 'object' && 'response' in error) {
+        const axiosError = error as { response?: { status?: number; data?: { message?: string } } };
+        if (axiosError.response?.status === 401) {
+          message = '邮箱或密码错误，请检查后重试';
+        } else if (axiosError.response?.data?.message) {
+          message = axiosError.response.data.message;
+        }
+      } else if (error && typeof error === 'object' && 'message' in error) {
+        message = (error as { message: string }).message;
+      } else if (error instanceof Error) {
+        message = error.message;
+      }
+
+      return { success: false, message };
     } finally {
       isLoading.value = false;
     }

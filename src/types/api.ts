@@ -169,10 +169,17 @@ export interface Vote {
   updatedAt: string;
 }
 
+export interface ParticipantEnterResponse {
+  sessionToken: string;
+  participant: {
+    id: string;
+    code: string;
+    activityId: string;
+  };
+}
+
 export interface VoteRequest {
-  activityId: string;
-  participantNumber: string;
-  debateId: string;
+  sessionToken: string;
   position: 'pro' | 'con' | 'abstain';
 }
 

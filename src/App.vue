@@ -1,4 +1,4 @@
 <template>
   <router-view></router-view>
-  <Toaster position="top-right" :duration="3000" rich-colors />
+  <Toaster position="top-center" :duration="4000" rich-colors :close-button="true" :expand="true" :visible-toasts="5" />
 </template>

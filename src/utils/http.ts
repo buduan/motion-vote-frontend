@@ -5,7 +5,6 @@ import axios, {
   type AxiosRequestHeaders,
 } from 'axios';
 import type { ApiResponse, ErrorResponse } from '@/types/api';
-import toast from '@/utils/toast';
 
 // 创建axios实例
 const http: AxiosInstance = axios.create({
@@ -49,19 +48,15 @@ http.interceptors.response.use(
       localStorage.removeItem('auth_token');
       localStorage.removeItem('token');
       // 跳转到登录页面
-      window.location.href = '/auth/login';
+      // window.location.href = '/auth/login';
+      return Promise.reject(error);
     }
 
-    // 在开发模式下，把错误打印到控制台并提示 toast，便于调试
-    try {
-      if (import.meta.env.DEV) {
-        // eslint-disable-next-line no-console
-        console.error('[HTTP Error]', { status, message, details: error.response?.data });
-        toast.error(message);
-      }
-    } catch {
-      // ignore
-    }
+    // 在开发模式下，把错误打印到控制台
+    // if (import.meta.env.DEV) {
+    //   // eslint-disable-next-line no-console
+    //   console.error('[HTTP Error]', { status, message, details: error.response?.data });
+    // }
 
     // 处理其他错误，返回统一格式
     const errorResponse: ErrorResponse = {
