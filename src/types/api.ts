@@ -135,8 +135,6 @@ export interface Collaborator {
   activityId: string;
   permissions: ('view' | 'edit' | 'control')[];
   invitedAt: string;
-  acceptedAt?: string;
-  status: 'pending' | 'accepted' | 'declined';
 }
 
 export interface InviteCollaboratorRequest {
