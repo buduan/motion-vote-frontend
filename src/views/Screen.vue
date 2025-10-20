@@ -14,7 +14,11 @@
   </Transition>
 
   <!-- Logo -->
-  <div class="absolute top-4 left-4 h-12 w-auto">
+  <div 
+    class="absolute h-12 w-auto transition-all duration-300"
+    :class="isLogoFlying ? '' : 'top-4 left-4'"
+    :style="isLogoFlying ? { top: logoPosition.y + 'px', left: logoPosition.x + 'px' } : {}"
+  >
     <img src="@/assets/logo.jpg" alt="Logo" class="w-16 h-16" />
   </div>
 
@@ -108,6 +112,12 @@ const route = useRoute();
 const selectedOption = ref('topic');
 const showSelector = ref(false);
 
+// Easter Egg: Logo flying animation
+const keySequence = ref('');
+const isLogoFlying = ref(false);
+const logoPosition = ref({ x: 16, y: 16 });
+let flyingInterval: number | null = null;
+
 // 获取 activityId（从路由参数或使用默认值）
 const activityId = computed(() => {
   return (route.params.activityId as string) || '';
@@ -146,8 +156,61 @@ watch([x, y], () => {
   }, 3000);
 });
 
+// Easter Egg: 键盘监听
+const handleKeyPress = (event: KeyboardEvent) => {
+  keySequence.value += event.key.toLowerCase();
+  
+  // 保持最近6个字符
+  if (keySequence.value.length > 6) {
+    keySequence.value = keySequence.value.slice(-6);
+  }
+  
+  // 检查是否输入了 "buduan"
+  if (keySequence.value === 'buduan') {
+    toggleLogoFlying();
+    keySequence.value = ''; // 重置序列
+  }
+};
+
+// 切换 logo 飞行状态
+const toggleLogoFlying = () => {
+  isLogoFlying.value = !isLogoFlying.value;
+  
+  if (isLogoFlying.value) {
+    startLogoFlying();
+  } else {
+    stopLogoFlying();
+  }
+};
+
+// 开始 logo 飞行动画
+const startLogoFlying = () => {
+  const windowWidth = window.innerWidth - 64; // 减去 logo 宽度
+  const windowHeight = window.innerHeight - 64; // 减去 logo 高度
+  
+  flyingInterval = window.setInterval(() => {
+    logoPosition.value = {
+      x: Math.random() * windowWidth,
+      y: Math.random() * windowHeight,
+    };
+  }, 500); // 每 500ms 改变一次位置
+};
+
+// 停止 logo 飞行动画
+const stopLogoFlying = () => {
+  if (flyingInterval) {
+    clearInterval(flyingInterval);
+    flyingInterval = null;
+  }
+  // 重置位置
+  logoPosition.value = { x: 16, y: 16 };
+};
+
 // 组件挂载时连接 WebSocket
 onMounted(() => {
+  // 添加键盘事件监听
+  window.addEventListener('keypress', handleKeyPress);
+  
   // 首先调用一次 display 接口以获取初始化数据
   if (activityId.value) {
     ScreenApi.getDisplay(activityId.value)
@@ -178,6 +241,11 @@ onMounted(() => {
 
 // 组件卸载时断开连接
 onUnmounted(() => {
+  // 移除键盘事件监听
+  window.removeEventListener('keypress', handleKeyPress);
+  // 停止飞行动画
+  stopLogoFlying();
+  // 断开 WebSocket
   disconnect();
 });
 </script>
