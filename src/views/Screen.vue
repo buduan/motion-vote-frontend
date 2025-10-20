@@ -101,6 +101,8 @@ import { useRoute } from 'vue-router';
 import { useMouse } from '@vueuse/core';
 import { useScreenWebSocket } from '@/composables/useScreenWebSocket';
 import VoteBar from '@/components/screen/voteBar.vue';
+import { ScreenApi } from '@/api/screen';
+import type { ScreenStatistics } from '@/types/screen';
 
 const route = useRoute();
 const selectedOption = ref('topic');
@@ -146,7 +148,30 @@ watch([x, y], () => {
 
 // 组件挂载时连接 WebSocket
 onMounted(() => {
+  // 首先调用一次 display 接口以获取初始化数据
   if (activityId.value) {
+    ScreenApi.getDisplay(activityId.value)
+      .then(res => {
+        if (res && res.success && res.data) {
+          // 初始化屏幕显示数据
+          statistics.value = {
+            type: 'statistics_update',
+            activity_id: res.data.activityId,
+            data: res.data,
+            timestamp: res.data.timestamp,
+          } as ScreenStatistics;
+
+          // 设置展示文本
+          // 这些是 computed 的源数据，因此我们 don't mutate computed directly; using underlying refs via statistics
+        }
+      })
+      .catch(() => {
+        // ignore initialization errors; WS will still attempt connect
+      })
+      .finally(() => {
+        connect();
+      });
+  } else {
     connect();
   }
 });
