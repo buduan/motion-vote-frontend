@@ -7,29 +7,24 @@ import type { ApiResponse, PaginatedResponse, User, UserListParams, UserUpdateRe
 export class UsersApi {
   /**
    * 获取用户列表
+   * GET /api/users?page=1&limit=20&search=keyword
+   * 注意：此接口直接返回分页数据，不包装在 ApiResponse 中
    */
-  static async getUsers(params?: UserListParams): Promise<ApiResponse<PaginatedResponse<User>>> {
-    return HttpClient.get<PaginatedResponse<User>>('/users', { params });
+  static async getUsers(params?: UserListParams): Promise<PaginatedResponse<User>> {
+    const response = await HttpClient.get<PaginatedResponse<User>>('/users', { params });
+    // 如果后端返回的是 ApiResponse 包装的数据，解包它
+    if (response && 'data' in response && response.data) {
+      return response.data as PaginatedResponse<User>;
+    }
+    // 否则直接返回（假设后端直接返回分页数据）
+    return response as unknown as PaginatedResponse<User>;
   }
 
   /**
-   * 获取用户详情
+   * 更新用户信息
+   * PUT /api/users/profile?id={userId}
    */
-  static async getUserById(id: number): Promise<ApiResponse<User>> {
-    return HttpClient.get<User>(`/users/${id}`);
-  }
-
-  /**
-   * 更新用户状态
-   */
-  static async updateUser(id: number, data: UserUpdateRequest): Promise<ApiResponse<User>> {
-    return HttpClient.patch<User>(`/users/${id}`, data);
-  }
-
-  /**
-   * 删除用户
-   */
-  static async deleteUser(id: number): Promise<ApiResponse<void>> {
-    return HttpClient.delete<void>(`/users/${id}`);
+  static async updateUser(id: string, data: UserUpdateRequest): Promise<ApiResponse<void>> {
+    return HttpClient.put<void>('/users/profile', data, { params: { id } });
   }
 }

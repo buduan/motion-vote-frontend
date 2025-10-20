@@ -27,12 +27,11 @@ export interface User {
   id: string;
   email: string;
   name: string;
-  phone?: string;
-  avatar?: string;
+  phone?: string | null;
+  avatar?: string | null;
   role: 'admin' | 'organizer';
-  status: 'active' | 'inactive';
-  createdAt: string;
-  updatedAt: string;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface LoginRequest {
@@ -286,7 +285,7 @@ export interface UserListParams extends PaginationParams {
 export interface UserUpdateRequest {
   name?: string;
   phone?: string;
-  status?: 'active' | 'inactive';
+  avatar?: string;
   role?: 'admin' | 'organizer';
 }
 
