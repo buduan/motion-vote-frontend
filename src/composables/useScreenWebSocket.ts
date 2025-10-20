@@ -1,19 +1,19 @@
 /**
- * Screen Socket Composable
- * 大屏 Socket 连接的 Vue Composable
+ * Screen WebSocket Composable
+ * 大屏 WebSocket 连接的 Vue Composable（原生 WebSocket）
  */
-import { ref, onMounted, onUnmounted, computed } from 'vue';
-import { getScreenSocketManager, type SocketEventHandlers } from '@/utils/screenSocket';
+import { ref, onMounted, onUnmounted } from 'vue';
+import { getScreenWebSocketManager, type WebSocketEventHandlers } from '@/utils/screenWebSocket';
 import type { ScreenStatistics, VoteUpdate, DebateChange, DebateStatus } from '@/types/screen';
 
-export interface UseScreenSocketOptions {
+export interface UseScreenWebSocketOptions {
   url?: string;
   activityId: string;
   autoConnect?: boolean;
-  handlers?: SocketEventHandlers;
+  handlers?: WebSocketEventHandlers;
 }
 
-export function useScreenSocket(options: UseScreenSocketOptions) {
+export function useScreenWebSocket(options: UseScreenWebSocketOptions) {
   // 从 VITE_API_BASE_URL 中移除 /api 后缀，因为 WebSocket 在根路径
   const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
   const wsUrl = baseUrl.replace(/\/api\/?$/, '');
@@ -33,14 +33,14 @@ export function useScreenSocket(options: UseScreenSocketOptions) {
   const latestDebateChange = ref<DebateChange | null>(null);
   const latestDebateStatus = ref<DebateStatus | null>(null);
 
-  // Socket 管理器
-  const socketManager = getScreenSocketManager({
+  // WebSocket 管理器
+  const wsManager = getScreenWebSocketManager({
     url,
     autoConnect: false,
   });
 
   // 内部事件处理器
-  const internalHandlers: SocketEventHandlers = {
+  const internalHandlers: WebSocketEventHandlers = {
     onConnect: () => {
       isConnected.value = true;
       showConnectionStatus.value = false; // 连接成功，隐藏状态提示
@@ -50,7 +50,7 @@ export function useScreenSocket(options: UseScreenSocketOptions) {
 
       // 加入房间
       if (activityId) {
-        socketManager.joinScreen(activityId);
+        wsManager.joinScreen(activityId);
       }
     },
 
@@ -97,32 +97,36 @@ export function useScreenSocket(options: UseScreenSocketOptions) {
       isLoading.value = true;
       error.value = null;
 
-      socketManager.setHandlers(internalHandlers);
-      socketManager.connect();
-    } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Failed to connect';
-    } finally {
+      wsManager.setHandlers(internalHandlers);
+      wsManager.connect();
+
       isLoading.value = false;
+    } catch (err) {
+      isLoading.value = false;
+      error.value = err instanceof Error ? err.message : 'Failed to connect';
+      showConnectionStatus.value = true;
     }
   };
 
   // 断开连接
   const disconnect = () => {
-    socketManager.disconnect();
-    isConnected.value = false;
+    try {
+      wsManager.leaveScreen();
+      wsManager.disconnect();
+      isConnected.value = false;
+    } catch (err) {
+      error.value = err instanceof Error ? err.message : 'Failed to disconnect';
+    }
   };
 
   // 请求数据
   const requestData = () => {
     if (activityId) {
-      socketManager.requestScreenData(activityId);
+      wsManager.requestScreenData(activityId);
     }
   };
 
-  // 计算属性
-  const socketId = computed(() => socketManager.getSocketId());
-
-  // 生命周期
+  // 生命周期钩子
   onMounted(() => {
     if (autoConnect) {
       connect();
@@ -150,8 +154,5 @@ export function useScreenSocket(options: UseScreenSocketOptions) {
     connect,
     disconnect,
     requestData,
-
-    // 信息
-    socketId,
   };
 }

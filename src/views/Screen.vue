@@ -99,7 +99,7 @@
 import { ref, watch, computed, onMounted, onUnmounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { useMouse } from '@vueuse/core';
-import { useScreenSocket } from '@/composables/useScreenSocket';
+import { useScreenWebSocket } from '@/composables/useScreenWebSocket';
 import VoteBar from '@/components/screen/voteBar.vue';
 
 const route = useRoute();
@@ -112,7 +112,7 @@ const activityId = computed(() => {
 });
 
 // WebSocket 连接
-const { statistics, isConnected, showConnectionStatus, connect, disconnect } = useScreenSocket({
+const { statistics, isConnected, showConnectionStatus, connect, disconnect } = useScreenWebSocket({
   activityId: activityId.value,
   autoConnect: false,
 });
