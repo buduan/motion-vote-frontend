@@ -15,9 +15,13 @@
 
   <!-- Logo -->
   <div 
-    class="absolute h-12 w-auto transition-all duration-300"
+    class="absolute h-12 w-auto logo-flying"
     :class="isLogoFlying ? '' : 'top-4 left-4'"
-    :style="isLogoFlying ? { top: logoPosition.y + 'px', left: logoPosition.x + 'px' } : {}"
+    :style="isLogoFlying ? { 
+      top: logoPosition.y + 'px', 
+      left: logoPosition.x + 'px',
+      transform: `scale(${logoScale})`
+    } : {}"
   >
     <img src="@/assets/logo.jpg" alt="Logo" class="w-16 h-16" />
   </div>
@@ -112,10 +116,11 @@ const route = useRoute();
 const selectedOption = ref('topic');
 const showSelector = ref(false);
 
-// Easter Egg: Logo flying animation
+// 彩蛋: 当在屏幕页面输入 "buduan" 时，logo 会开始飞行
 const keySequence = ref('');
 const isLogoFlying = ref(false);
 const logoPosition = ref({ x: 16, y: 16 });
+const logoScale = ref(1);
 let flyingInterval: number | null = null;
 
 // 获取 activityId（从路由参数或使用默认值）
@@ -193,7 +198,9 @@ const startLogoFlying = () => {
       x: Math.random() * windowWidth,
       y: Math.random() * windowHeight,
     };
-  }, 500); // 每 500ms 改变一次位置
+    // 随机缩放，范围从 0.7 到 2.2 倍
+    logoScale.value = 0.7 + Math.random() * 1.5;
+  }, 300); // 每 300ms 改变一次位置和大小
 };
 
 // 停止 logo 飞行动画
@@ -202,8 +209,9 @@ const stopLogoFlying = () => {
     clearInterval(flyingInterval);
     flyingInterval = null;
   }
-  // 重置位置
+  // 重置位置和大小
   logoPosition.value = { x: 16, y: 16 };
+  logoScale.value = 1;
 };
 
 // 组件挂载时连接 WebSocket
@@ -259,5 +267,13 @@ onUnmounted(() => {
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
+}
+
+.logo-flying {
+  transition: 
+    top 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+    left 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+    transform 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  will-change: top, left, transform;
 }
 </style>
