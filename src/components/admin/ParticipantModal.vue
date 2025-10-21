@@ -3,7 +3,7 @@
     <div class="modal-box max-w-5xl">
       <!-- Modal Header -->
       <div class="flex items-center justify-between mb-4">
-        <h3 class="text-lg font-bold">参与者管理</h3>
+        <h3 class="text-lg font-bold">Participant Management</h3>
         <form method="dialog">
           <button class="btn btn-sm btn-circle btn-ghost">✕</button>
         </form>
@@ -11,11 +11,11 @@
 
       <!-- Action Buttons -->
       <div class="flex gap-2 mb-4">
-        <button class="btn btn-primary btn-sm" @click="showAddForm = !showAddForm">
+        <button class="btn btn-primary btn-sm" @click="showAddForm = true">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
           </svg>
-          添加参与者
+          Add Participant
         </button>
         <label class="btn btn-outline btn-sm">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -61,16 +61,16 @@
         <div class="flex gap-2 mt-4">
           <button class="btn btn-primary btn-sm" :disabled="loading" @click="addParticipant">
             <span v-if="loading" class="loading loading-spinner loading-xs"></span>
-            保存
+            Save
           </button>
-          <button class="btn btn-ghost btn-sm" @click="cancelAdd">取消</button>
+          <button class="btn btn-ghost btn-sm" @click="cancelAdd">Cancel</button>
         </div>
       </div>
 
       <!-- Search and Filter -->
       <div class="flex gap-2 mb-4">
         <label class="input input-sm flex-1">
-          <input v-model="searchQuery" type="text" placeholder="搜索参与者..." class="grow" />
+          <input v-model="searchQuery" type="text" placeholder="Search participants..." class="grow" />
           <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path
               stroke-linecap="round"
@@ -81,9 +81,9 @@
           </svg>
         </label>
         <select v-model="statusFilter" class="select select-sm">
-          <option value="all">全部状态</option>
-          <option value="checked_in">已入场</option>
-          <option value="not_checked_in">未入场</option>
+          <option value="all">All Status</option>
+          <option value="checked_in">Checked In</option>
+          <option value="not_checked_in">Not Checked In</option>
         </select>
       </div>
 
@@ -108,7 +108,7 @@
               </td>
             </tr>
             <tr v-else-if="filteredParticipants.length === 0">
-              <td colspan="7" class="text-center py-8 text-base-content/60">暂无参与者数据</td>
+              <td colspan="7" class="text-center py-8 text-base-content/60">No participant data available</td>
             </tr>
             <tr v-for="participant in paginatedParticipants" v-else :key="participant.id">
               <td>{{ participant.code }}</td>
@@ -234,16 +234,16 @@ const filteredParticipants = computed(() => {
   if (searchQuery.value) {
     const query = searchQuery.value.toLowerCase();
     result = result.filter(
-      (p) =>
+      p =>
         p.code?.toLowerCase().includes(query) ||
         p.name?.toLowerCase().includes(query) ||
-        p.phone?.toLowerCase().includes(query)
+        p.phone?.toLowerCase().includes(query),
     );
   }
 
   // Status filter
   if (statusFilter.value !== 'all') {
-    result = result.filter((p) => {
+    result = result.filter(p => {
       if (statusFilter.value === 'checked_in') return p.checkedIn;
       if (statusFilter.value === 'not_checked_in') return !p.checkedIn;
       return true;
@@ -264,26 +264,26 @@ const totalPages = computed(() => {
 });
 
 const checkedInCount = computed(() => {
-  return participants.value.filter((p) => p.checkedIn).length;
+  return participants.value.filter(p => p.checkedIn).length;
 });
 
 // Methods
 const loadParticipants = async () => {
-  console.log(`[ParticipantModal] Loading participants for activity: ${props.activityId}`);
+  // console.log(`[ParticipantModal] Loading participants for activity: ${props.activityId}`);
   try {
     loading.value = true;
     const response = await ParticipantsApi.getParticipants(props.activityId, {
       limit: 1000, // Get all participants
     });
-    console.log(`[ParticipantModal] API response:`, response);
+    // console.log(`[ParticipantModal] API response:`, response);
     if (response && response.items) {
       participants.value = response.items;
-      console.log(`[ParticipantModal] Loaded ${participants.value.length} participants`);
+      // console.log(`[ParticipantModal] Loaded ${participants.value.length} participants`);
     }
-  } catch (error) {
-    console.error(`[ParticipantModal] Failed to load participants:`, error);
+  } catch {
+    // console.error(`[ParticipantModal] Failed to load participants:`, error);
     toast.error('加载参与者列表失败');
-    console.error('Failed to load participants:', error);
+    // console.error('Failed to load participants:', error);
   } finally {
     loading.value = false;
   }
@@ -299,14 +299,14 @@ const addParticipant = async () => {
     loading.value = true;
     const response = await ParticipantsApi.addParticipant(props.activityId, newParticipant.value);
     if (response) {
-      toast.success('添加参与者成功');
+      toast.success('Participant added successfully');
       await loadParticipants();
       cancelAdd();
       emit('refresh');
     }
-  } catch (error) {
-    toast.error('添加参与者失败');
-    console.error('Failed to add participant:', error);
+  } catch {
+    toast.error('Failed to add participant:');
+    // console.error('Failed to add participant:', error);
   } finally {
     loading.value = false;
   }
@@ -314,20 +314,20 @@ const addParticipant = async () => {
 
 const editParticipant = async (participant: Participant) => {
   const newStatus = participant.status === 'active' ? 'inactive' : 'active';
-  const action = newStatus === 'active' ? '激活' : '停用';
+  const action = newStatus === 'active' ? 'activate' : 'deactivate';
 
-  if (!confirm(`确定要${action}参与者 ${participant.name || participant.code} 吗？`)) {
+  if (!confirm(`Are you sure you want to ${action} participant ${participant.name || participant.code}?`)) {
     return;
   }
 
   try {
     loading.value = true;
     await ParticipantsApi.updateParticipantStatus(props.activityId, participant.id, newStatus);
-    toast.success(`${action}参与者成功`);
+    toast.success(`Participant ${action}d successfully`);
     await loadParticipants();
     emit('refresh');
   } catch (error) {
-    toast.error(`${action}参与者失败`);
+    toast.error(`Failed to ${action} participant`);
     console.error(`Failed to ${action.toLowerCase()} participant:`, error);
   } finally {
     loading.value = false;
@@ -335,7 +335,7 @@ const editParticipant = async (participant: Participant) => {
 };
 
 const deleteParticipant = async (participant: Participant) => {
-  if (!confirm(`确定要删除参与者 ${participant.name || participant.code} 吗？`)) {
+  if (!confirm(`Are you sure you want to delete participant ${participant.name || participant.code}?`)) {
     return;
   }
 
@@ -343,12 +343,12 @@ const deleteParticipant = async (participant: Participant) => {
     loading.value = true;
     const response = await ParticipantsApi.deleteParticipant(props.activityId, participant.id);
     if (response !== undefined) {
-      toast.success('删除参与者成功');
+      toast.success('Participant deleted successfully');
       await loadParticipants();
       emit('refresh');
     }
   } catch (error) {
-    toast.error('删除参与者失败');
+    toast.error('Failed to delete participant');
     console.error('Failed to delete participant:', error);
   } finally {
     loading.value = false;
@@ -366,11 +366,11 @@ const handleFileImport = async (event: Event) => {
     formData.append('file', file);
 
     const response = await ParticipantsApi.batchImport(props.activityId, formData);
-    toast.success(`导入成功: ${response.success} 条，失败: ${response.failed} 条`);
+    toast.success(`Import successful: ${response.success} succeeded, ${response.failed} failed`);
     await loadParticipants();
     emit('refresh');
   } catch (error) {
-    toast.error('批量导入失败');
+    toast.error('Batch import failed');
     console.error('Failed to import participants:', error);
   } finally {
     loading.value = false;
@@ -381,9 +381,9 @@ const handleFileImport = async (event: Event) => {
 const exportParticipants = async () => {
   try {
     window.open(`/api/activities/${props.activityId}/participants/export`, '_blank');
-    toast.success('导出成功');
+    toast.success('Export successful');
   } catch (error) {
-    toast.error('导出失败');
+    toast.error('Export failed');
     console.error('Failed to export participants:', error);
   }
 };
@@ -414,18 +414,23 @@ watch(currentPage, () => {
 });
 
 // Watch for activityId changes
-watch(() => props.activityId, (newActivityId: string, oldActivityId: string) => {
-  if (newActivityId && newActivityId !== oldActivityId) {
-    console.log(`[ParticipantModal] Activity changed from ${oldActivityId} to ${newActivityId}, clearing cache and reloading`);
-    // Clear current data when switching activities
-    participants.value = [];
-    currentPage.value = 1;
-    searchQuery.value = '';
-    statusFilter.value = 'all';
-    showAddForm.value = false;
-    loadParticipants();
-  }
-});
+watch(
+  () => props.activityId,
+  (newActivityId: string, oldActivityId: string) => {
+    if (newActivityId && newActivityId !== oldActivityId) {
+      console.log(
+        `[ParticipantModal] Activity changed from ${oldActivityId} to ${newActivityId}, clearing cache and reloading`,
+      );
+      // Clear current data when switching activities
+      participants.value = [];
+      currentPage.value = 1;
+      searchQuery.value = '';
+      statusFilter.value = 'all';
+      showAddForm.value = false;
+      loadParticipants();
+    }
+  },
+);
 
 // Watch for modal close events
 const modalElement = ref<HTMLDialogElement>();

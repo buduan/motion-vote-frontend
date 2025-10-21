@@ -330,8 +330,8 @@ export interface UserUpdateRequest {
 }
 
 export interface ActivityListParams extends PaginationParams {
-  status?: 'upcoming' | 'ongoing' | 'ended';
-  role?: 'owner' | 'collaborator';
+  status?: 'upcoming' | 'ongoing' | 'ended' | '';
+  role?: 'owner' | 'collaborator' | '';
   search?: string;
 }
 

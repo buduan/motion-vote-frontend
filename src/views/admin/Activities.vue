@@ -184,8 +184,8 @@ const filters = ref<ActivityListParams>({
   page: 1,
   limit: 20,
   search: '',
-  status: undefined,
-  role: undefined,
+  status: '',
+  role: '',
 });
 
 // Debounce timer

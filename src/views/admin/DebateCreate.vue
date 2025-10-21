@@ -1,11 +1,11 @@
 <template>
   <div class="debate-create-page">
-    <h1>创建辩题</h1>
+    <h1>Create Debate</h1>
   </div>
 </template>
 
 <script setup lang="ts">
-// 创建辩题页面
+// Create debate page
 </script>
 
 <style scoped>

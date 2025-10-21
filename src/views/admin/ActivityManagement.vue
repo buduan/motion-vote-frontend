@@ -3,14 +3,14 @@
     <!-- Page Header -->
     <div class="flex items-center justify-between mb-6">
       <div>
-        <h1 class="text-3xl font-bold">活动管理</h1>
-        <p class="text-base-content/70 mt-1">管理您的辩论活动、参与者和辩题</p>
+        <h1 class="text-3xl font-bold">Activity Management</h1>
+        <p class="text-base-content/70 mt-1">Manage your debate activities, participants and debates</p>
       </div>
       <button class="btn btn-primary" @click="createActivity">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
         </svg>
-        创建活动
+        Create Activity
       </button>
     </div>
 
@@ -18,7 +18,7 @@
     <div class="card card-border bg-base-100 p-4 mb-6">
       <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
         <label class="input input-sm">
-          <input v-model="filters.search" type="text" placeholder="搜索活动..." class="grow" />
+          <input v-model="filters.search" type="text" placeholder="Search activities..." class="grow" />
           <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path
               stroke-linecap="round"
@@ -30,16 +30,16 @@
         </label>
 
         <select v-model="filters.status" class="select select-sm">
-          <option value="">全部状态</option>
-          <option value="upcoming">未开始</option>
-          <option value="ongoing">进行中</option>
-          <option value="ended">已结束</option>
+          <option value="">All Status</option>
+          <option value="upcoming">Upcoming</option>
+          <option value="ongoing">Ongoing</option>
+          <option value="ended">Ended</option>
         </select>
 
         <select v-model="filters.role" class="select select-sm">
-          <option value="">全部角色</option>
-          <option value="owner">我创建的</option>
-          <option value="collaborator">我协作的</option>
+          <option value="">All Roles</option>
+          <option value="owner">Created by me</option>
+          <option value="collaborator">Collaborated by me</option>
         </select>
 
         <button class="btn btn-sm btn-outline" @click="resetFilters">
@@ -51,7 +51,7 @@
               d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
             />
           </svg>
-          重置
+          Reset
         </button>
       </div>
     </div>
@@ -94,16 +94,16 @@
           d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
         />
       </svg>
-      <h3 class="text-xl font-semibold mb-2">暂无活动</h3>
-      <p class="text-base-content/60 mb-4">创建您的第一个辩论活动开始使用吧</p>
-      <button class="btn btn-primary" @click="createActivity">创建活动</button>
+      <h3 class="text-xl font-semibold mb-2">No activities yet</h3>
+      <p class="text-base-content/60 mb-4">Create your first debate activity to get started</p>
+      <button class="btn btn-primary" @click="createActivity">Create Activity</button>
     </div>
 
     <!-- Pagination -->
     <div v-if="totalPages > 1" class="flex justify-center mt-6">
       <div class="join">
         <button class="join-item btn btn-sm" :disabled="currentPage === 1" @click="currentPage--">«</button>
-        <button class="join-item btn btn-sm">第 {{ currentPage }} / {{ totalPages }} 页</button>
+        <button class="join-item btn btn-sm">Page {{ currentPage }} / {{ totalPages }}</button>
         <button class="join-item btn btn-sm" :disabled="currentPage === totalPages" @click="currentPage++">»</button>
       </div>
     </div>
@@ -138,7 +138,7 @@
     <!-- Switch Debate Modal -->
     <dialog id="switch-debate-modal" class="modal">
       <div class="modal-box">
-        <h3 class="text-lg font-bold mb-4">切换辩题</h3>
+        <h3 class="text-lg font-bold mb-4">Switch Debate</h3>
         <div class="space-y-2">
           <button
             v-for="debate in currentActivityDebates"
@@ -148,17 +148,17 @@
             @click="switchToDebate(debate.id)"
           >
             <span class="flex-1 text-left">{{ debate.title }}</span>
-            <span v-if="isCurrentDebate(debate.id)" class="badge badge-sm badge-success">当前</span>
+            <span v-if="isCurrentDebate(debate.id)" class="badge badge-sm badge-success">Current</span>
           </button>
         </div>
         <div class="modal-action">
           <form method="dialog">
-            <button class="btn btn-sm">关闭</button>
+            <button class="btn btn-sm">Close</button>
           </form>
         </div>
       </div>
       <form method="dialog" class="modal-backdrop">
-        <button>关闭</button>
+        <button>Close</button>
       </form>
     </dialog>
   </div>
@@ -178,6 +178,15 @@ import toast from '@/utils/toast';
 
 const router = useRouter();
 
+type ActivitiesResponse = {
+  items?: Activity[];
+  total_pages?: number;
+  data?: {
+    items?: Activity[];
+    total_pages?: number;
+  };
+};
+
 // State
 const activities = ref<Activity[]>([]);
 const currentDebates = ref<Map<string, Debate>>(new Map());
@@ -193,8 +202,8 @@ const filters = ref<ActivityListParams>({
   page: 1,
   limit: 20,
   search: '',
-  status: undefined,
-  role: undefined,
+  status: '',
+  role: '',
 });
 
 // Computed
@@ -206,28 +215,26 @@ const isCurrentDebate = (debateId: string) => {
   return selectedActivity.value && getCurrentDebate(selectedActivity.value.id)?.id === debateId;
 };
 
-// Methods
 const loadActivities = async () => {
+  loading.value = true;
   try {
-    loading.value = true;
     const params = {
       ...filters.value,
       page: currentPage.value,
     };
-
     const response = await ActivitiesApi.getActivities(params);
-    if (response.success && response.data) {
-      activities.value = response.data.items;
-      totalPages.value = response.data.totalPages;
+    // Support both shapes: { items, total_pages } or { data: { items, total_pages } }
+    const resp = response as ActivitiesResponse;
+    activities.value = resp.items ?? resp.data?.items ?? [];
+    totalPages.value = resp.total_pages ?? resp.data?.total_pages ?? 1;
 
-      // Load debates for each activity
-      for (const activity of activities.value) {
-        await loadActivityDebates(activity.id);
-      }
+    // Load debates for each activity
+    for (const activity of activities.value) {
+      await loadActivityDebates(activity.id);
     }
-  } catch (error) {
-    toast.error('加载活动列表失败');
-    console.error('Failed to load activities:', error);
+  } catch {
+    toast.error('Failed to load activities');
+    // console.error('Failed to load activities:', error);
   } finally {
     loading.value = false;
   }
@@ -237,15 +244,30 @@ const loadActivityDebates = async (activityId: string) => {
   try {
     const response = await DebatesApi.getDebates(activityId);
     if (response.success && response.data) {
-      allDebates.value.set(activityId, response.data);
+      // response.data might be an array of debates or a paginated object containing items
+      type DebatesResponseData = Debate[] | { items?: Debate[] } | { data?: Debate[] };
+      const data = response.data as DebatesResponseData;
+      let debates: Debate[] = [];
+
+      if (Array.isArray(data)) {
+        debates = data;
+      } else if ('items' in data && data.items) {
+        debates = data.items;
+      } else if ('data' in data && data.data) {
+        debates = data.data;
+      } else {
+        debates = [];
+      }
+
+      allDebates.value.set(activityId, debates);
       // Find current debate (status = 'ongoing')
-      const current = response.data.find((d) => d.status === 'ongoing');
+      const current = debates.find(d => d.status === 'ongoing');
       if (current) {
         currentDebates.value.set(activityId, current);
       }
     }
-  } catch (error) {
-    console.error(`Failed to load debates for activity ${activityId}:`, error);
+  } catch {
+    // console.error(`Failed to load debates for activity ${activityId}:`, error);
   }
 };
 
@@ -273,19 +295,17 @@ const handleEdit = (activity: Activity) => {
 };
 
 const handleDelete = async (activity: Activity) => {
-  if (!confirm(`确定要删除活动 "${activity.name}" 吗？此操作不可恢复。`)) {
+  if (!confirm(`Are you sure you want to delete the activity "${activity.name}"? This action cannot be undone.`)) {
     return;
   }
 
   try {
-    const response = await ActivitiesApi.deleteActivity(activity.id);
-    if (response.success) {
-      toast.success('删除活动成功');
-      await loadActivities();
-    }
-  } catch (error) {
-    toast.error('删除活动失败');
-    console.error('Failed to delete activity:', error);
+    await ActivitiesApi.deleteActivity(activity.id);
+    toast.success('Activity deleted successfully');
+    await loadActivities();
+  } catch {
+    toast.error('Failed to delete activity');
+    // console.error('Failed to delete activity:', error);
   }
 };
 
@@ -294,7 +314,7 @@ const handleSwitchDebate = async (activity: Activity) => {
   currentActivityDebates.value = allDebates.value.get(activity.id) || [];
 
   if (currentActivityDebates.value.length === 0) {
-    toast.warning('该活动还没有辩题');
+    toast.warning('This activity has no motions yet');
     return;
   }
 
@@ -326,14 +346,14 @@ const switchToDebate = async (debateId: string) => {
   try {
     const response = await DebatesApi.switchCurrentDebate(selectedActivity.value.id, debateId);
     if (response.success) {
-      toast.success('切换辩题成功');
+      toast.success('Motion switched successfully');
       await loadActivityDebates(selectedActivity.value.id);
       const modal = document.getElementById('switch-debate-modal') as HTMLDialogElement;
       modal?.close();
     }
-  } catch (error) {
-    toast.error('切换辩题失败');
-    console.error('Failed to switch debate:', error);
+  } catch {
+    toast.error('Failed to switch motion');
+    // console.error('Failed to switch debate:', error);
   }
 };
 
@@ -347,7 +367,7 @@ watch(
   () => {
     currentPage.value = 1;
     loadActivities();
-  }
+  },
 );
 
 watch(currentPage, () => {

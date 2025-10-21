@@ -2,8 +2,8 @@
   <div class="votes-page">
     <!-- 页面标题 -->
     <div class="mb-8">
-      <h1 class="text-3xl font-bold text-gray-900">投票管理</h1>
-      <p class="text-gray-600 mt-2">查看和管理所有投票记录</p>
+      <h1 class="text-3xl font-bold text-gray-900">Vote Management</h1>
+      <p class="text-gray-600 mt-2">View and manage all voting records</p>
     </div>
 
     <!-- 统计卡片 -->
@@ -21,7 +21,7 @@
             </svg>
           </div>
           <div class="ml-4">
-            <p class="text-sm font-medium text-gray-600">总投票数</p>
+            <p class="text-sm font-medium text-gray-600">Total Votes</p>
             <p class="text-2xl font-semibold text-gray-900">
               {{ stats.totalVotes }}
             </p>
@@ -37,7 +37,7 @@
             </svg>
           </div>
           <div class="ml-4">
-            <p class="text-sm font-medium text-gray-600">赞成票</p>
+            <p class="text-sm font-medium text-gray-600">Pro Votes</p>
             <p class="text-2xl font-semibold text-gray-900">
               {{ stats.agreeVotes }}
             </p>
@@ -53,7 +53,7 @@
             </svg>
           </div>
           <div class="ml-4">
-            <p class="text-sm font-medium text-gray-600">反对票</p>
+            <p class="text-sm font-medium text-gray-600">Con Votes</p>
             <p class="text-2xl font-semibold text-gray-900">
               {{ stats.disagreeVotes }}
             </p>
@@ -69,7 +69,7 @@
             </svg>
           </div>
           <div class="ml-4">
-            <p class="text-sm font-medium text-gray-600">弃权票</p>
+            <p class="text-sm font-medium text-gray-600">Abstain Votes</p>
             <p class="text-2xl font-semibold text-gray-900">
               {{ stats.abstainVotes }}
             </p>
@@ -81,17 +81,19 @@
     <!-- 投票记录列表 -->
     <div class="bg-white rounded-lg shadow">
       <div class="px-6 py-4 border-b border-gray-200">
-        <h2 class="text-lg font-semibold text-gray-900">投票记录</h2>
+        <h2 class="text-lg font-semibold text-gray-900">Vote Records</h2>
       </div>
       <div class="overflow-x-auto">
         <table class="min-w-full divide-y divide-gray-200">
           <thead class="bg-gray-50">
             <tr>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">投票者</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">议题</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">投票选择</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">投票时间</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">IP地址</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Voter</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Motion</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Vote Choice
+              </th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vote Time</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">IP Address</th>
             </tr>
           </thead>
           <tbody class="bg-white divide-y divide-gray-200">

@@ -1,11 +1,11 @@
 <template>
   <div class="participants-page">
-    <h1>参与者管理</h1>
+    <h1>Participant Management</h1>
   </div>
 </template>
 
 <script setup lang="ts">
-// 参与者管理页面
+// Participant management page
 </script>
 
 <style scoped>

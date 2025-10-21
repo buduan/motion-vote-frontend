@@ -1,11 +1,11 @@
 <template>
   <div class="statistics-page">
-    <h1>统计报表</h1>
+    <h1>Statistics Report</h1>
   </div>
 </template>
 
 <script setup lang="ts">
-// 统计报表页面
+// Statistics report page
 </script>
 
 <style scoped>
