@@ -57,7 +57,7 @@
               d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
             />
           </svg>
-          <span class="text-base-content/70">{{ activity.currentParticipants || 0 }} 参与者</span>
+          <span class="text-base-content/70">{{ activity.currentParticipants || 0 }} Participants</span>
         </div>
       </div>
 
@@ -68,15 +68,14 @@
 
       <!-- Current Debate Info -->
       <div v-if="currentDebate" class="mt-3 p-3 bg-base-200 rounded-lg">
-        <div class="text-xs text-base-content/60 mb-1">当前辩题</div>
+        <div class="text-xs text-base-content/60 mb-1">Current Debate</div>
         <div class="text-sm font-medium">{{ currentDebate.title }}</div>
       </div>
 
       <!-- Card Actions -->
       <div class="card-actions justify-between mt-4 pt-4 border-t border-base-content/10">
-        <!-- Left Side Actions -->
         <div class="flex gap-2">
-          <button class="btn btn-sm btn-primary" @click="$emit('switch-debate', activity)">
+          <button class="btn btn-sm" @click="$emit('switch-debate', activity)">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               class="h-4 w-4"
@@ -91,10 +90,10 @@
                 d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"
               />
             </svg>
-            切换辩题
+            Switch Debate
           </button>
 
-          <button class="btn btn-sm btn-outline" @click="$emit('manage-debates', activity)">
+          <button class="btn btn-sm" @click="$emit('manage-debates', activity)">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               class="h-4 w-4"
@@ -109,7 +108,7 @@
                 d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"
               />
             </svg>
-            辩题管理
+            Manage Debates
           </button>
         </div>
 
@@ -135,7 +134,7 @@
             class="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow-lg border border-base-content/10"
           >
             <li>
-              <button @click="$emit('manage-participants', activity)">
+              <button class="btn btn-sm" @click="$emit('manage-participants', activity)">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   class="h-4 w-4"
@@ -150,11 +149,11 @@
                     d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
                   />
                 </svg>
-                参与者管理
+                Manage Participants
               </button>
             </li>
             <li>
-              <button @click="$emit('manage-collaborators', activity)">
+              <button class="btn btn-sm" @click="$emit('manage-collaborators', activity)">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   class="h-4 w-4"
@@ -169,12 +168,12 @@
                     d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"
                   />
                 </svg>
-                协作者管理
+                Manage Collaborators
               </button>
             </li>
             <li class="divider"></li>
             <li>
-              <button @click="$emit('view-detail', activity)">
+              <button class="btn btn-sm" @click="$emit('view-detail', activity)">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   class="h-4 w-4"
@@ -195,11 +194,11 @@
                     d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
                   />
                 </svg>
-                查看详情
+                View Details
               </button>
             </li>
             <li>
-              <button @click="$emit('edit', activity)">
+              <button class="btn btn-sm" @click="$emit('edit', activity)">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   class="h-4 w-4"
@@ -214,11 +213,11 @@
                     d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
                   />
                 </svg>
-                编辑活动
+                Edit Activity
               </button>
             </li>
             <li>
-              <button class="text-error" @click="$emit('delete', activity)">
+              <button class="btn btn-sm text-error" @click="$emit('delete', activity)">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   class="h-4 w-4"
@@ -233,7 +232,7 @@
                     d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
                   />
                 </svg>
-                删除活动
+                Delete Activity
               </button>
             </li>
           </ul>
@@ -281,13 +280,13 @@ const statusBadgeClass = computed(() => {
 const statusText = computed(() => {
   switch (props.activity.status) {
     case 'ongoing':
-      return '进行中';
+      return 'Ongoing';
     case 'upcoming':
-      return '未开始';
+      return 'Upcoming';
     case 'ended':
-      return '已结束';
+      return 'Ended';
     default:
-      return '未知';
+      return 'Unknown';
   }
 });
 
