@@ -201,8 +201,8 @@ interface Action {
 
 interface Props {
   // 数据相关
-  data: TableRow[];
-  columns: Column[];
+  data?: TableRow[];
+  columns?: Column[];
   loading?: boolean;
   emptyText?: string;
 
