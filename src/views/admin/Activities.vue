@@ -220,7 +220,7 @@ const loadActivities = async () => {
     console.log(`[DEBUG] Loading activities with params:`, params);
     const response = await ActivitiesApi.getActivities(params);
     console.log(`[DEBUG] Activities API response:`, response);
-    
+
     // API returns paginated data directly
     if (response && response.items) {
       activities.value = response.items;
@@ -239,7 +239,7 @@ const loadActivities = async () => {
     const errorMessage = error?.message || '加载活动列表失败';
     toast.error(errorMessage);
     console.error('Failed to load activities:', error);
-    
+
     // If unauthorized, redirect to login
     if (error?.response?.status === 401) {
       router.push('/auth/login?redirect=/admin/activities');
@@ -254,12 +254,12 @@ const loadActivityDebates = async (activityId: string) => {
     console.log(`[DEBUG] Loading debates for activity: ${activityId}`);
     const response = await DebatesApi.getDebates(activityId);
     console.log(`[DEBUG] Debates API response for activity ${activityId}:`, response);
-    
+
     // Debates API returns wrapped response {success, message, data: {items: [...], total, page, limit, total_pages}}
     if (response && response.success && response.data && response.data.items && Array.isArray(response.data.items)) {
       allDebates.value.set(activityId, response.data.items);
       // Find current debate (status = 'ongoing')
-      const current = response.data.items.find((d) => d.status === 'ongoing');
+      const current = response.data.items.find(d => d.status === 'ongoing');
       console.log(`[DEBUG] Current debate for activity ${activityId}:`, current);
       if (current) {
         currentDebates.value.set(activityId, current);
@@ -369,7 +369,9 @@ const handleDebatesRefresh = async () => {
 
 const handleManageParticipants = async (activity: Activity) => {
   console.log(`[Activities] Opening participant modal for activity: ${activity.id} (${activity.name})`);
-  console.log(`[Activities] Previous selected activity: ${selectedActivity.value?.id} (${selectedActivity.value?.name})`);
+  console.log(
+    `[Activities] Previous selected activity: ${selectedActivity.value?.id} (${selectedActivity.value?.name})`,
+  );
   selectedActivity.value = activity;
   console.log(`[Activities] New selected activity set: ${selectedActivity.value.id} (${selectedActivity.value.name})`);
   // Wait for next tick to ensure modal is updated with new activityId
@@ -381,7 +383,9 @@ const handleManageParticipants = async (activity: Activity) => {
 
 const handleManageCollaborators = async (activity: Activity) => {
   console.log(`[Activities] Opening collaborator modal for activity: ${activity.id} (${activity.name})`);
-  console.log(`[Activities] Previous selected activity: ${selectedActivity.value?.id} (${selectedActivity.value?.name})`);
+  console.log(
+    `[Activities] Previous selected activity: ${selectedActivity.value?.id} (${selectedActivity.value?.name})`,
+  );
   selectedActivity.value = activity;
   console.log(`[Activities] New selected activity set: ${selectedActivity.value.id} (${selectedActivity.value.name})`);
   // Wait for next tick to ensure modal is updated with new activityId
@@ -398,7 +402,7 @@ const switchToDebate = async (debateId: string) => {
     console.log(`[DEBUG] Switching to debate: ${debateId} for activity: ${selectedActivity.value.id}`);
     const response = await DebatesApi.switchCurrentDebate(selectedActivity.value.id, debateId);
     console.log(`[DEBUG] Switch debate API response:`, response);
-    
+
     if (response && response.success) {
       toast.success('切换辩题成功');
       await loadActivityDebates(selectedActivity.value.id);
