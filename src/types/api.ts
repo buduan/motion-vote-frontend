@@ -125,7 +125,7 @@ export interface CreateActivityRequest {
   coverImage?: string;
   expectedParticipants?: number;
   tags?: string[];
-  settings?: ActivitySettings;
+  settings: ActivitySettings;
 }
 
 // Debate related types

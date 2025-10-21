@@ -19,8 +19,8 @@ export default defineConfig({
         changeOrigin: true,
         secure: true,
         followRedirects: true,
-        configure: (proxy, options) => {
-          proxy.on('error', (err, req, res) => {
+        configure: proxy => {
+          proxy.on('error', err => {
             console.error('Proxy error:', err);
           });
           proxy.on('proxyRes', (_proxyRes, _req, res) => {
