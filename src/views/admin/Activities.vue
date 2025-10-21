@@ -217,19 +217,22 @@ const loadActivities = async () => {
       page: currentPage.value,
     };
 
+    console.log(`[DEBUG] Loading activities with params:`, params);
     const response = await ActivitiesApi.getActivities(params);
+    console.log(`[DEBUG] Activities API response:`, response);
     
     // API returns paginated data directly
     if (response && response.items) {
       activities.value = response.items;
       totalPages.value = response.total_pages || 1;
+      console.log(`[DEBUG] Loaded ${activities.value.length} activities, total pages: ${totalPages.value}`);
 
       // Load debates for each activity
       for (const activity of activities.value) {
         await loadActivityDebates(activity.id);
       }
     } else {
-      console.warn('Invalid activities response format:', response);
+      console.warn(`[DEBUG] Invalid activities response format:`, response);
     }
   } catch (error: any) {
     console.error(`[DEBUG] Error loading activities:`, error);
@@ -248,20 +251,24 @@ const loadActivities = async () => {
 
 const loadActivityDebates = async (activityId: string) => {
   try {
+    console.log(`[DEBUG] Loading debates for activity: ${activityId}`);
     const response = await DebatesApi.getDebates(activityId);
+    console.log(`[DEBUG] Debates API response for activity ${activityId}:`, response);
     
     // Debates API returns wrapped response {success, message, data: {items: [...], total, page, limit, total_pages}}
     if (response && response.success && response.data && response.data.items && Array.isArray(response.data.items)) {
       allDebates.value.set(activityId, response.data.items);
       // Find current debate (status = 'ongoing')
       const current = response.data.items.find((d) => d.status === 'ongoing');
+      console.log(`[DEBUG] Current debate for activity ${activityId}:`, current);
       if (current) {
         currentDebates.value.set(activityId, current);
       }
     } else {
-      console.warn(`Invalid response format for activity ${activityId}:`, response);
+      console.warn(`[DEBUG] Invalid response format for activity ${activityId}:`, response);
     }
   } catch (error: any) {
+    console.error(`[DEBUG] Error loading debates for activity ${activityId}:`, error);
     // Don't show error for 403 (Forbidden) - user may not have access to debates
     if (error?.response?.status !== 403) {
       console.error(`Failed to load debates for activity ${activityId}:`, error);
@@ -388,7 +395,9 @@ const switchToDebate = async (debateId: string) => {
   if (!selectedActivity.value) return;
 
   try {
+    console.log(`[DEBUG] Switching to debate: ${debateId} for activity: ${selectedActivity.value.id}`);
     const response = await DebatesApi.switchCurrentDebate(selectedActivity.value.id, debateId);
+    console.log(`[DEBUG] Switch debate API response:`, response);
     
     if (response && response.success) {
       toast.success('切换辩题成功');
@@ -397,7 +406,7 @@ const switchToDebate = async (debateId: string) => {
       modal?.close();
     }
   } catch (error) {
-    console.error('Error switching debate:', error);
+    console.error(`[DEBUG] Error switching debate:`, error);
     toast.error('切换辩题失败');
   }
 };

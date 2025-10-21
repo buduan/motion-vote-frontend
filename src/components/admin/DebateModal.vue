@@ -259,17 +259,20 @@ const pendingCount = computed(() => {
 const loadDebates = async () => {
   try {
     loading.value = true;
+    console.log(`[DEBUG] Loading debates for activity: ${props.activityId}`);
     const response = await DebatesApi.getDebates(props.activityId);
+    console.log(`[DEBUG] DebateModal debates API response:`, response);
     
     // Debates API returns wrapped response {success, message, data: {items: [...], total, page, limit, total_pages}}
     if (response && response.success && response.data && response.data.items && Array.isArray(response.data.items)) {
       debates.value = response.data.items;
+      console.log(`[DEBUG] Loaded ${debates.value.length} debates`);
     } else {
-      console.warn('Invalid debates response format:', response);
+      console.warn(`[DEBUG] Invalid debates response format:`, response);
       debates.value = []; // Set empty array to prevent iteration errors
     }
   } catch (error: any) {
-    console.error('Error loading debates in modal:', error);
+    console.error(`[DEBUG] Error loading debates in modal:`, error);
     // Handle different error types
     if (error?.response?.status === 403) {
       toast.error('您没有权限访问此活动的辩题');

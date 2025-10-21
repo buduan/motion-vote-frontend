@@ -71,8 +71,7 @@
             />
           </svg>
           <span class="text-base-content/70"
-            >{{ activity.currentParticipants || 0 }}
-            <span v-if="activity.expectedParticipants">/ {{ activity.expectedParticipants }}</span> 参与者</span
+            >{{ activity.currentParticipants || 0 }} 参与者</span
           >
         </div>
       </div>
