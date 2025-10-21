@@ -1,12 +1,12 @@
 <template>
-  <div class="container mx-auto px-4 mt-8">
+  <div class="container mx-auto p-4">
     <!-- Page Header -->
     <div class="flex items-center justify-between mb-6">
       <div>
-        <h1 class="text-3xl font-bold">活动列表</h1>
-        <p class="text-base-content/70 mt-1">管理您的所有辩论活动</p>
+        <h1 class="text-3xl font-bold">活动管理</h1>
+        <p class="text-base-content/70 mt-1">管理您的辩论活动、参与者和辩题</p>
       </div>
-      <button class="btn btn-primary" @click="goToCreate">
+      <button class="btn btn-primary" @click="createActivity">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
         </svg>
@@ -18,7 +18,7 @@
     <div class="card card-border bg-base-100 p-4 mb-6">
       <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
         <label class="input input-sm">
-          <input v-model="filters.search" type="text" placeholder="搜索活动..." class="grow" @input="debouncedSearch" />
+          <input v-model="filters.search" type="text" placeholder="搜索活动..." class="grow" />
           <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path
               stroke-linecap="round"
@@ -29,14 +29,14 @@
           </svg>
         </label>
 
-        <select v-model="filters.status" class="select select-sm" @change="loadActivities">
+        <select v-model="filters.status" class="select select-sm">
           <option value="">全部状态</option>
           <option value="upcoming">未开始</option>
           <option value="ongoing">进行中</option>
           <option value="ended">已结束</option>
         </select>
 
-        <select v-model="filters.role" class="select select-sm" @change="loadActivities">
+        <select v-model="filters.role" class="select select-sm">
           <option value="">全部角色</option>
           <option value="owner">我创建的</option>
           <option value="collaborator">我协作的</option>
@@ -96,15 +96,15 @@
       </svg>
       <h3 class="text-xl font-semibold mb-2">暂无活动</h3>
       <p class="text-base-content/60 mb-4">创建您的第一个辩论活动开始使用吧</p>
-      <button class="btn btn-primary" @click="goToCreate">创建活动</button>
+      <button class="btn btn-primary" @click="createActivity">创建活动</button>
     </div>
 
     <!-- Pagination -->
     <div v-if="totalPages > 1" class="flex justify-center mt-6">
       <div class="join">
-        <button class="join-item btn btn-sm" :disabled="currentPage === 1" @click="previousPage">«</button>
+        <button class="join-item btn btn-sm" :disabled="currentPage === 1" @click="currentPage--">«</button>
         <button class="join-item btn btn-sm">第 {{ currentPage }} / {{ totalPages }} 页</button>
-        <button class="join-item btn btn-sm" :disabled="currentPage === totalPages" @click="nextPage">»</button>
+        <button class="join-item btn btn-sm" :disabled="currentPage === totalPages" @click="currentPage++">»</button>
       </div>
     </div>
 
@@ -131,7 +131,8 @@
       modal-id="debate-modal"
       :activity-id="selectedActivity.id"
       :current-debate="getCurrentDebate(selectedActivity.id)"
-      @refresh="handleDebatesRefresh"
+      @refresh="loadActivities"
+      @switch-debate="switchCurrentDebate"
     />
 
     <!-- Switch Debate Modal -->
@@ -164,7 +165,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, watch, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import type { Activity, Debate, ActivityListParams } from '@/types/api';
 import { ActivitiesApi } from '@/api/activities';
@@ -196,9 +197,6 @@ const filters = ref<ActivityListParams>({
   role: undefined,
 });
 
-// Debounce timer
-let searchTimer: ReturnType<typeof setTimeout> | null = null;
-
 // Computed
 const getCurrentDebate = (activityId: string) => {
   return currentDebates.value.get(activityId) || null;
@@ -218,26 +216,18 @@ const loadActivities = async () => {
     };
 
     const response = await ActivitiesApi.getActivities(params);
-    
-    // API returns paginated data directly
-    if (response && response.items) {
-      activities.value = response.items;
-      totalPages.value = response.total_pages || 1;
+    if (response.success && response.data) {
+      activities.value = response.data.items;
+      totalPages.value = response.data.totalPages;
 
       // Load debates for each activity
       for (const activity of activities.value) {
         await loadActivityDebates(activity.id);
       }
     }
-  } catch (error: any) {
-    const errorMessage = error?.message || '加载活动列表失败';
-    toast.error(errorMessage);
+  } catch (error) {
+    toast.error('加载活动列表失败');
     console.error('Failed to load activities:', error);
-    
-    // If unauthorized, redirect to login
-    if (error?.response?.status === 401) {
-      router.push('/auth/login?redirect=/admin/activities');
-    }
   } finally {
     loading.value = false;
   }
@@ -259,16 +249,6 @@ const loadActivityDebates = async (activityId: string) => {
   }
 };
 
-const debouncedSearch = () => {
-  if (searchTimer) {
-    clearTimeout(searchTimer);
-  }
-  searchTimer = setTimeout(() => {
-    currentPage.value = 1;
-    loadActivities();
-  }, 500);
-};
-
 const resetFilters = () => {
   filters.value = {
     page: 1,
@@ -278,24 +258,9 @@ const resetFilters = () => {
     role: undefined,
   };
   currentPage.value = 1;
-  loadActivities();
 };
 
-const previousPage = () => {
-  if (currentPage.value > 1) {
-    currentPage.value--;
-    loadActivities();
-  }
-};
-
-const nextPage = () => {
-  if (currentPage.value < totalPages.value) {
-    currentPage.value++;
-    loadActivities();
-  }
-};
-
-const goToCreate = () => {
+const createActivity = () => {
   router.push('/admin/activities/create');
 };
 
@@ -339,15 +304,8 @@ const handleSwitchDebate = async (activity: Activity) => {
 
 const handleManageDebates = async (activity: Activity) => {
   selectedActivity.value = activity;
-  currentActivityDebates.value = allDebates.value.get(activity.id) || [];
   const modal = document.getElementById('debate-modal') as HTMLDialogElement;
   modal?.showModal();
-};
-
-const handleDebatesRefresh = async () => {
-  if (selectedActivity.value) {
-    await loadActivityDebates(selectedActivity.value.id);
-  }
 };
 
 const handleManageParticipants = async (activity: Activity) => {
@@ -379,12 +337,25 @@ const switchToDebate = async (debateId: string) => {
   }
 };
 
+const switchCurrentDebate = async (debateId: string) => {
+  await switchToDebate(debateId);
+};
+
+// Watch filters
+watch(
+  () => [filters.value.search, filters.value.status, filters.value.role],
+  () => {
+    currentPage.value = 1;
+    loadActivities();
+  }
+);
+
+watch(currentPage, () => {
+  loadActivities();
+});
+
 // Load activities on mount
 onMounted(() => {
   loadActivities();
 });
 </script>
-
-<style scoped>
-/* Custom styles if needed */
-</style>

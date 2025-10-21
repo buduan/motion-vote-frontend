@@ -5,6 +5,7 @@ import type {
   Participant,
   ParticipantListParams,
   CreateParticipantsRequest,
+  AddParticipantRequest,
 } from '@/types/api';
 
 /**
@@ -22,13 +23,31 @@ export class ParticipantsApi {
   }
 
   /**
+   * 添加单个参与者
+   */
+  static async addParticipant(activityId: string, data: AddParticipantRequest): Promise<ApiResponse<Participant>> {
+    return HttpClient.post<Participant>(`/activities/${activityId}/participants`, data);
+  }
+
+  /**
    * 批量创建参与者
    */
   static async createParticipants(
     activityId: string,
     data: CreateParticipantsRequest,
   ): Promise<ApiResponse<Participant[]>> {
-    return HttpClient.post<Participant[]>(`/activities/${activityId}/participants`, data);
+    return HttpClient.post<Participant[]>(`/activities/${activityId}/participants/batch`, data);
+  }
+
+  /**
+   * 批量导入参与者
+   */
+  static async batchImport(activityId: string, formData: FormData): Promise<ApiResponse<any>> {
+    return HttpClient.post<any>(`/activities/${activityId}/participants/batch`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
   }
 
   /**

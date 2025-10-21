@@ -22,36 +22,38 @@ export class DebatesApi {
   /**
    * 获取辩题详情
    */
-  static async getDebateById(activityId: string, debateId: string): Promise<ApiResponse<Debate>> {
-    return HttpClient.get<Debate>(`/activities/${activityId}/debates/${debateId}`);
+  static async getDebateById(debateId: string): Promise<ApiResponse<Debate>> {
+    return HttpClient.get<Debate>(`/debates/${debateId}`);
   }
 
   /**
    * 更新辩题
    */
-  static async updateDebate(
-    activityId: string,
-    debateId: string,
-    data: Partial<CreateDebateRequest>,
-  ): Promise<ApiResponse<Debate>> {
-    return HttpClient.put<Debate>(`/activities/${activityId}/debates/${debateId}`, data);
+  static async updateDebate(debateId: string, data: Partial<CreateDebateRequest>): Promise<ApiResponse<Debate>> {
+    return HttpClient.put<Debate>(`/debates/${debateId}`, data);
   }
 
   /**
    * 删除辩题
    */
-  static async deleteDebate(activityId: string, debateId: string): Promise<ApiResponse<void>> {
-    return HttpClient.delete<void>(`/activities/${activityId}/debates/${debateId}`);
+  static async deleteDebate(debateId: string): Promise<ApiResponse<void>> {
+    return HttpClient.delete<void>(`/debates/${debateId}`);
   }
 
   /**
    * 更新辩题状态
    */
   static async updateDebateStatus(
-    activityId: string,
     debateId: string,
-    status: 'pending' | 'active' | 'ended',
+    status: 'pending' | 'ongoing' | 'final_vote' | 'ended',
   ): Promise<ApiResponse<Debate>> {
-    return HttpClient.patch<Debate>(`/activities/${activityId}/debates/${debateId}/status`, { status });
+    return HttpClient.put<Debate>(`/debates/${debateId}/status`, { status });
+  }
+
+  /**
+   * 切换当前辩题
+   */
+  static async switchCurrentDebate(activityId: string, debateId: string): Promise<ApiResponse<void>> {
+    return HttpClient.put<void>(`/activities/${activityId}/current-debate`, { debateId });
   }
 }

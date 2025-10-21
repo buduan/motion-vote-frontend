@@ -17,8 +17,8 @@ export class ActivitiesApi {
   /**
    * 获取活动列表
    */
-  static async getActivities(params?: ActivityListParams): Promise<ApiResponse<PaginatedResponse<Activity>>> {
-    return HttpClient.get<PaginatedResponse<Activity>>('/activities', { params });
+  static async getActivities(params?: ActivityListParams): Promise<PaginatedResponse<Activity>> {
+    return HttpClient.get<PaginatedResponse<Activity>>('/activities', { params }) as any;
   }
 
   /**
