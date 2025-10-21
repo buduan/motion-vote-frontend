@@ -1,12 +1,12 @@
 <template>
   <div
-    class="navbar bg-base-100/75 backdrop-blur-xl shadow-2xl shadow-base-content/5 fixed top-0 border-1 border-base-300/50 z-50"
+    class="navbar items-center h-16 bg-base-100/75 backdrop-blur-xl shadow-2xl shadow-base-content/5 fixed top-0 border-1 border-base-300/50 z-50"
   >
     <div class="flex-1">
       <a class="btn btn-ghost text-xl">Motion Vote Console</a>
     </div>
     <div class="flex-none">
-      <ul class="menu menu-horizontal px-1">
+  <ul class="menu menu-horizontal px-1 items-center">
         <li>
           <RouterLink to="/admin">Dashboard</RouterLink>
         </li>
@@ -18,7 +18,7 @@
         </li>
         <li>
           <details>
-            <summary>
+            <summary class="flex items-center">
               <div class="avatar avatar-placeholder">
                 <div class="w-8 mask mask-squircle bg-neutral text-neutral-content">
                   <span class="text-xs">{{ userInitials }}</span>
@@ -33,7 +33,9 @@
       </ul>
     </div>
   </div>
-  <router-view class="pt-16" />
+  <div class="pt-20">
+    <router-view />
+  </div>
 </template>
 
 <script setup lang="ts">

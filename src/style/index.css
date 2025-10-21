@@ -3,12 +3,15 @@
 @import './theme/dedark.css';
 
 @plugin 'daisyui' {
-  themes: default --default, dedark --prefersdark;
+  themes:
+    default --default,
+    dedark --prefersdark;
 }
 
 @font-face {
   font-family: 'D-DIN';
-  src: url('../assets/fonts/D-DIN-Bold.woff2') format('woff2'),
+  src:
+    url('../assets/fonts/D-DIN-Bold.woff2') format('woff2'),
     url('../assets/fonts/D-DIN-Bold.woff') format('woff');
   font-weight: 600;
   font-style: normal;
@@ -30,4 +33,13 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Ensure toast notifications are always on top with proper styling */
+[data-sonner-toaster] {
+  z-index: 9999 !important;
+}
+
+[data-sonner-toast] {
+  z-index: 9999 !important;
 }

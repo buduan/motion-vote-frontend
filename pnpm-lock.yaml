@@ -32,9 +32,9 @@ importers:
       vue-router:
         specifier: '4'
         version: 4.5.1(vue@3.5.22(typescript@5.8.3))
-      vue-toastification:
-        specifier: 2.0.0-rc.5
-        version: 2.0.0-rc.5(vue@3.5.22(typescript@5.8.3))
+      vue-sonner:
+        specifier: ^2.0.9
+        version: 2.0.9
     devDependencies:
       '@tailwindcss/postcss':
         specifier: ^4.1.13
@@ -1552,10 +1552,19 @@ packages:
     peerDependencies:
       vue: ^3.2.0
 
-  vue-toastification@2.0.0-rc.5:
-    resolution: {integrity: sha512-q73e5jy6gucEO/U+P48hqX+/qyXDozAGmaGgLFm5tXX4wJBcVsnGp4e/iJqlm9xzHETYOilUuwOUje2Qg1JdwA==}
+  vue-sonner@2.0.9:
+    resolution: {integrity: sha512-i6BokNlNDL93fpzNxN/LZSn6D6MzlO+i3qXt6iVZne3x1k7R46d5HlFB4P8tYydhgqOrRbIZEsnRd3kG7qGXyw==}
     peerDependencies:
-      vue: ^3.0.2
+      '@nuxt/kit': ^4.0.3
+      '@nuxt/schema': ^4.0.3
+      nuxt: ^4.0.3
+    peerDependenciesMeta:
+      '@nuxt/kit':
+        optional: true
+      '@nuxt/schema':
+        optional: true
+      nuxt:
+        optional: true
 
   vue-tsc@3.1.0:
     resolution: {integrity: sha512-fbMynMG7kXSnqZTRBSCh9ROYaVpXfCZbEO0gY3lqOjLbp361uuS88n6BDajiUriDIF+SGLWoinjvf6stS2J3Gg==}
@@ -2917,9 +2926,7 @@ snapshots:
       '@vue/devtools-api': 6.6.4
       vue: 3.5.22(typescript@5.8.3)
 
-  vue-toastification@2.0.0-rc.5(vue@3.5.22(typescript@5.8.3)):
-    dependencies:
-      vue: 3.5.22(typescript@5.8.3)
+  vue-sonner@2.0.9: {}
 
   vue-tsc@3.1.0(typescript@5.8.3):
     dependencies:

@@ -15,14 +15,13 @@
 
         <Transition name="fade" mode="out-in">
           <!-- Login Form -->
-          <div v-if="activeTab === 'login'" class="flex flex-col gap-4">
+          <form v-if="activeTab === 'login'" class="flex flex-col gap-4" @submit.prevent="handleLogin">
             <label class="floating-label">
               <input
                 v-model="loginForm.email"
                 type="email"
                 placeholder="Email"
                 class="input input-md border-0 bg-base-200 min-w-full"
-                @keyup.enter="handleLogin"
               />
               <span>Email</span>
             </label>
@@ -32,18 +31,17 @@
                 type="password"
                 placeholder="Password"
                 class="input input-md border-0 bg-base-200 min-w-full"
-                @keyup.enter="handleLogin"
               />
               <span>Password</span>
             </label>
             <div class="flex justify-between items-center">
               <router-link to="/auth/forgot-password" class="link link-info text-sm">Forgot Password?</router-link>
-              <button class="btn btn-primary" :disabled="isLoading" @click="handleLogin">
+              <button type="submit" class="btn btn-primary" :disabled="isLoading">
                 <span v-if="isLoading" class="loading loading-spinner loading-sm"></span>
                 {{ isLoading ? 'Logging in...' : 'Login' }}
               </button>
             </div>
-          </div>
+          </form>
 
           <!-- Register Form -->
           <div v-else-if="activeTab === 'register'" class="flex flex-col gap-4">
@@ -77,10 +75,11 @@
               </label>
               <button
                 class="btn btn-primary"
-                :disabled="!canSendCode || codeCooldown > 0"
+                :disabled="!canSendCode || codeCooldown > 0 || isSendingCode"
                 @click="handleSendCode('register')"
               >
-                {{ codeCooldown > 0 ? `${codeCooldown}s` : 'Send Code' }}
+                <span v-if="isSendingCode" class="loading loading-spinner loading-sm"></span>
+                {{ isSendingCode ? 'Sending...' : codeCooldown > 0 ? `${codeCooldown}s` : 'Send Code' }}
               </button>
             </div>
             <label class="floating-label">
@@ -188,16 +187,31 @@ import {
 const router = useRouter();
 const authStore = useAuthStore();
 
-// Tab状态
+// Helper function to extract number from message and convert to English
+const extractWaitTimeMessage = (message: string): string => {
+  // Match patterns like "Please wait 60 seconds" or "wait 60 seconds" or "retry after 60 seconds"
+  const numberMatch = message.match(/(\d+)/);
+  if (numberMatch) {
+    const seconds = numberMatch[1];
+    return `Please wait ${seconds} seconds before requesting another code`;
+  }
+  // If no number found, return a generic message
+  if (message.includes('wait') || message.includes('等待') || message.includes('稍后')) {
+    return 'Please wait before requesting another code';
+  }
+  return message;
+};
+
+// Tab state
 const activeTab = ref<'login' | 'register'>('login');
 
-// 登录表单
+// Login form
 const loginForm = ref({
   email: '',
   password: '',
 });
 
-// 注册表单
+// Register form
 const registerForm = ref({
   name: '',
   email: '',
@@ -210,15 +224,16 @@ const confirmPassword = ref('');
 const agreeTerms = ref(false);
 const isLoading = ref(false);
 
-// 验证码相关
+// Verification code related
 const codeCooldown = ref(0);
 const codeCooldownTimer = ref<ReturnType<typeof setInterval> | null>(null);
+const isSendingCode = ref(false);
 
-// Token刷新对话框
+// Token refresh dialog
 const refreshDialog = ref<HTMLDialogElement | null>(null);
 const tokenCheckTimer = ref<ReturnType<typeof setInterval> | null>(null);
 
-// 计算属性
+// Computed properties
 const canSendCode = computed(() => {
   return registerForm.value.email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(registerForm.value.email);
 });
@@ -265,8 +280,13 @@ const handleSendCode = async (type: 'register' | 'forgot') => {
     return;
   }
 
+  isSendingCode.value = true;
+  const dismissLoading = toast.loading('Sending verification code...');
+
   try {
     const response = await AuthApi.sendVerificationCode(email);
+    dismissLoading();
+
     if (response.success && response.data) {
       registerForm.value.session = response.data.session;
 
@@ -285,8 +305,31 @@ const handleSendCode = async (type: 'register' | 'forgot') => {
       toast.error(response.message || 'Failed to send verification code');
     }
   } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : 'Failed to send verification code';
+    dismissLoading();
+
+    // Handle different error types
+    let errorMessage = 'Failed to send verification code';
+
+    if (error && typeof error === 'object') {
+      // Check if it's a 422 error (validation error)
+      if ('response' in error) {
+        const axiosError = error as { response?: { status?: number; data?: { message?: string } } };
+        if (axiosError.response?.status === 422) {
+          const rawMessage = axiosError.response?.data?.message || 'Please wait before requesting another code';
+          errorMessage = extractWaitTimeMessage(rawMessage);
+        } else if (axiosError.response?.data?.message) {
+          errorMessage = axiosError.response.data.message;
+        }
+      } else if ('message' in error) {
+        errorMessage = (error as { message: string }).message;
+      }
+    } else if (error instanceof Error) {
+      errorMessage = error.message;
+    }
+
     toast.error(errorMessage);
+  } finally {
+    isSendingCode.value = false;
   }
 };
 
@@ -302,7 +345,9 @@ const handleLogin = async () => {
   isLoading.value = false;
 
   if (result.success) {
-    router.push('/');
+    // Redirect to admin page after successful login
+    const redirect = (router.currentRoute.value.query.redirect as string) || '/admin';
+    router.push(redirect);
   } else {
     toast.error(result.message || 'Login failed');
   }
@@ -361,15 +406,16 @@ const checkTokenExpiry = () => {
   }
 };
 
-// 生命周期
+// Lifecycle
 onMounted(() => {
-  // 如果已经登录，跳转到首页
+  // If already logged in, redirect to admin page
   if (authStore.isAuthenticated) {
-    router.push('/');
+    router.push('/admin');
+    return;
   }
 
-  // 定期检查Token状态
-  tokenCheckTimer.value = setInterval(checkTokenExpiry, 30000); // 每30秒检查一次
+  // Periodically check token status
+  tokenCheckTimer.value = setInterval(checkTokenExpiry, 30000); // Check every 30 seconds
 });
 
 onUnmounted(() => {
@@ -381,12 +427,13 @@ onUnmounted(() => {
   }
 });
 
-// 监听认证状态变化
+// Listen for authentication state changes
 watch(
   () => authStore.isAuthenticated,
   newVal => {
     if (newVal) {
-      router.push('/');
+      const redirect = (router.currentRoute.value.query.redirect as string) || '/admin';
+      router.push(redirect);
     }
   },
 );

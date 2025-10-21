@@ -1,24 +1,15 @@
 import { HttpClient } from '@/utils/http';
-import type { ApiResponse, ScreenData, ScreenConfig } from '@/types/api';
+import type { ApiResponse } from '@/types/api';
+import type { ScreenStatisticsData } from '@/types/screen';
 
 /**
- * 大屏展示API
+ * 大屏展示API（只保留 display 接口）
  */
 export class ScreenApi {
   /**
-   * 获取大屏展示数据
+   * 获取大屏初始化显示数据（一次性调用）
    */
-  static async getScreenData(activityId: string): Promise<ApiResponse<ScreenData>> {
-    return HttpClient.get<ScreenData>(`/screen/${activityId}`);
-  }
-
-  /**
-   * 更新大屏配置
-   */
-  static async updateScreenConfig(
-    activityId: string,
-    config: Partial<ScreenConfig>,
-  ): Promise<ApiResponse<ScreenConfig>> {
-    return HttpClient.put<ScreenConfig>(`/screen/${activityId}/config`, config);
+  static async getDisplay(activityId: string): Promise<ApiResponse<ScreenStatisticsData>> {
+    return HttpClient.get<ScreenStatisticsData>(`/screen/${activityId}/display`);
   }
 }
