@@ -1,6 +1,5 @@
 import { HttpClient } from '@/utils/http';
 import type {
-  ApiResponse,
   PaginatedResponse,
   Activity,
   ActivityDetail,
@@ -24,29 +23,29 @@ export class ActivitiesApi {
   /**
    * 创建活动
    */
-  static async createActivity(data: CreateActivityRequest): Promise<ApiResponse<Activity>> {
-    return HttpClient.post<Activity>('/activities', data);
+  static async createActivity(data: CreateActivityRequest): Promise<Activity> {
+    return HttpClient.postDirect<Activity>('/activities', data);
   }
 
   /**
    * 获取活动详情
    */
-  static async getActivityById(id: string): Promise<ApiResponse<ActivityDetail>> {
-    return HttpClient.get<ActivityDetail>(`/activities/${id}`);
+  static async getActivityById(id: string): Promise<ActivityDetail> {
+    return HttpClient.getDirect<ActivityDetail>(`/activities/${id}`);
   }
 
   /**
    * 更新活动
    */
-  static async updateActivity(id: string, data: Partial<CreateActivityRequest>): Promise<ApiResponse<Activity>> {
-    return HttpClient.put<Activity>(`/activities/${id}`, data);
+  static async updateActivity(id: string, data: Partial<CreateActivityRequest>): Promise<Activity> {
+    return HttpClient.putDirect<Activity>(`/activities/${id}`, data);
   }
 
   /**
    * 删除活动
    */
-  static async deleteActivity(id: string): Promise<ApiResponse<void>> {
-    return HttpClient.delete<void>(`/activities/${id}`);
+  static async deleteActivity(id: string): Promise<void> {
+    return HttpClient.deleteDirect<void>(`/activities/${id}`);
   }
 
   /**
@@ -55,21 +54,34 @@ export class ActivitiesApi {
   static async inviteCollaborator(
     activityId: string,
     data: InviteCollaboratorRequest,
-  ): Promise<ApiResponse<Collaborator>> {
-    return HttpClient.post<Collaborator>(`/activities/${activityId}/collaborators`, data);
+  ): Promise<Collaborator> {
+    return HttpClient.postDirect<Collaborator>(`/activities/${activityId}/collaborators`, data);
   }
 
   /**
    * 获取协作者列表
    */
-  static async getCollaborators(activityId: string): Promise<ApiResponse<Collaborator[]>> {
-    return HttpClient.get<Collaborator[]>(`/activities/${activityId}/collaborators`);
+  static async getCollaborators(activityId: string): Promise<Collaborator[]> {
+    return HttpClient.getDirect<Collaborator[]>(`/activities/${activityId}/collaborators`);
+  }
+
+  /**
+   * 更新协作者权限
+   */
+  static async updateCollaboratorPermissions(
+    activityId: string,
+    collaboratorId: string,
+    permissions: ('view' | 'edit' | 'control')[],
+  ): Promise<void> {
+    return HttpClient.putDirect<void>(`/activities/${activityId}/collaborators/${collaboratorId}`, {
+      permissions,
+    });
   }
 
   /**
    * 删除协作者
    */
-  static async removeCollaborator(activityId: string, collaboratorId: string): Promise<ApiResponse<void>> {
-    return HttpClient.delete<void>(`/activities/${activityId}/collaborators/${collaboratorId}`);
+  static async removeCollaborator(activityId: string, collaboratorId: string): Promise<void> {
+    return HttpClient.deleteDirect<void>(`/activities/${activityId}/collaborators/${collaboratorId}`);
   }
 }

@@ -164,7 +164,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, nextTick } from 'vue';
 import { useRouter } from 'vue-router';
 import type { Activity, Debate, ActivityListParams } from '@/types/api';
 import { ActivitiesApi } from '@/api/activities';
@@ -228,8 +228,11 @@ const loadActivities = async () => {
       for (const activity of activities.value) {
         await loadActivityDebates(activity.id);
       }
+    } else {
+      console.warn('Invalid activities response format:', response);
     }
   } catch (error: any) {
+    console.error(`[DEBUG] Error loading activities:`, error);
     const errorMessage = error?.message || '加载活动列表失败';
     toast.error(errorMessage);
     console.error('Failed to load activities:', error);
@@ -246,16 +249,23 @@ const loadActivities = async () => {
 const loadActivityDebates = async (activityId: string) => {
   try {
     const response = await DebatesApi.getDebates(activityId);
-    if (response.success && response.data) {
-      allDebates.value.set(activityId, response.data);
+    
+    // Debates API returns wrapped response {success, message, data: {items: [...], total, page, limit, total_pages}}
+    if (response && response.success && response.data && response.data.items && Array.isArray(response.data.items)) {
+      allDebates.value.set(activityId, response.data.items);
       // Find current debate (status = 'ongoing')
-      const current = response.data.find((d) => d.status === 'ongoing');
+      const current = response.data.items.find((d) => d.status === 'ongoing');
       if (current) {
         currentDebates.value.set(activityId, current);
       }
+    } else {
+      console.warn(`Invalid response format for activity ${activityId}:`, response);
     }
-  } catch (error) {
-    console.error(`Failed to load debates for activity ${activityId}:`, error);
+  } catch (error: any) {
+    // Don't show error for 403 (Forbidden) - user may not have access to debates
+    if (error?.response?.status !== 403) {
+      console.error(`Failed to load debates for activity ${activityId}:`, error);
+    }
   }
 };
 
@@ -314,7 +324,7 @@ const handleDelete = async (activity: Activity) => {
 
   try {
     const response = await ActivitiesApi.deleteActivity(activity.id);
-    if (response.success) {
+    if (response !== undefined) {
       toast.success('删除活动成功');
       await loadActivities();
     }
@@ -351,13 +361,25 @@ const handleDebatesRefresh = async () => {
 };
 
 const handleManageParticipants = async (activity: Activity) => {
+  console.log(`[Activities] Opening participant modal for activity: ${activity.id} (${activity.name})`);
+  console.log(`[Activities] Previous selected activity: ${selectedActivity.value?.id} (${selectedActivity.value?.name})`);
   selectedActivity.value = activity;
+  console.log(`[Activities] New selected activity set: ${selectedActivity.value.id} (${selectedActivity.value.name})`);
+  // Wait for next tick to ensure modal is updated with new activityId
+  await nextTick();
+  console.log(`[Activities] Modal should now have activityId: ${selectedActivity.value.id}`);
   const modal = document.getElementById('participant-modal') as HTMLDialogElement;
   modal?.showModal();
 };
 
 const handleManageCollaborators = async (activity: Activity) => {
+  console.log(`[Activities] Opening collaborator modal for activity: ${activity.id} (${activity.name})`);
+  console.log(`[Activities] Previous selected activity: ${selectedActivity.value?.id} (${selectedActivity.value?.name})`);
   selectedActivity.value = activity;
+  console.log(`[Activities] New selected activity set: ${selectedActivity.value.id} (${selectedActivity.value.name})`);
+  // Wait for next tick to ensure modal is updated with new activityId
+  await nextTick();
+  console.log(`[Activities] Modal should now have activityId: ${selectedActivity.value.id}`);
   const modal = document.getElementById('collaborator-modal') as HTMLDialogElement;
   modal?.showModal();
 };
@@ -367,15 +389,16 @@ const switchToDebate = async (debateId: string) => {
 
   try {
     const response = await DebatesApi.switchCurrentDebate(selectedActivity.value.id, debateId);
-    if (response.success) {
+    
+    if (response && response.success) {
       toast.success('切换辩题成功');
       await loadActivityDebates(selectedActivity.value.id);
       const modal = document.getElementById('switch-debate-modal') as HTMLDialogElement;
       modal?.close();
     }
   } catch (error) {
+    console.error('Error switching debate:', error);
     toast.error('切换辩题失败');
-    console.error('Failed to switch debate:', error);
   }
 };
 

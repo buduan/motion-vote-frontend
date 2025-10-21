@@ -9,10 +9,10 @@
         </form>
       </div>
 
-      <!-- Invite Collaborator Form -->
-      <div v-if="showInviteForm" class="card card-border bg-base-200 p-4 mb-4">
-        <h4 class="font-semibold mb-3">邀请协作者</h4>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <!-- Invite/Edit Collaborator Form -->
+      <div v-if="showInviteForm || editingCollaborator" class="card card-border bg-base-200 p-4 mb-4">
+        <h4 class="font-semibold mb-3">{{ editingCollaborator ? '编辑协作者权限' : '邀请协作者' }}</h4>
+        <div v-if="!editingCollaborator" class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <label class="input">
             <span class="label">邮箱</span>
             <input v-model="newCollaborator.email" type="email" placeholder="请输入邮箱" class="input input-sm" />
@@ -40,10 +40,34 @@
             </div>
           </div>
         </div>
+        <div v-else class="grid grid-cols-1 gap-4">
+          <div>
+            <span class="label">协作者：{{ editingCollaborator.user.name }} ({{ editingCollaborator.user.email }})</span>
+            <div class="flex flex-wrap gap-2 mt-2">
+              <label class="label cursor-pointer gap-2">
+                <input v-model="editingPermissions" type="checkbox" value="view" class="checkbox checkbox-sm" />
+                <span class="label-text">查看</span>
+              </label>
+              <label class="label cursor-pointer gap-2">
+                <input v-model="editingPermissions" type="checkbox" value="edit" class="checkbox checkbox-sm" />
+                <span class="label-text">编辑</span>
+              </label>
+              <label class="label cursor-pointer gap-2">
+                <input
+                  v-model="editingPermissions"
+                  type="checkbox"
+                  value="control"
+                  class="checkbox checkbox-sm"
+                />
+                <span class="label-text">控制</span>
+              </label>
+            </div>
+          </div>
+        </div>
         <div class="flex gap-2 mt-4">
-          <button class="btn btn-primary btn-sm" :disabled="loading" @click="inviteCollaborator">
+          <button class="btn btn-primary btn-sm" :disabled="loading" @click="editingCollaborator ? updateCollaboratorPermissions() : inviteCollaborator()">
             <span v-if="loading" class="loading loading-spinner loading-xs"></span>
-            发送邀请
+            {{ editingCollaborator ? '更新权限' : '发送邀请' }}
           </button>
           <button class="btn btn-ghost btn-sm" @click="cancelInvite">取消</button>
         </div>
@@ -168,7 +192,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import type { Collaborator } from '@/types/api';
 import { ActivitiesApi } from '@/api/activities';
 import toast from '@/utils/toast';
@@ -190,6 +214,8 @@ const emit = defineEmits<{
 const collaborators = ref<Collaborator[]>([]);
 const loading = ref(false);
 const showInviteForm = ref(false);
+const editingCollaborator = ref<Collaborator | null>(null);
+const editingPermissions = ref<('view' | 'edit' | 'control')[]>([]);
 
 const newCollaborator = ref({
   email: '',
@@ -198,13 +224,17 @@ const newCollaborator = ref({
 
 // Methods
 const loadCollaborators = async () => {
+  console.log(`[CollaboratorModal] Loading collaborators for activity: ${props.activityId}`);
   try {
     loading.value = true;
     const response = await ActivitiesApi.getCollaborators(props.activityId);
-    if (response.success && response.data) {
-      collaborators.value = response.data;
+    console.log(`[CollaboratorModal] API response:`, response);
+    if (Array.isArray(response)) {
+      collaborators.value = response;
+      console.log(`[CollaboratorModal] Loaded ${collaborators.value.length} collaborators`);
     }
   } catch (error) {
+    console.error(`[CollaboratorModal] Failed to load collaborators:`, error);
     toast.error('加载协作者列表失败');
     console.error('Failed to load collaborators:', error);
   } finally {
@@ -226,7 +256,7 @@ const inviteCollaborator = async () => {
   try {
     loading.value = true;
     const response = await ActivitiesApi.inviteCollaborator(props.activityId, newCollaborator.value);
-    if (response.success) {
+    if (response) {
       toast.success('邀请协作者成功');
       await loadCollaborators();
       cancelInvite();
@@ -240,9 +270,32 @@ const inviteCollaborator = async () => {
   }
 };
 
-const editCollaborator = async (_collaborator: Collaborator) => {
-  // TODO: Implement edit functionality
-  toast.info('编辑功能开发中');
+const editCollaborator = async (collaborator: Collaborator) => {
+  editingCollaborator.value = collaborator;
+  editingPermissions.value = [...collaborator.permissions];
+  showInviteForm.value = false;
+};
+
+const updateCollaboratorPermissions = async () => {
+  if (!editingCollaborator.value) return;
+
+  try {
+    loading.value = true;
+    await ActivitiesApi.updateCollaboratorPermissions(
+      props.activityId,
+      editingCollaborator.value.id,
+      editingPermissions.value,
+    );
+    toast.success('更新协作者权限成功');
+    await loadCollaborators();
+    cancelInvite();
+    emit('refresh');
+  } catch (error) {
+    toast.error('更新协作者权限失败');
+    console.error('Failed to update collaborator permissions:', error);
+  } finally {
+    loading.value = false;
+  }
 };
 
 const removeCollaborator = async (collaborator: Collaborator) => {
@@ -253,7 +306,7 @@ const removeCollaborator = async (collaborator: Collaborator) => {
   try {
     loading.value = true;
     const response = await ActivitiesApi.removeCollaborator(props.activityId, collaborator.id);
-    if (response.success) {
+    if (response !== undefined) {
       toast.success('移除协作者成功');
       await loadCollaborators();
       emit('refresh');
@@ -268,10 +321,12 @@ const removeCollaborator = async (collaborator: Collaborator) => {
 
 const cancelInvite = () => {
   showInviteForm.value = false;
+  editingCollaborator.value = null;
   newCollaborator.value = {
     email: '',
     permissions: [],
   };
+  editingPermissions.value = [];
 };
 
 const getPermissionText = (permission: string) => {
@@ -313,8 +368,40 @@ onMounted(() => {
   loadCollaborators();
 });
 
-// Expose methods for parent component
-defineExpose({
-  loadCollaborators,
+// Watch for activityId changes
+watch(() => props.activityId, (newActivityId: string, oldActivityId: string) => {
+  if (newActivityId && newActivityId !== oldActivityId) {
+    console.log(`[CollaboratorModal] Activity changed from ${oldActivityId} to ${newActivityId}, clearing cache and reloading`);
+    // Clear current data when switching activities
+    collaborators.value = [];
+    showInviteForm.value = false;
+    editingCollaborator.value = null;
+    editingPermissions.value = [];
+    newCollaborator.value = {
+      email: '',
+      permissions: [],
+    };
+    loadCollaborators();
+  }
+});
+
+// Watch for modal close events
+const modalElement = ref<HTMLDialogElement>();
+onMounted(() => {
+  modalElement.value = document.getElementById(props.modalId) as HTMLDialogElement;
+  if (modalElement.value) {
+    modalElement.value.addEventListener('close', () => {
+      console.log(`[CollaboratorModal] Modal closed, clearing form data`);
+      // Clear form data when modal closes
+      showInviteForm.value = false;
+      editingCollaborator.value = null;
+      newCollaborator.value = {
+        email: '',
+        permissions: [],
+      };
+      editingPermissions.value = [];
+    });
+  }
+  loadCollaborators();
 });
 </script>

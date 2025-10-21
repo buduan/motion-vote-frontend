@@ -269,15 +269,19 @@ const checkedInCount = computed(() => {
 
 // Methods
 const loadParticipants = async () => {
+  console.log(`[ParticipantModal] Loading participants for activity: ${props.activityId}`);
   try {
     loading.value = true;
     const response = await ParticipantsApi.getParticipants(props.activityId, {
       limit: 1000, // Get all participants
     });
-    if (response.success && response.data) {
-      participants.value = response.data.items;
+    console.log(`[ParticipantModal] API response:`, response);
+    if (response && response.items) {
+      participants.value = response.items;
+      console.log(`[ParticipantModal] Loaded ${participants.value.length} participants`);
     }
   } catch (error) {
+    console.error(`[ParticipantModal] Failed to load participants:`, error);
     toast.error('加载参与者列表失败');
     console.error('Failed to load participants:', error);
   } finally {
@@ -294,7 +298,7 @@ const addParticipant = async () => {
   try {
     loading.value = true;
     const response = await ParticipantsApi.addParticipant(props.activityId, newParticipant.value);
-    if (response.success) {
+    if (response) {
       toast.success('添加参与者成功');
       await loadParticipants();
       cancelAdd();
@@ -308,9 +312,26 @@ const addParticipant = async () => {
   }
 };
 
-const editParticipant = async (_participant: Participant) => {
-  // TODO: Implement edit functionality
-  toast.info('编辑功能开发中');
+const editParticipant = async (participant: Participant) => {
+  const newStatus = participant.status === 'active' ? 'inactive' : 'active';
+  const action = newStatus === 'active' ? '激活' : '停用';
+
+  if (!confirm(`确定要${action}参与者 ${participant.name || participant.code} 吗？`)) {
+    return;
+  }
+
+  try {
+    loading.value = true;
+    await ParticipantsApi.updateParticipantStatus(props.activityId, participant.id, newStatus);
+    toast.success(`${action}参与者成功`);
+    await loadParticipants();
+    emit('refresh');
+  } catch (error) {
+    toast.error(`${action}参与者失败`);
+    console.error(`Failed to ${action.toLowerCase()} participant:`, error);
+  } finally {
+    loading.value = false;
+  }
 };
 
 const deleteParticipant = async (participant: Participant) => {
@@ -321,7 +342,7 @@ const deleteParticipant = async (participant: Participant) => {
   try {
     loading.value = true;
     const response = await ParticipantsApi.deleteParticipant(props.activityId, participant.id);
-    if (response.success) {
+    if (response !== undefined) {
       toast.success('删除参与者成功');
       await loadParticipants();
       emit('refresh');
@@ -345,11 +366,9 @@ const handleFileImport = async (event: Event) => {
     formData.append('file', file);
 
     const response = await ParticipantsApi.batchImport(props.activityId, formData);
-    if (response.success) {
-      toast.success(`导入成功: ${response.data?.success || 0} 条`);
-      await loadParticipants();
-      emit('refresh');
-    }
+    toast.success(`导入成功: ${response.success} 条，失败: ${response.failed} 条`);
+    await loadParticipants();
+    emit('refresh');
   } catch (error) {
     toast.error('批量导入失败');
     console.error('Failed to import participants:', error);
@@ -361,7 +380,7 @@ const handleFileImport = async (event: Event) => {
 
 const exportParticipants = async () => {
   try {
-    window.open(`/api/v1/activities/${props.activityId}/participants/export`, '_blank');
+    window.open(`/api/activities/${props.activityId}/participants/export`, '_blank');
     toast.success('导出成功');
   } catch (error) {
     toast.error('导出失败');
@@ -394,9 +413,36 @@ watch(currentPage, () => {
   // Could add scroll to top here if needed
 });
 
-// Load participants when mounted
+// Watch for activityId changes
+watch(() => props.activityId, (newActivityId: string, oldActivityId: string) => {
+  if (newActivityId && newActivityId !== oldActivityId) {
+    console.log(`[ParticipantModal] Activity changed from ${oldActivityId} to ${newActivityId}, clearing cache and reloading`);
+    // Clear current data when switching activities
+    participants.value = [];
+    currentPage.value = 1;
+    searchQuery.value = '';
+    statusFilter.value = 'all';
+    showAddForm.value = false;
+    loadParticipants();
+  }
+});
+
+// Watch for modal close events
+const modalElement = ref<HTMLDialogElement>();
 onMounted(() => {
-  loadParticipants();
+  modalElement.value = document.getElementById(props.modalId) as HTMLDialogElement;
+  if (modalElement.value) {
+    modalElement.value.addEventListener('close', () => {
+      console.log(`[ParticipantModal] Modal closed, clearing form data`);
+      // Clear form data when modal closes
+      showAddForm.value = false;
+      newParticipant.value = {
+        name: '',
+        phone: '',
+        note: '',
+      };
+    });
+  }
 });
 
 // Expose methods for parent component

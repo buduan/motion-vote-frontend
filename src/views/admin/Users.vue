@@ -422,15 +422,13 @@ const fetchUsers = async () => {
     }
 
     const response = await UsersApi.getUsers(params);
-    console.log('API Response:', response);
-    console.log('Users data:', response.items);
     
     users.value = response.items;
     pagination.value = {
       page: response.page,
       limit: response.limit,
       total: response.total,
-      totalPages: response.totalPages,
+      totalPages: response.total_pages,
     };
 
     // 更新统计数据

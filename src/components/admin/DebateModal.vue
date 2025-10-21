@@ -260,12 +260,25 @@ const loadDebates = async () => {
   try {
     loading.value = true;
     const response = await DebatesApi.getDebates(props.activityId);
-    if (response.success && response.data) {
-      debates.value = response.data;
+    
+    // Debates API returns wrapped response {success, message, data: {items: [...], total, page, limit, total_pages}}
+    if (response && response.success && response.data && response.data.items && Array.isArray(response.data.items)) {
+      debates.value = response.data.items;
+    } else {
+      console.warn('Invalid debates response format:', response);
+      debates.value = []; // Set empty array to prevent iteration errors
     }
-  } catch (error) {
-    toast.error('加载辩题列表失败');
-    console.error('Failed to load debates:', error);
+  } catch (error: any) {
+    console.error('Error loading debates in modal:', error);
+    // Handle different error types
+    if (error?.response?.status === 403) {
+      toast.error('您没有权限访问此活动的辩题');
+      debates.value = []; // Set empty array to prevent iteration errors
+    } else {
+      toast.error('加载辩题列表失败');
+      console.error('Failed to load debates:', error);
+      debates.value = []; // Set empty array to prevent iteration errors
+    }
   } finally {
     loading.value = false;
   }
@@ -292,7 +305,8 @@ const saveDebate = async () => {
 
     if (editingDebate.value) {
       const response = await DebatesApi.updateDebate(editingDebate.value.id, debateForm.value);
-      if (response.success) {
+      
+      if (response && response.success) {
         toast.success('更新辩题成功');
         await loadDebates();
         cancelForm();
@@ -300,7 +314,8 @@ const saveDebate = async () => {
       }
     } else {
       const response = await DebatesApi.createDebate(props.activityId, debateForm.value);
-      if (response.success) {
+      
+      if (response && response.success) {
         toast.success('创建辩题成功');
         await loadDebates();
         cancelForm();
@@ -308,6 +323,7 @@ const saveDebate = async () => {
       }
     }
   } catch (error) {
+    console.error(`[DEBUG] Error saving debate:`, error);
     toast.error(editingDebate.value ? '更新辩题失败' : '创建辩题失败');
     console.error('Failed to save debate:', error);
   } finally {
@@ -336,7 +352,8 @@ const deleteDebate = async (debate: Debate) => {
   try {
     loading.value = true;
     const response = await DebatesApi.deleteDebate(debate.id);
-    if (response.success) {
+    
+    if (response && response.success) {
       toast.success('删除辩题成功');
       await loadDebates();
       emit('refresh');
@@ -358,12 +375,14 @@ const switchToDebate = async (debate: Debate) => {
   try {
     loading.value = true;
     const response = await DebatesApi.switchCurrentDebate(props.activityId, debate.id);
-    if (response.success) {
+    
+    if (response && response.success) {
       toast.success('切换辩题成功');
       await loadDebates();
       emit('refresh');
     }
   } catch (error) {
+    console.error(`[DEBUG] Error switching current debate:`, error);
     toast.error('切换辩题失败');
     console.error('Failed to switch debate:', error);
   } finally {

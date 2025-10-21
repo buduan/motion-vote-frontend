@@ -39,7 +39,7 @@
           </div>
           <div class="divider divider-horizontal hidden sm:flex"></div>
           <span class="text-base-content/70">
-            {{ (activityInfo as any)?.name || activityInfo?.title || '加载中...' }}
+            {{ activityInfo?.name || '加载中...' }}
           </span>
         </div>
       </div>
@@ -308,20 +308,7 @@ const loadData = async () => {
     }
 
     // 获取活动信息
-    const activityResponse = await ActivitiesApi.getActivityById(activityId.value);
-
-    // 检查响应格式并提取数据
-    let activityData: ActivityDetail;
-
-    if ('success' in activityResponse && activityResponse.success && activityResponse.data) {
-      // 标准 ApiResponse 格式
-      activityData = activityResponse.data;
-    } else if ('id' in activityResponse) {
-      // 直接返回的 ActivityDetail 格式
-      activityData = activityResponse as unknown as ActivityDetail;
-    } else {
-      throw new Error('Invalid activity response format');
-    }
+    const activityData = await ActivitiesApi.getActivityById(activityId.value);
 
     // 设置活动信息
     activityInfo.value = activityData;

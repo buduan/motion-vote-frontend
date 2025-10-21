@@ -1,6 +1,5 @@
 import { HttpClient } from '@/utils/http';
 import type {
-  ApiResponse,
   PaginatedResponse,
   Participant,
   ParticipantListParams,
@@ -18,15 +17,15 @@ export class ParticipantsApi {
   static async getParticipants(
     activityId: string,
     params?: ParticipantListParams,
-  ): Promise<ApiResponse<PaginatedResponse<Participant>>> {
-    return HttpClient.get<PaginatedResponse<Participant>>(`/activities/${activityId}/participants`, { params });
+  ): Promise<PaginatedResponse<Participant>> {
+    return HttpClient.getDirect<PaginatedResponse<Participant>>(`/activities/${activityId}/participants`, { params });
   }
 
   /**
    * 添加单个参与者
    */
-  static async addParticipant(activityId: string, data: AddParticipantRequest): Promise<ApiResponse<Participant>> {
-    return HttpClient.post<Participant>(`/activities/${activityId}/participants`, data);
+  static async addParticipant(activityId: string, data: AddParticipantRequest): Promise<Participant> {
+    return HttpClient.postDirect<Participant>(`/activities/${activityId}/participants`, data);
   }
 
   /**
@@ -35,26 +34,26 @@ export class ParticipantsApi {
   static async createParticipants(
     activityId: string,
     data: CreateParticipantsRequest,
-  ): Promise<ApiResponse<Participant[]>> {
-    return HttpClient.post<Participant[]>(`/activities/${activityId}/participants/batch`, data);
+  ): Promise<Participant[]> {
+    return HttpClient.postDirect<Participant[]>(`/activities/${activityId}/participants/batch`, data);
   }
 
   /**
    * 批量导入参与者
    */
-  static async batchImport(activityId: string, formData: FormData): Promise<ApiResponse<any>> {
-    return HttpClient.post<any>(`/activities/${activityId}/participants/batch`, formData, {
+  static async batchImport(activityId: string, formData: FormData): Promise<{success: number; failed: number}> {
+    return HttpClient.postDirect<{success: number; failed: number}>(`/activities/${activityId}/participants/batch`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
     });
   }
 
-  /**
+    /**
    * 获取参与者详情
    */
-  static async getParticipantById(activityId: string, participantId: string): Promise<ApiResponse<Participant>> {
-    return HttpClient.get<Participant>(`/activities/${activityId}/participants/${participantId}`);
+  static async getParticipantById(activityId: string, participantId: string): Promise<Participant> {
+    return HttpClient.getDirect<Participant>(`/activities/${activityId}/participants/${participantId}`);
   }
 
   /**
@@ -63,8 +62,8 @@ export class ParticipantsApi {
   static async getParticipantByNumber(
     activityId: string,
     participantNumber: string,
-  ): Promise<ApiResponse<Participant>> {
-    return HttpClient.get<Participant>(`/activities/${activityId}/participants/number/${participantNumber}`);
+  ): Promise<Participant> {
+    return HttpClient.getDirect<Participant>(`/activities/${activityId}/participants/number/${participantNumber}`);
   }
 
   /**
@@ -74,14 +73,14 @@ export class ParticipantsApi {
     activityId: string,
     participantId: string,
     status: 'active' | 'inactive',
-  ): Promise<ApiResponse<Participant>> {
-    return HttpClient.patch<Participant>(`/activities/${activityId}/participants/${participantId}`, { status });
+  ): Promise<Participant> {
+    return HttpClient.patchDirect<Participant>(`/activities/${activityId}/participants/${participantId}`, { status });
   }
 
   /**
    * 删除参与者
    */
-  static async deleteParticipant(activityId: string, participantId: string): Promise<ApiResponse<void>> {
-    return HttpClient.delete<void>(`/activities/${activityId}/participants/${participantId}`);
+  static async deleteParticipant(activityId: string, participantId: string): Promise<void> {
+    return HttpClient.deleteDirect<void>(`/activities/${activityId}/participants/${participantId}`);
   }
 }
