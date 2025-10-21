@@ -1,11 +1,11 @@
 <template>
   <div class="audience-page">
-    <h1>观众页面</h1>
+    <h1>Audience Page</h1>
   </div>
 </template>
 
 <script setup lang="ts">
-// 观众页面
+// Audience page
 </script>
 
 <style scoped>

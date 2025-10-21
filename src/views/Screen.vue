@@ -14,14 +14,18 @@
   </Transition>
 
   <!-- Logo -->
-  <div 
+  <div
     class="absolute h-12 w-auto logo-flying"
     :class="isLogoFlying ? '' : 'top-4 left-4'"
-    :style="isLogoFlying ? { 
-      top: logoPosition.y + 'px', 
-      left: logoPosition.x + 'px',
-      transform: `scale(${logoScale})`
-    } : {}"
+    :style="
+      isLogoFlying
+        ? {
+            top: logoPosition.y + 'px',
+            left: logoPosition.x + 'px',
+            transform: `scale(${logoScale})`,
+          }
+        : {}
+    "
   >
     <img src="@/assets/logo.jpg" alt="Logo" class="w-16 h-16" />
   </div>
@@ -38,7 +42,7 @@
     <!-- Debate Topic -->
     <div class="w-full mt-4" :class="{ 'h-3/5 overflow-hidden': selectedOption !== 'topic' }">
       <h3 v-if="selectedOption === 'topic'" class="text-4xl/[1.5] font-bold mb-4">
-        {{ activityName || '加载中...' }}
+        {{ activityName || 'Loading...' }}
       </h3>
       <h1
         class="text-9xl/[1.5] font-black mb-4"
@@ -48,7 +52,7 @@
             : ''
         "
       >
-        {{ debateTitle || '等待辩题...' }}
+        {{ debateTitle || 'Waiting for motion...' }}
       </h1>
     </div>
 
@@ -57,38 +61,38 @@
       <!-- Pro Side -->
       <div v-if="selectedOption === 'pro' || selectedOption === 'both'" class="w-full mb-8">
         <div class="w-full flex justify-between">
-          <h2 class="text-8xl/[1.5] font-black mb-4">正方</h2>
+          <h2 class="text-8xl/[1.5] font-black mb-4">Pro</h2>
           <h2 class="text-8xl/[1.5] font-bold mb-4 font-number text-blue-500">
             {{ currentDebateStats.proPercentage.toFixed(1) }}%
           </h2>
         </div>
         <VoteBar side="pro" :percent="currentDebateStats.proPercentage" class="w-full h-16" />
-        <p class="text-2xl mt-2 text-gray-500">{{ currentDebateStats.proVotes }} 票</p>
+        <p class="text-2xl mt-2 text-gray-500">{{ currentDebateStats.proVotes }} votes</p>
       </div>
 
       <!-- Con Side -->
       <div v-if="selectedOption === 'con' || selectedOption === 'both'" class="w-full">
         <div class="w-full flex justify-between">
-          <h2 class="text-8xl/[1.5] font-black mb-4">反方</h2>
+          <h2 class="text-8xl/[1.5] font-black mb-4">Con</h2>
           <h2 class="text-8xl/[1.5] font-bold mb-4 font-number text-red-500">
             {{ currentDebateStats.conPercentage.toFixed(1) }}%
           </h2>
         </div>
         <VoteBar side="con" :percent="currentDebateStats.conPercentage" class="w-full h-16" />
-        <p class="text-2xl mt-2 text-gray-500">{{ currentDebateStats.conVotes }} 票</p>
+        <p class="text-2xl mt-2 text-gray-500">{{ currentDebateStats.conVotes }} votes</p>
       </div>
 
       <!-- Total Votes Info -->
       <div v-if="selectedOption === 'both'" class="w-full mt-4 text-center">
         <p class="text-xl text-gray-400">
-          总投票数: {{ currentDebateStats.totalVotes }} | 弃权: {{ currentDebateStats.abstainVotes }}
+          Total Votes: {{ currentDebateStats.totalVotes }} | Abstain: {{ currentDebateStats.abstainVotes }}
         </p>
       </div>
     </div>
 
     <!-- Loading State -->
     <div v-if="!currentDebateStats && selectedOption !== 'topic'" class="w-full text-center">
-      <p class="text-3xl text-gray-400">等待投票数据...</p>
+      <p class="text-3xl text-gray-400">Waiting for vote data...</p>
     </div>
   </div>
 
@@ -96,7 +100,7 @@
   <Transition name="fade">
     <div v-if="showConnectionStatus" class="fixed bottom-4 right-4 z-50">
       <div class="badge" :class="isConnected ? 'badge-success' : 'badge-error'">
-        {{ isConnected ? '已连接' : '未连接' }}
+        {{ isConnected ? 'Connected' : 'Disconnected' }}
       </div>
     </div>
   </Transition>
@@ -164,12 +168,12 @@ watch([x, y], () => {
 // Easter Egg: 键盘监听
 const handleKeyPress = (event: KeyboardEvent) => {
   keySequence.value += event.key.toLowerCase();
-  
+
   // 保持最近6个字符
   if (keySequence.value.length > 6) {
     keySequence.value = keySequence.value.slice(-6);
   }
-  
+
   // 检查是否输入了 "buduan"
   if (keySequence.value === 'buduan') {
     toggleLogoFlying();
@@ -180,7 +184,7 @@ const handleKeyPress = (event: KeyboardEvent) => {
 // 切换 logo 飞行状态
 const toggleLogoFlying = () => {
   isLogoFlying.value = !isLogoFlying.value;
-  
+
   if (isLogoFlying.value) {
     startLogoFlying();
   } else {
@@ -192,7 +196,7 @@ const toggleLogoFlying = () => {
 const startLogoFlying = () => {
   const windowWidth = window.innerWidth - 64; // 减去 logo 宽度
   const windowHeight = window.innerHeight - 64; // 减去 logo 高度
-  
+
   flyingInterval = window.setInterval(() => {
     logoPosition.value = {
       x: Math.random() * windowWidth,
@@ -218,7 +222,7 @@ const stopLogoFlying = () => {
 onMounted(() => {
   // 添加键盘事件监听
   window.addEventListener('keypress', handleKeyPress);
-  
+
   // 首先调用一次 display 接口以获取初始化数据
   if (activityId.value) {
     ScreenApi.getDisplay(activityId.value)
@@ -270,7 +274,7 @@ onUnmounted(() => {
 }
 
 .logo-flying {
-  transition: 
+  transition:
     top 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94),
     left 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94),
     transform 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94);

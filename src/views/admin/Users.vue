@@ -3,14 +3,14 @@
     <!-- 页面标题和操作 -->
     <div class="flex justify-between items-center mb-8">
       <div>
-        <h1 class="text-3xl font-bold">用户管理</h1>
-        <p class="text-base-content/70 mt-2">管理系统用户和权限</p>
+        <h1 class="text-3xl font-bold">User Management</h1>
+        <p class="text-base-content/70 mt-2">Manage system users and permissions</p>
       </div>
       <button class="btn btn-primary" @click="openAddUserModal">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
         </svg>
-        添加用户
+        Add User
       </button>
     </div>
 
@@ -27,7 +27,7 @@
             ></path>
           </svg>
         </div>
-        <div class="stat-title">总用户数</div>
+        <div class="stat-title">Total Users</div>
         <div class="stat-value text-primary">{{ stats.totalUsers }}</div>
       </div>
 
@@ -42,7 +42,7 @@
             ></path>
           </svg>
         </div>
-        <div class="stat-title">管理员</div>
+        <div class="stat-title">Administrators</div>
         <div class="stat-value text-secondary">{{ stats.adminUsers }}</div>
       </div>
 
@@ -57,7 +57,7 @@
             ></path>
           </svg>
         </div>
-        <div class="stat-title">组织者</div>
+        <div class="stat-title">Organizers</div>
         <div class="stat-value text-success">{{ stats.organizerUsers }}</div>
       </div>
 
@@ -77,29 +77,29 @@
       </div>-->
     </div>
 
-    <!-- 搜索和筛选 -->
+    <!-- Search and Filter -->
     <div class="card bg-base-100 shadow-xl mb-6">
       <div class="card-body">
         <div class="flex flex-col md:flex-row items-center gap-6">
-          <!-- 搜索用户 -->
+          <!-- Search Users -->
           <div class="flex items-center gap-4 w-full md:flex-1">
-            <label class="w-24 text-right font-medium text-base-content/80 flex-shrink-0">搜索用户</label>
+            <label class="w-24 text-right font-medium text-base-content/80 flex-shrink-0">Search Users</label>
             <input
               v-model="searchQuery"
               type="text"
-              placeholder="输入用户名或邮箱..."
+              placeholder="Enter username or email..."
               class="input input-bordered flex-1"
               @input="debouncedFetchUsers"
             />
           </div>
 
-          <!-- 角色筛选 -->
+          <!-- Role Filter -->
           <div class="flex items-center gap-4 w-full md:w-auto md:min-w-[280px]">
-            <label class="w-24 text-right font-medium text-base-content/80 flex-shrink-0">角色筛选</label>
+            <label class="w-24 text-right font-medium text-base-content/80 flex-shrink-0">Role Filter</label>
             <select v-model="roleFilter" class="select select-bordered flex-1" @change="fetchUsers">
-              <option value="">全部角色</option>
-              <option value="admin">管理员</option>
-              <option value="organizer">组织者</option>
+              <option value="">All Roles</option>
+              <option value="admin">Administrator</option>
+              <option value="organizer">Organizer</option>
             </select>
           </div>
 
@@ -152,7 +152,7 @@
             </div>
           </template>
 
-          <!-- 角色列 -->
+          <!-- Role Column -->
           <template #cell-role="{ row }">
             <span
               class="badge"
@@ -178,15 +178,15 @@
       </div>
     </div>
 
-    <!-- 添加/编辑用户 Modal -->
+    <!-- Add/Edit User Modal -->
     <dialog ref="userModalRef" class="modal">
       <div class="modal-box max-w-2xl">
-        <h3 class="font-bold text-2xl mb-6 text-center">{{ isEditMode ? '编辑用户信息' : '添加新用户' }}</h3>
+        <h3 class="font-bold text-2xl mb-6 text-center">{{ isEditMode ? 'Edit User Information' : 'Add New User' }}</h3>
 
-        <form @submit.prevent="submitUserForm" class="space-y-4">
+        <form class="space-y-4" @submit.prevent="submitUserForm">
           <!-- 邮箱 -->
           <div class="flex items-center gap-4">
-            <label class="w-20 text-right font-medium text-base-content/80">邮箱</label>
+            <label class="w-20 text-right font-medium text-base-content/80">Email</label>
             <div class="flex-1">
               <input
                 v-model="userForm.email"
@@ -203,7 +203,7 @@
 
           <!-- 用户名 -->
           <div class="flex items-center gap-4">
-            <label class="w-20 text-right font-medium text-base-content/80">用户名</label>
+            <label class="w-20 text-right font-medium text-base-content/80">Username</label>
             <div class="flex-1">
               <input
                 v-model="userForm.name"
@@ -217,14 +217,14 @@
             </div>
           </div>
 
-          <!-- 密码（仅添加用户时） -->
+          <!-- Password (Only when adding user) -->
           <div v-if="!isEditMode" class="flex items-center gap-4">
-            <label class="w-20 text-right font-medium text-base-content/80">密码</label>
+            <label class="w-20 text-right font-medium text-base-content/80">Password</label>
             <div class="flex-1">
               <input
                 v-model="userForm.password"
                 type="password"
-                placeholder="请输入密码（至少6位）"
+                placeholder="Enter password (at least 6 characters)"
                 class="input input-bordered w-full"
                 :class="{ 'input-error': userFormErrors.password }"
                 required
@@ -233,39 +233,39 @@
             </div>
           </div>
 
-          <!-- 手机号 -->
+          <!-- Phone Number -->
           <div class="flex items-center gap-4">
-            <label class="w-20 text-right font-medium text-base-content/80">手机号</label>
+            <label class="w-20 text-right font-medium text-base-content/80">Phone Number</label>
             <div class="flex-1">
               <input
                 v-model="userForm.phone"
                 type="tel"
-                placeholder="请输入手机号（选填）"
+                placeholder="Enter phone number (optional)"
                 class="input input-bordered w-full"
               />
             </div>
           </div>
 
-          <!-- 角色 -->
+          <!-- Role -->
           <div class="flex items-center gap-4">
-            <label class="w-20 text-right font-medium text-base-content/80">角色</label>
+            <label class="w-20 text-right font-medium text-base-content/80">Role</label>
             <div class="flex-1">
               <select v-model="userForm.role" class="select select-bordered w-full" required>
-                <option value="organizer">组织者</option>
-                <option value="admin">管理员</option>
+                <option value="organizer">Organizer</option>
+                <option value="admin">Administrator</option>
               </select>
             </div>
           </div>
 
           <!-- 验证码（仅添加用户时） -->
           <div v-if="!isEditMode" class="flex items-start gap-4">
-            <label class="w-20 text-right font-medium text-base-content/80 pt-3">验证码</label>
+            <label class="w-20 text-right font-medium text-base-content/80 pt-3">Verification Code</label>
             <div class="flex-1">
               <div class="flex gap-2">
                 <input
                   v-model="userForm.code"
                   type="text"
-                  placeholder="请输入验证码"
+                  placeholder="Enter verification code"
                   class="input input-bordered flex-1"
                   :class="{ 'input-error': userFormErrors.code }"
                   required
@@ -277,7 +277,7 @@
                   @click="sendVerificationCode"
                 >
                   <span v-if="sendingCode" class="loading loading-spinner loading-xs"></span>
-                  <span v-else>{{ countdown > 0 ? `${countdown}秒` : '获取验证码' }}</span>
+                  <span v-else>{{ countdown > 0 ? `${countdown}s` : 'Get Code' }}</span>
                 </button>
               </div>
               <p v-if="userFormErrors.code" class="text-error text-xs mt-1">{{ userFormErrors.code }}</p>
@@ -289,10 +289,10 @@
 
           <!-- 操作按钮 -->
           <div class="flex justify-end gap-3">
-            <button type="button" class="btn btn-ghost min-w-[100px]" @click="closeUserModal">取消</button>
+            <button type="button" class="btn btn-ghost min-w-[100px]" @click="closeUserModal">Cancel</button>
             <button type="submit" class="btn btn-primary min-w-[100px]" :disabled="submitting">
               <span v-if="submitting" class="loading loading-spinner loading-sm"></span>
-              <span v-else>{{ isEditMode ? '保存' : '添加' }}</span>
+              <span v-else>{{ isEditMode ? 'Save' : 'Add' }}</span>
             </button>
           </div>
         </form>
@@ -389,8 +389,8 @@ const tableColumns = [
 const tableActions = [
   {
     key: 'edit',
-    label: '编辑',
-    handler: (row: any, _index: number) => {
+    label: 'Edit',
+    handler: (row: any) => {
       editUser(row as User);
     },
     class: 'btn btn-ghost btn-xs',
@@ -422,21 +422,19 @@ const fetchUsers = async () => {
     }
 
     const response = await UsersApi.getUsers(params);
-    console.log('API Response:', response);
-    console.log('Users data:', response.items);
-    
+
     users.value = response.items;
     pagination.value = {
       page: response.page,
       limit: response.limit,
       total: response.total,
-      totalPages: response.totalPages,
+      totalPages: response.total_pages,
     };
 
     // 更新统计数据
     updateStats();
   } catch (error: any) {
-    console.error('获取用户列表失败:', error);
+    // console.error('获取用户列表失败:', error);
     showToast('获取用户列表失败: ' + (error.message || '未知错误'), 'error');
   } finally {
     loading.value = false;
@@ -557,7 +555,7 @@ const sendVerificationCode = async () => {
       }, 1000);
     }
   } catch (error: any) {
-    console.error('发送验证码失败:', error);
+    // console.error('发送验证码失败:', error);
     showToast('发送验证码失败: ' + (error.message || '未知错误'), 'error');
   } finally {
     sendingCode.value = false;
@@ -619,7 +617,7 @@ const submitUserForm = async () => {
     closeUserModal();
     fetchUsers();
   } catch (error: any) {
-    console.error('操作失败:', error);
+    // console.error('操作失败:', error);
     showToast('操作失败: ' + (error.message || '未知错误'), 'error');
   } finally {
     submitting.value = false;

@@ -1,11 +1,11 @@
 <template>
   <div class="debate-edit-page">
-    <h1>编辑辩题</h1>
+    <h1>Edit Debate</h1>
   </div>
 </template>
 
 <script setup lang="ts">
-// 编辑辩题页面
+// Edit debate page
 </script>
 
 <style scoped>

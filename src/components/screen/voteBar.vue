@@ -5,7 +5,7 @@
 </template>
 
 <script setup lang="ts">
-// 投票栏组件
+// Vote bar component
 import { computed } from 'vue';
 
 const props = defineProps({

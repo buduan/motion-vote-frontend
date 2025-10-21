@@ -28,7 +28,7 @@
               {{ column.title }}
             </th>
             <!-- 操作列 -->
-            <th v-if="hasActions" class="text-center">操作</th>
+            <th v-if="hasActions" class="text-center">Actions</th>
           </tr>
         </thead>
 
@@ -37,7 +37,7 @@
           <tr v-if="loading" class="hover">
             <td :colspan="totalColumns" class="text-center py-8">
               <span class="loading loading-spinner loading-md"></span>
-              <span class="ml-2">加载中...</span>
+              <span class="ml-2">Loading...</span>
             </td>
           </tr>
 
@@ -108,7 +108,7 @@
                 {{ column.footerText || column.title }}
               </slot>
             </th>
-            <th v-if="hasActions">操作</th>
+            <th v-if="hasActions">Action</th>
           </tr>
         </tfoot>
       </table>
@@ -118,18 +118,18 @@
     <div v-if="pagination && totalPages > 1" class="flex items-center justify-between mt-4">
       <!-- 分页信息 -->
       <div class="text-sm text-base-content/60">
-        显示第 {{ startIndex + 1 }} - {{ endIndex }} 条，共 {{ total }} 条数据
+        Showing {{ startIndex + 1 }} - {{ endIndex }} of {{ total }} entries
       </div>
 
       <!-- 分页控件 -->
       <div class="join">
-        <button class="join-item btn btn-sm" :disabled="computedCurrentPage === 1" @click="goToPage(1)">首页</button>
+        <button class="join-item btn btn-sm" :disabled="computedCurrentPage === 1" @click="goToPage(1)">First</button>
         <button
           class="join-item btn btn-sm"
           :disabled="computedCurrentPage === 1"
           @click="goToPage(computedCurrentPage - 1)"
         >
-          上一页
+          Previous
         </button>
 
         <!-- 页码按钮 -->
@@ -148,26 +148,26 @@
           :disabled="computedCurrentPage === totalPages"
           @click="goToPage(computedCurrentPage + 1)"
         >
-          下一页
+          Next
         </button>
         <button
           class="join-item btn btn-sm"
           :disabled="computedCurrentPage === totalPages"
           @click="goToPage(totalPages)"
         >
-          末页
+          Last
         </button>
       </div>
 
       <!-- 每页条数选择 -->
       <div class="flex items-center gap-2">
-        <span class="text-sm text-base-content/60">每页</span>
+        <span class="text-sm text-base-content/60">per page</span>
         <select class="select select-sm select-bordered" :value="computedPageSize" @change="handlePageSizeChange">
-          <option v-for="size in pageSizeOptions" :key="size" :value="size">
-            {{ size }}
+          <option v-for="eachPageSize in pageSizeOptions" :key="eachPageSize" :value="eachPageSize">
+            {{ eachPageSize }}
           </option>
         </select>
-        <span class="text-sm text-base-content/60">条</span>
+        <span class="text-sm text-base-content/60">items</span>
       </div>
     </div>
   </div>
@@ -246,11 +246,13 @@ const props = withDefaults(defineProps<Props>(), {
   showFooter: false,
   selectable: false,
   rowKey: 'id',
+  rowClass: undefined,
   clickable: false,
   actions: () => [],
   pagination: true,
   pageSize: 10,
   currentPage: 1,
+  total: 0,
   pageSizeOptions: () => [10, 20, 50, 100],
 });
 

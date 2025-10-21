@@ -19,7 +19,7 @@ export interface PaginatedResponse<T> {
   total: number;
   page: number;
   limit: number;
-  totalPages: number;
+  total_pages: number;
 }
 
 // User related types
@@ -75,13 +75,17 @@ export interface RefreshTokenResponse {
 // Activity related types
 export interface Activity {
   id: string;
-  title: string;
+  name: string;
   description: string;
   startTime: string;
   endTime: string;
+  location: string;
+  coverImage?: string;
   status: 'upcoming' | 'ongoing' | 'ended';
-  maxParticipants?: number;
+  expectedParticipants?: number;
+  actualParticipants?: number;
   currentParticipants: number;
+  tags?: string[];
   ownerId: string;
   owner: User;
   createdAt: string;
@@ -89,17 +93,39 @@ export interface Activity {
 }
 
 export interface ActivityDetail extends Activity {
+  settings?: ActivitySettings;
   debates: Debate[];
   collaborators: Collaborator[];
   participants: Participant[];
+  currentDebate?: Debate;
+  statistics?: {
+    totalParticipants: number;
+    checkedInParticipants: number;
+    totalVotes: number;
+    totalDebates: number;
+  };
+}
+
+export interface ActivitySettings {
+  allowVoteChange: boolean;
+  maxVoteChanges?: number;
+  showRealTimeResults: boolean;
+  requireCheckIn: boolean;
+  anonymousVoting: boolean;
+  autoLockVotes: boolean;
+  lockVoteDelay?: number;
 }
 
 export interface CreateActivityRequest {
-  title: string;
+  name: string;
   description: string;
   startTime: string;
   endTime: string;
-  maxParticipants?: number;
+  location: string;
+  coverImage?: string;
+  expectedParticipants?: number;
+  tags?: string[];
+  settings?: ActivitySettings;
 }
 
 // Debate related types
@@ -111,7 +137,7 @@ export interface Debate {
   background?: string;
   estimatedDuration?: number;
   order: number;
-  status: 'pending' | 'active' | 'ended';
+  status: 'pending' | 'ongoing' | 'final_vote' | 'ended';
   activityId: string;
   createdAt: string;
   updatedAt: string;
@@ -144,16 +170,30 @@ export interface InviteCollaboratorRequest {
 // Participant related types
 export interface Participant {
   id: string;
-  participantNumber: string;
   activityId: string;
-  joinedAt: string;
+  code: string;
+  participantNumber: string; // Alias for code
+  name?: string;
+  phone?: string;
+  note?: string;
+  checkedIn: boolean;
+  checkedInAt?: string;
+  deviceFingerprint?: string;
+  joinedAt: string; // Alias for createdAt
   status: 'active' | 'inactive';
   lastActiveAt?: string;
+  createdAt: string;
 }
 
 export interface CreateParticipantsRequest {
   count: number;
   prefix?: string;
+}
+
+export interface AddParticipantRequest {
+  name?: string;
+  phone?: string;
+  note?: string;
 }
 
 // Vote related types
@@ -290,8 +330,8 @@ export interface UserUpdateRequest {
 }
 
 export interface ActivityListParams extends PaginationParams {
-  status?: 'upcoming' | 'ongoing' | 'ended';
-  role?: 'owner' | 'collaborator';
+  status?: 'upcoming' | 'ongoing' | 'ended' | '';
+  role?: 'owner' | 'collaborator' | '';
   search?: string;
 }
 
