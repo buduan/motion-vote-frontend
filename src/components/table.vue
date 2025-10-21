@@ -163,8 +163,8 @@
       <div class="flex items-center gap-2">
         <span class="text-sm text-base-content/60">每页</span>
         <select class="select select-sm select-bordered" :value="computedPageSize" @change="handlePageSizeChange">
-          <option v-for="size in pageSizeOptions" :key="size" :value="size">
-            {{ size }}
+          <option v-for="eachPageSize in pageSizeOptions" :key="eachPageSize" :value="eachPageSize">
+            {{ eachPageSize }}
           </option>
         </select>
         <span class="text-sm text-base-content/60">条</span>
@@ -201,8 +201,8 @@ interface Action {
 
 interface Props {
   // 数据相关
-  data: TableRow[];
-  columns: Column[];
+  data?: TableRow[];
+  columns?: Column[];
   loading?: boolean;
   emptyText?: string;
 
@@ -246,11 +246,13 @@ const props = withDefaults(defineProps<Props>(), {
   showFooter: false,
   selectable: false,
   rowKey: 'id',
+  rowClass: undefined,
   clickable: false,
   actions: () => [],
   pagination: true,
   pageSize: 10,
   currentPage: 1,
+  total: 0,
   pageSizeOptions: () => [10, 20, 50, 100],
 });
 
