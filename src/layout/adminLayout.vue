@@ -6,7 +6,7 @@
       <a class="btn btn-ghost text-xl">Motion Vote Console</a>
     </div>
     <div class="flex-none">
-  <ul class="menu menu-horizontal px-1 items-center">
+      <ul class="menu menu-horizontal px-1 items-center">
         <li>
           <RouterLink to="/admin">Dashboard</RouterLink>
         </li>

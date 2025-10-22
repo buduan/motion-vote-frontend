@@ -24,7 +24,13 @@
       <div class="flex items-center justify-between mb-6">
         <div class="flex items-center gap-4">
           <button class="btn btn-ghost btn-sm" @click="goBack">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-4 w-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
             </svg>
             返回
@@ -32,7 +38,7 @@
           <h1 class="text-3xl font-bold">编辑活动</h1>
         </div>
         <div class="flex gap-2">
-          <button class="btn btn-primary" @click="updateActivity" :disabled="submitting">
+          <button class="btn btn-primary" :disabled="submitting" @click="updateActivity">
             <span v-if="submitting" class="loading loading-spinner loading-sm mr-2"></span>
             保存修改
           </button>
@@ -45,8 +51,19 @@
         <div class="card card-border bg-base-100">
           <div class="card-body">
             <h3 class="card-title">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-5 w-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
               </svg>
               基本信息
             </h3>
@@ -101,30 +118,31 @@
         <div class="card card-border bg-base-100">
           <div class="card-body">
             <h3 class="card-title">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-5 w-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
               </svg>
               时间信息
             </h3>
             <div class="space-y-4">
               <label class="input">
                 <span class="label">开始时间 *</span>
-                <input
-                  v-model="form.startTime"
-                  type="datetime-local"
-                  class="input input-bordered"
-                  required
-                />
+                <input v-model="form.startTime" type="datetime-local" class="input input-bordered" required />
               </label>
 
               <label class="input">
                 <span class="label">结束时间 *</span>
-                <input
-                  v-model="form.endTime"
-                  type="datetime-local"
-                  class="input input-bordered"
-                  required
-                />
+                <input v-model="form.endTime" type="datetime-local" class="input input-bordered" required />
               </label>
             </div>
           </div>
@@ -135,8 +153,19 @@
       <div class="card card-border bg-base-100 mb-6">
         <div class="card-body">
           <h3 class="card-title">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-5 w-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"
+              />
             </svg>
             标签
           </h3>
@@ -149,20 +178,12 @@
                 class="input input-bordered flex-1"
                 @keydown.enter.prevent="addTag"
               />
-              <button type="button" class="btn btn-outline" @click="addTag">
-                添加
-              </button>
+              <button type="button" class="btn btn-outline" @click="addTag">添加</button>
             </div>
             <div v-if="form.tags && form.tags.length > 0" class="flex flex-wrap gap-2">
-              <span
-                v-for="(tag, index) in form.tags"
-                :key="index"
-                class="badge badge-primary gap-2"
-              >
+              <span v-for="(tag, index) in form.tags" :key="index" class="badge badge-primary gap-2">
                 {{ tag }}
-                <button type="button" @click="removeTag(index)" class="btn btn-ghost btn-xs">
-                  ×
-                </button>
+                <button type="button" class="btn btn-ghost btn-xs" @click="removeTag(index)">×</button>
               </span>
             </div>
           </div>
@@ -173,9 +194,25 @@
       <div class="card card-border bg-base-100">
         <div class="card-body">
           <h3 class="card-title">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-5 w-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
+              />
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+              />
             </svg>
             活动设置
           </h3>
@@ -185,11 +222,7 @@
                 <span class="font-medium">允许改票</span>
                 <p class="text-sm text-base-content/60">允许参与者在投票后修改选择</p>
               </div>
-              <input
-                v-model="form.settings.allowVoteChange"
-                type="checkbox"
-                class="toggle toggle-primary"
-              />
+              <input v-model="form.settings.allowVoteChange" type="checkbox" class="toggle toggle-primary" />
             </div>
 
             <div v-if="form.settings.allowVoteChange" class="ml-4">
@@ -210,11 +243,7 @@
                 <span class="font-medium">显示实时结果</span>
                 <p class="text-sm text-base-content/60">在投票过程中显示实时统计结果</p>
               </div>
-              <input
-                v-model="form.settings.showRealTimeResults"
-                type="checkbox"
-                class="toggle toggle-primary"
-              />
+              <input v-model="form.settings.showRealTimeResults" type="checkbox" class="toggle toggle-primary" />
             </div>
 
             <div class="flex items-center justify-between">
@@ -222,11 +251,7 @@
                 <span class="font-medium">需要入场验证</span>
                 <p class="text-sm text-base-content/60">参与者需要验证入场后才能投票</p>
               </div>
-              <input
-                v-model="form.settings.requireCheckIn"
-                type="checkbox"
-                class="toggle toggle-primary"
-              />
+              <input v-model="form.settings.requireCheckIn" type="checkbox" class="toggle toggle-primary" />
             </div>
 
             <div class="flex items-center justify-between">
@@ -234,11 +259,7 @@
                 <span class="font-medium">匿名投票</span>
                 <p class="text-sm text-base-content/60">隐藏投票者的身份信息</p>
               </div>
-              <input
-                v-model="form.settings.anonymousVoting"
-                type="checkbox"
-                class="toggle toggle-primary"
-              />
+              <input v-model="form.settings.anonymousVoting" type="checkbox" class="toggle toggle-primary" />
             </div>
 
             <div class="flex items-center justify-between">
@@ -246,11 +267,7 @@
                 <span class="font-medium">自动锁定投票</span>
                 <p class="text-sm text-base-content/60">在辩题结束后自动锁定投票</p>
               </div>
-              <input
-                v-model="form.settings.autoLockVotes"
-                type="checkbox"
-                class="toggle toggle-primary"
-              />
+              <input v-model="form.settings.autoLockVotes" type="checkbox" class="toggle toggle-primary" />
             </div>
 
             <div v-if="form.settings.autoLockVotes" class="ml-4">
@@ -272,8 +289,19 @@
 
     <!-- Error State -->
     <div v-else class="flex flex-col items-center justify-center py-12">
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-error mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        class="h-16 w-16 text-error mb-4"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"
+        />
       </svg>
       <h3 class="text-xl font-semibold mb-2">加载失败</h3>
       <p class="text-base-content/60 mb-4">{{ error }}</p>
