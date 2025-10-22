@@ -223,7 +223,7 @@ import { VotesApi } from '@/api/votes';
 import { ActivitiesApi } from '@/api/activities';
 import { HttpClient } from '@/utils/http';
 import toast from '@/utils/toast';
-import type { Debate, VoteStatus, VoteResults, ActivityDetail } from '@/types/api';
+import type { Debate, VoteStatus, VoteStats, ActivityDetail } from '@/types/api';
 
 const route = useRoute();
 
@@ -236,7 +236,7 @@ const showResults = ref(false);
 const activityInfo = ref<ActivityDetail | null>(null);
 const currentDebate = ref<Debate | null>(null);
 const voteStatus = ref<VoteStatus | null>(null);
-const voteResults = ref<VoteResults | null>(null);
+const VoteStats = ref<VoteStats | null>(null);
 const sessionToken = ref<string>(''); // 会话令牌
 
 // 从URL或localStorage获取参数
@@ -366,9 +366,9 @@ const loadData = async () => {
 
       // 加载投票结果（如果需要）
       try {
-        const resultsResponse = await VotesApi.getVoteResults(currentDebate.value.id);
+        const resultsResponse = await VotesApi.getVoteStats(currentDebate.value.id);
         if (resultsResponse.success) {
-          voteResults.value = resultsResponse.data || null;
+          VoteStats.value = resultsResponse.data || null;
           showResults.value = true;
         }
       } catch {

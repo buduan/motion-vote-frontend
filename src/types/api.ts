@@ -229,7 +229,7 @@ export interface VoteStatus {
   canChangeVote: boolean;
 }
 
-export interface VoteResults {
+export interface VoteStats {
   debateId: string;
   totalVotes: number;
   proVotes: number;
@@ -263,7 +263,7 @@ export interface ScreenConfig {
 export interface ScreenData {
   activity: Activity;
   currentDebate?: Debate;
-  voteResults?: VoteResults;
+  VoteStats?: VoteStats;
   config: ScreenConfig;
 }
 
@@ -291,7 +291,7 @@ export interface ActivityReport {
   };
   debates: Array<{
     debate: Debate;
-    results: VoteResults;
+    results: VoteStats;
     participation: number;
   }>;
   timeline: Array<{
