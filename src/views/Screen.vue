@@ -115,7 +115,12 @@
   </div>
 
   <!-- Timer View -->
-  <DebateTimer v-if="selectedOption === 'timer'" :timer-data="timerData" @timer-end="handleTimerEnd" />
+  <DebateTimer
+    v-if="selectedOption === 'timer'"
+    ref="debateTimerRef"
+    :timer-data="timerData"
+    @timer-end="handleTimerEnd"
+  />
 
   <!-- Keyboard Hints Overlay (for Timer mode) -->
   <Transition name="fade">
@@ -149,9 +154,13 @@
     </div>
   </Transition>
 
-  <!-- Connection Status - Bottom Right Corner -->
+  <!-- Connection Status - Above Stage Navigation -->
   <Transition name="fade">
-    <div v-if="showConnectionStatus" class="fixed bottom-4 right-4 z-50">
+    <div
+      v-if="showConnectionStatus"
+      class="absolute right-4 z-50"
+      :class="selectedOption === 'timer' && hasNextStage ? 'bottom-16' : 'bottom-4'"
+    >
       <div class="badge" :class="isConnected ? 'badge-success' : 'badge-error'">
         {{ isConnected ? '已连接' : '未连接' }}
       </div>
@@ -177,6 +186,7 @@ const showSelector = ref(false);
 // Timer data state
 const timerData = ref<TimerData | null>(null);
 const showKeyboardHints = ref(false);
+const debateTimerRef = ref<InstanceType<typeof DebateTimer> | null>(null);
 
 // 彩蛋: 当在屏幕页面输入 "buduan" 时，logo 会开始飞行
 const keySequence = ref('');
@@ -200,6 +210,11 @@ const { statistics, isConnected, showConnectionStatus, connect, disconnect } = u
 const activityName = computed(() => statistics.value?.data?.activityName || '');
 const debateTitle = computed(() => statistics.value?.data?.currentDebate?.title || '等待辩题...');
 const currentDebateStats = computed(() => statistics.value?.data?.currentDebateStats);
+
+// Check if timer has next stage
+const hasNextStage = computed(() => {
+  return debateTimerRef.value?.$?.exposed?.hasNextStage ?? false;
+});
 
 // Timer handler
 const handleTimerEnd = (sideIndex: number) => {

@@ -13,20 +13,6 @@
           {{ timerData?.debateTitle || '等待辩题...' }}
         </h1>
       </div>
-
-      <!-- Hint to press right arrow (Bottom of screen) -->
-      <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-center text-gray-500">
-        <p class="text-2xl mb-2">按 → 键查看所有阶段</p>
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          class="h-12 w-12 mx-auto animate-bounce"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
-        </svg>
-      </div>
     </div>
 
     <!-- All Stages View: Full Timer Display -->
@@ -42,7 +28,7 @@
 
       <!-- Current Stage Name -->
       <div v-if="currentStage" class="w-full mb-6 px-8">
-        <h2 class="text-5xl font-bold text-center text-base-content">
+        <h2 class="text-8xl font-bold text-center text-base-content">
           {{ currentStage.stageName }}
         </h2>
       </div>
@@ -50,8 +36,8 @@
       <!-- Timer Display Area -->
       <div
         v-if="currentStage"
-        class="w-full flex-1 flex"
-        :class="currentStage.isDualSide ? 'justify-between gap-8' : 'justify-center items-center'"
+        class="w-full flex-1 flex items-center"
+        :class="currentStage.isDualSide ? 'justify-between gap-8' : 'justify-center'"
       >
         <!-- Single Timer or Left Timer (Pro Side) -->
         <div
@@ -74,17 +60,6 @@
             <div class="timer-display font-number text-9xl/[1.5] font-bold mb-4" :class="getTimeColor(0)">
               {{ formatTime(sideTimers[0] ?? 0) }}
             </div>
-            <!-- Progress Bar -->
-            <div class="w-full rounded-full border-4 border-base-content/30 p-1 h-16">
-              <div
-                class="h-full transition-all duration-300 rounded-full"
-                :class="currentSideIndex === 0 && isTimerRunning ? 'bg-blue-500' : 'bg-gray-500'"
-                :style="{ width: `${getProgressPercent(0)}%`, minWidth: getProgressPercent(0) > 0 ? '0.5rem' : '0' }"
-              ></div>
-            </div>
-            <p class="text-2xl mt-2 text-gray-500">
-              总时长: {{ formatTime((currentStage.sides[0]?.duration ?? 0) * 1000) }}
-            </p>
           </div>
         </div>
 
@@ -105,39 +80,11 @@
             <div class="timer-display font-number text-9xl/[1.5] font-bold mb-4" :class="getTimeColor(1)">
               {{ formatTime(sideTimers[1] ?? 0) }}
             </div>
-            <!-- Progress Bar -->
-            <div class="w-full rounded-full border-4 border-base-content/30 p-1 h-16">
-              <div
-                class="h-full transition-all duration-300 rounded-full"
-                :class="currentSideIndex === 1 && isTimerRunning ? 'bg-red-500' : 'bg-gray-500'"
-                :style="{ width: `${getProgressPercent(1)}%`, minWidth: getProgressPercent(1) > 0 ? '0.5rem' : '0' }"
-              ></div>
-            </div>
-            <p class="text-2xl mt-2 text-gray-500">
-              总时长: {{ formatTime((currentStage.sides[1]?.duration ?? 0) * 1000) }}
-            </p>
           </div>
         </div>
       </div>
 
-      <!-- Control Panel -->
-      <div v-if="currentStage && !currentStage.hideTimer" class="w-full mt-8">
-        <div class="flex justify-center gap-6 mb-4">
-          <button
-            class="btn btn-lg w-32"
-            :class="isTimerRunning ? 'btn-warning' : 'btn-primary'"
-            @click="handleStartPause"
-          >
-            {{ isTimerRunning ? '⏸ 暂停' : '▶ 开始' }}
-          </button>
-
-          <button v-if="currentStage.isDualSide" class="btn btn-lg btn-secondary w-32" @click="handleSwitchSide">
-            ⇄ 切换
-          </button>
-
-          <button class="btn btn-lg btn-ghost w-32" @click="handleReset">⟲ 重置</button>
-        </div>
-      </div>
+      <!-- Stage Navigation - Bottom Corners (Always visible) -->
     </div>
 
     <!-- Stage Navigation - Bottom Corners (Always visible) -->
@@ -256,19 +203,6 @@ const getTimeColor = (sideIndex: number): string => {
 
   // 默认：根据主题色
   return 'text-base-content';
-};
-
-// Get progress percentage for progress bar
-const getProgressPercent = (sideIndex: number): number => {
-  if (!currentStage.value?.sides[sideIndex]) return 0;
-
-  const remaining = sideTimers.value[sideIndex];
-  if (remaining === undefined) return 0;
-
-  const duration = currentStage.value.sides[sideIndex].duration * 1000;
-  const percent = (remaining / duration) * 100;
-  // 确保最小值为0，最大值为100
-  return Math.max(0, Math.min(100, percent));
 };
 
 // Check and play bell if needed
@@ -481,6 +415,7 @@ defineExpose({
   handleStartPause,
   handleReset,
   handleSwitchSide,
+  hasNextStage,
 });
 </script>
 
