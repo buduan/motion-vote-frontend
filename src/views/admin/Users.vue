@@ -316,6 +316,18 @@ const showToast = (message: string, type: 'success' | 'error' | 'info' | 'warnin
   toast[type](message);
 };
 
+// Helper to safely extract error messages from unknown errors
+const getErrorMessage = (error: unknown): string => {
+  if (error instanceof Error) return error.message;
+  if (typeof error === 'string') return error;
+  try {
+    const str = JSON.stringify(error);
+    return str === '{}' ? '未知错误' : str;
+  } catch {
+    return '未知错误';
+  }
+};
+
 // 响应式数据
 const loading = ref(false);
 const submitting = ref(false);
@@ -390,8 +402,12 @@ const tableActions = [
   {
     key: 'edit',
     label: 'Edit',
-    handler: (row: any) => {
-      editUser(row as User);
+    handler: (row: unknown) => {
+      if (row && typeof row === 'object' && 'id' in row) {
+        editUser(row as User);
+      } else {
+        showToast('无法编辑：无效的用户数据', 'error');
+      }
     },
     class: 'btn btn-ghost btn-xs',
   },
@@ -433,9 +449,9 @@ const fetchUsers = async () => {
 
     // 更新统计数据
     updateStats();
-  } catch (error: any) {
+  } catch (error: unknown) {
     // console.error('获取用户列表失败:', error);
-    showToast('获取用户列表失败: ' + (error.message || '未知错误'), 'error');
+    showToast('获取用户列表失败: ' + getErrorMessage(error), 'error');
   } finally {
     loading.value = false;
   }
@@ -554,9 +570,9 @@ const sendVerificationCode = async () => {
         }
       }, 1000);
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     // console.error('发送验证码失败:', error);
-    showToast('发送验证码失败: ' + (error.message || '未知错误'), 'error');
+    showToast('发送验证码失败: ' + getErrorMessage(error), 'error');
   } finally {
     sendingCode.value = false;
   }
@@ -616,9 +632,9 @@ const submitUserForm = async () => {
 
     closeUserModal();
     fetchUsers();
-  } catch (error: any) {
+  } catch (error: unknown) {
     // console.error('操作失败:', error);
-    showToast('操作失败: ' + (error.message || '未知错误'), 'error');
+    showToast('操作失败: ' + getErrorMessage(error), 'error');
   } finally {
     submitting.value = false;
   }

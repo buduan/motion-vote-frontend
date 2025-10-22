@@ -317,25 +317,34 @@ const resetFilters = () => {
   dateFilter.value = '';
 };
 
-const viewMotion = (_motion: any) => {
+type Motion = {
+  id: number;
+  title: string;
+  description: string;
+  status: 'pending' | 'active' | 'ended' | string;
+  votes: { total: number; agree: number; disagree: number; abstain: number };
+  createdAt: string;
+};
+
+const viewMotion = (_motion: Motion) => {
   // 这里可以跳转到议题详情页面
 };
 
-const editMotion = (_motion: any) => {
+const editMotion = (_motion: Motion) => {
   // 这里可以打开编辑对话框或跳转到编辑页面
 };
 
-const startMotion = (motion: any) => {
+const startMotion = (motion: Motion) => {
   motion.status = 'active';
   // 这里可以调用API开始投票
 };
 
-const endMotion = (motion: any) => {
+const endMotion = (motion: Motion) => {
   motion.status = 'ended';
   // 这里可以调用API结束投票
 };
 
-const deleteMotion = (motion: any) => {
+const deleteMotion = (motion: Motion) => {
   if (confirm('Are you sure you want to delete this motion? This action cannot be undone.')) {
     const index = motions.value.findIndex(m => m.id === motion.id);
     if (index > -1) {
@@ -354,6 +363,7 @@ const deleteMotion = (motion: any) => {
 .line-clamp-2 {
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
