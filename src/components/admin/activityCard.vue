@@ -74,7 +74,7 @@
 
       <!-- Card Actions -->
       <div class="card-actions justify-between mt-4 pt-4 border-t border-base-content/10">
-        <div class="flex gap-2">
+        <div class="flex gap-2 flex-wrap">
           <button class="btn btn-sm" @click="$emit('switch-debate', activity)">
             <svg
               xmlns="http://www.w3.org/2000/svg"

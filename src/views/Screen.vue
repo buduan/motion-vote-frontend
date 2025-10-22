@@ -178,6 +178,7 @@ import VoteBar from '@/components/screen/voteBar.vue';
 import DebateTimer from '@/components/screen/debateTimer.vue';
 import { ScreenApi } from '@/api/screen';
 import type { ScreenStatistics, TimerData } from '@/types/screen';
+import { getDefaultTimerStages } from '@/utils/timerDefaults';
 
 const route = useRoute();
 const selectedOption = ref('topic');
@@ -271,84 +272,8 @@ const loadMockTimerData = () => {
   timerData.value = {
     activityName: activityName.value || '辩论赛活动',
     debateTitle: debateTitle.value || '辩题',
-    stages: [
-      {
-        stageName: '开场陈词',
-        isDualSide: false,
-        sides: [{ name: '主持人', duration: 60 }],
-        bellTimings: [
-          { time: 0, type: 'start' },
-          { time: 60, type: 'end' },
-        ],
-        hideTimer: true, // 不显示计时器
-      },
-      {
-        stageName: '立论阶段 - 正方',
-        isDualSide: false,
-        sides: [{ name: '正方一辩', duration: 180 }],
-        bellTimings: [
-          { time: 0, type: 'start' },
-          { time: 150, type: 'warning' },
-          { time: 180, type: 'end' },
-        ],
-      },
-      {
-        stageName: '立论阶段 - 反方',
-        isDualSide: false,
-        sides: [{ name: '反方一辩', duration: 180 }],
-        bellTimings: [
-          { time: 0, type: 'start' },
-          { time: 150, type: 'warning' },
-          { time: 180, type: 'end' },
-        ],
-      },
-      {
-        stageName: '攻辩环节',
-        isDualSide: true,
-        sides: [
-          { name: '正方二辩', duration: 90 },
-          { name: '反方二辩', duration: 90 },
-        ],
-        bellTimings: [
-          { time: 0, type: 'start' },
-          { time: 75, type: 'warning' },
-          { time: 90, type: 'end' },
-        ],
-      },
-      {
-        stageName: '自由辩论',
-        isDualSide: true,
-        sides: [
-          { name: '正方', duration: 240 },
-          { name: '反方', duration: 240 },
-        ],
-        bellTimings: [
-          { time: 0, type: 'start' },
-          { time: 210, type: 'warning' },
-          { time: 240, type: 'end' },
-        ],
-      },
-      {
-        stageName: '总结陈词 - 反方',
-        isDualSide: false,
-        sides: [{ name: '反方四辩', duration: 180 }],
-        bellTimings: [
-          { time: 0, type: 'start' },
-          { time: 150, type: 'warning' },
-          { time: 180, type: 'end' },
-        ],
-      },
-      {
-        stageName: '总结陈词 - 正方',
-        isDualSide: false,
-        sides: [{ name: '正方四辩', duration: 180 }],
-        bellTimings: [
-          { time: 0, type: 'start' },
-          { time: 150, type: 'warning' },
-          { time: 180, type: 'end' },
-        ],
-      },
-    ],
+    stages: getDefaultTimerStages(),
+    timestamp: '2025-10-23T01:17:44Z',
   };
 };
 

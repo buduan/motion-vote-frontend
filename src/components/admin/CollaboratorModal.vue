@@ -1,5 +1,5 @@
 <template>
-  <dialog :id="modalId" class="modal">
+  <dialog :id="modalId" ref="modalRef" class="modal">
     <div class="modal-box max-w-4xl">
       <!-- Modal Header -->
       <div class="flex items-center justify-between mb-4">
@@ -413,23 +413,41 @@ watch(
   },
 );
 
+// Modal ref
+const modalRef = ref<HTMLDialogElement | null>(null);
+
+// Modal control methods
+const open = () => {
+  modalRef.value?.showModal();
+  loadCollaborators();
+};
+
+const close = () => {
+  modalRef.value?.close();
+  // Reset state on close
+  showInviteForm.value = false;
+  editingCollaborator.value = null;
+  newCollaborator.value = {
+    email: '',
+    permissions: [],
+  };
+  editingPermissions.value = [];
+};
+
 // Watch for modal close events
 const modalElement = ref<HTMLDialogElement>();
 onMounted(() => {
   modalElement.value = document.getElementById(props.modalId) as HTMLDialogElement;
   if (modalElement.value) {
-    modalElement.value.addEventListener('close', () => {
-      console.log(`[CollaboratorModal] Modal closed, clearing form data`);
-      // Clear form data when modal closes
-      showInviteForm.value = false;
-      editingCollaborator.value = null;
-      newCollaborator.value = {
-        email: '',
-        permissions: [],
-      };
-      editingPermissions.value = [];
-    });
+    modalElement.value.addEventListener('close', close);
   }
   loadCollaborators();
+});
+
+// Expose methods for parent component
+defineExpose({
+  loadCollaborators,
+  open,
+  close,
 });
 </script>

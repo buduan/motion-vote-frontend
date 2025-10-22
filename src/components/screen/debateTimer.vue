@@ -40,16 +40,20 @@
         :class="currentStage.isDualSide ? 'justify-between gap-8' : 'justify-center'"
       >
         <!-- Single Timer or Left Timer (Pro Side) -->
-        <div
-          v-if="currentStage.sides && currentStage.sides.length > 0"
-          class="timer-side flex-1 flex flex-col"
-          :class="currentStage.isDualSide ? '' : 'max-w-2xl'"
-        >
+        <div v-if="currentStage.sides && currentStage.sides.length > 0" class="timer-side flex-1 flex flex-col">
           <!-- Speaker Name (Centered) -->
           <div class="w-full text-center mb-6">
             <h2
-              class="text-8xl/[1.5] font-black"
-              :class="currentSideIndex === 0 && isTimerRunning ? 'text-blue-500' : 'text-gray-500'"
+              :class="[
+                currentStage.hideTimer
+                  ? 'text-9xl/[1.5] font-black text-black whitespace-nowrap overflow-visible'
+                  : 'text-8xl/[1.5] font-black',
+                !currentStage.hideTimer
+                  ? currentSideIndex === 0 && isTimerRunning
+                    ? 'text-blue-500'
+                    : 'text-gray-500'
+                  : '',
+              ]"
             >
               {{ currentStage.sides[0]?.name || '发言者' }}
             </h2>
@@ -68,8 +72,16 @@
           <!-- Speaker Name (Centered) -->
           <div class="w-full text-center mb-6">
             <h2
-              class="text-8xl/[1.5] font-black"
-              :class="currentSideIndex === 1 && isTimerRunning ? 'text-red-500' : 'text-gray-500'"
+              :class="[
+                currentStage.hideTimer
+                  ? 'text-9xl/[1.5] font-black text-black whitespace-nowrap overflow-visible'
+                  : 'text-8xl/[1.5] font-black',
+                !currentStage.hideTimer
+                  ? currentSideIndex === 1 && isTimerRunning
+                    ? 'text-red-500'
+                    : 'text-gray-500'
+                  : '',
+              ]"
             >
               {{ currentStage.sides[1]?.name || '发言者' }}
             </h2>
