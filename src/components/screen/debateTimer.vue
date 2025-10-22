@@ -1,138 +1,150 @@
 <template>
-  <div class="p-16 flex flex-col h-screen items-start justify-start relative">
-    <!-- Debate Topic Header -->
-    <div class="w-full mt-4 mb-8">
-      <h3 class="text-4xl/[1.5] font-bold mb-4">
-        {{ timerData?.activityName || '加载中...' }}
-      </h3>
-      <h1 class="text-9xl/[1.5] font-black mb-4 bg-gradient-to-r from-blue-600 via-purple-600 to-red-600 bg-clip-text text-transparent">
-        {{ timerData?.debateTitle || '等待辩题...' }}
-      </h1>
+  <div class="p-16 flex flex-col h-screen items-center justify-center relative overflow-hidden">
+    <!-- Initial View: Exactly like Topic page except bottom hint -->
+    <div v-if="!showAllStages" class="flex flex-col items-center align-center text-center justify-center">
+      <!-- Debate Topic -->
+      <div class="w-full mt-4">
+        <h3 class="text-4xl/[1.5] font-bold mb-4">
+          {{ timerData?.activityName || '加载中...' }}
+        </h3>
+        <h1
+          class="text-9xl/[1.5] font-black mb-4 bg-gradient-to-r from-blue-600 via-purple-600 to-red-600 bg-clip-text text-transparent"
+        >
+          {{ timerData?.debateTitle || '等待辩题...' }}
+        </h1>
+      </div>
+
+      <!-- Hint to press right arrow (Bottom of screen) -->
+      <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-center text-gray-500">
+        <p class="text-2xl mb-2">按 → 键查看所有阶段</p>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-12 w-12 mx-auto animate-bounce"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+        </svg>
+      </div>
     </div>
 
-    <!-- Current Stage Name -->
-    <div v-if="currentStage" class="w-full mb-6">
-      <h2 class="text-5xl font-bold text-center text-gray-300">
-        {{ currentStage.stageName }}
-      </h2>
-    </div>
+    <!-- All Stages View: Full Timer Display -->
+    <div v-else class="w-full flex-1 flex flex-col">
+      <!-- Debate Title -->
+      <div class="w-full mb-8 px-8">
+        <h1
+          class="text-9xl/[1.5] font-black text-center bg-gradient-to-r from-blue-600 via-purple-600 to-red-600 bg-clip-text text-transparent"
+        >
+          {{ timerData?.debateTitle || '等待辩题...' }}
+        </h1>
+      </div>
 
-    <!-- Timer Display Area -->
-    <div v-if="currentStage" class="w-full flex-1 flex" :class="currentStage.isDualSide ? 'justify-between gap-8' : 'justify-center items-center'">
-      <!-- Single Timer or Left Timer (Pro Side) -->
-      <div 
-        v-if="currentStage.sides && currentStage.sides.length > 0"
-        class="timer-side flex-1 flex flex-col"
-        :class="currentStage.isDualSide ? '' : 'max-w-2xl'"
+      <!-- Current Stage Name -->
+      <div v-if="currentStage" class="w-full mb-6 px-8">
+        <h2 class="text-5xl font-bold text-center text-base-content">
+          {{ currentStage.stageName }}
+        </h2>
+      </div>
+
+      <!-- Timer Display Area -->
+      <div
+        v-if="currentStage"
+        class="w-full flex-1 flex"
+        :class="currentStage.isDualSide ? 'justify-between gap-8' : 'justify-center items-center'"
       >
-        <!-- Speaker Name (Centered) -->
-        <div class="w-full text-center mb-6">
-          <h2 class="text-8xl/[1.5] font-black" 
-              :class="currentSideIndex === 0 && isTimerRunning ? 'text-blue-500' : 'text-gray-500'">
-            {{ currentStage.sides[0]?.name || '发言者' }}
-          </h2>
+        <!-- Single Timer or Left Timer (Pro Side) -->
+        <div
+          v-if="currentStage.sides && currentStage.sides.length > 0"
+          class="timer-side flex-1 flex flex-col"
+          :class="currentStage.isDualSide ? '' : 'max-w-2xl'"
+        >
+          <!-- Speaker Name (Centered) -->
+          <div class="w-full text-center mb-6">
+            <h2
+              class="text-8xl/[1.5] font-black"
+              :class="currentSideIndex === 0 && isTimerRunning ? 'text-blue-500' : 'text-gray-500'"
+            >
+              {{ currentStage.sides[0]?.name || '发言者' }}
+            </h2>
+          </div>
+
+          <!-- Timer Display (Centered) - Only if hideTimer is false -->
+          <div v-if="!currentStage.hideTimer" class="w-full flex flex-col items-center">
+            <div class="timer-display font-number text-9xl/[1.5] font-bold mb-4" :class="getTimeColor(0)">
+              {{ formatTime(sideTimers[0] ?? 0) }}
+            </div>
+            <!-- Progress Bar -->
+            <div class="w-full rounded-full border-4 border-base-content/30 p-1 h-16">
+              <div
+                class="h-full transition-all duration-300 rounded-full"
+                :class="currentSideIndex === 0 && isTimerRunning ? 'bg-blue-500' : 'bg-gray-500'"
+                :style="{ width: `${getProgressPercent(0)}%`, minWidth: getProgressPercent(0) > 0 ? '0.5rem' : '0' }"
+              ></div>
+            </div>
+            <p class="text-2xl mt-2 text-gray-500">
+              总时长: {{ formatTime((currentStage.sides[0]?.duration ?? 0) * 1000) }}
+            </p>
+          </div>
         </div>
-        
-        <!-- Timer Display (Centered) - Only if hideTimer is false -->
-        <div v-if="!currentStage.hideTimer" class="w-full flex flex-col items-center">
-          <div class="timer-display font-number text-9xl/[1.5] font-bold mb-4" :class="getTimeColor(0)">
-            {{ formatTime(sideTimers[0] ?? 0) }}
+
+        <!-- Right Timer (Con Side - Dual Side Only) -->
+        <div v-if="currentStage.isDualSide && currentStage.sides.length > 1" class="timer-side flex-1 flex flex-col">
+          <!-- Speaker Name (Centered) -->
+          <div class="w-full text-center mb-6">
+            <h2
+              class="text-8xl/[1.5] font-black"
+              :class="currentSideIndex === 1 && isTimerRunning ? 'text-red-500' : 'text-gray-500'"
+            >
+              {{ currentStage.sides[1]?.name || '发言者' }}
+            </h2>
           </div>
-          <!-- Progress Bar -->
-          <div class="w-full rounded-full border-4 border-base-content/30 p-1 h-16">
-            <div 
-              class="rounded-full h-full transition-all duration-300"
-              :class="currentSideIndex === 0 && isTimerRunning ? 'bg-blue-500' : 'bg-gray-500'"
-              :style="{ width: `${getProgressPercent(0)}%` }"
-            ></div>
+
+          <!-- Timer Display (Centered) - Only if hideTimer is false -->
+          <div v-if="!currentStage.hideTimer" class="w-full flex flex-col items-center">
+            <div class="timer-display font-number text-9xl/[1.5] font-bold mb-4" :class="getTimeColor(1)">
+              {{ formatTime(sideTimers[1] ?? 0) }}
+            </div>
+            <!-- Progress Bar -->
+            <div class="w-full rounded-full border-4 border-base-content/30 p-1 h-16">
+              <div
+                class="h-full transition-all duration-300 rounded-full"
+                :class="currentSideIndex === 1 && isTimerRunning ? 'bg-red-500' : 'bg-gray-500'"
+                :style="{ width: `${getProgressPercent(1)}%`, minWidth: getProgressPercent(1) > 0 ? '0.5rem' : '0' }"
+              ></div>
+            </div>
+            <p class="text-2xl mt-2 text-gray-500">
+              总时长: {{ formatTime((currentStage.sides[1]?.duration ?? 0) * 1000) }}
+            </p>
           </div>
-          <p class="text-2xl mt-2 text-gray-500">
-            总时长: {{ formatTime(currentStage.sides[0]?.duration ?? 0) }}
-          </p>
         </div>
       </div>
 
-      <!-- Right Timer (Con Side - Dual Side Only) -->
-      <div 
-        v-if="currentStage.isDualSide && currentStage.sides.length > 1"
-        class="timer-side flex-1 flex flex-col"
-      >
-        <!-- Speaker Name (Centered) -->
-        <div class="w-full text-center mb-6">
-          <h2 class="text-8xl/[1.5] font-black" 
-              :class="currentSideIndex === 1 && isTimerRunning ? 'text-red-500' : 'text-gray-500'">
-            {{ currentStage.sides[1]?.name || '发言者' }}
-          </h2>
-        </div>
-        
-        <!-- Timer Display (Centered) - Only if hideTimer is false -->
-        <div v-if="!currentStage.hideTimer" class="w-full flex flex-col items-center">
-          <div class="timer-display font-number text-9xl/[1.5] font-bold mb-4" :class="getTimeColor(1)">
-            {{ formatTime(sideTimers[1] ?? 0) }}
-          </div>
-          <!-- Progress Bar -->
-          <div class="w-full rounded-full border-4 border-base-content/30 p-1 h-16">
-            <div 
-              class="rounded-full h-full transition-all duration-300"
-              :class="currentSideIndex === 1 && isTimerRunning ? 'bg-red-500' : 'bg-gray-500'"
-              :style="{ width: `${getProgressPercent(1)}%` }"
-            ></div>
-          </div>
-          <p class="text-2xl mt-2 text-gray-500">
-            总时长: {{ formatTime(currentStage.sides[1]?.duration ?? 0) }}
-          </p>
+      <!-- Control Panel -->
+      <div v-if="currentStage && !currentStage.hideTimer" class="w-full mt-8">
+        <div class="flex justify-center gap-6 mb-4">
+          <button
+            class="btn btn-lg w-32"
+            :class="isTimerRunning ? 'btn-warning' : 'btn-primary'"
+            @click="handleStartPause"
+          >
+            {{ isTimerRunning ? '⏸ 暂停' : '▶ 开始' }}
+          </button>
+
+          <button v-if="currentStage.isDualSide" class="btn btn-lg btn-secondary w-32" @click="handleSwitchSide">
+            ⇄ 切换
+          </button>
+
+          <button class="btn btn-lg btn-ghost w-32" @click="handleReset">⟲ 重置</button>
         </div>
       </div>
     </div>
 
-    <!-- Control Panel -->
-    <div v-if="currentStage && !currentStage.hideTimer" class="w-full mt-8">
-      <div class="flex justify-center gap-6 mb-4">
-        <button 
-          @click="handleStartPause"
-          class="btn btn-lg px-8"
-          :class="isTimerRunning ? 'btn-warning' : 'btn-primary'"
-        >
-          {{ isTimerRunning ? '⏸ 暂停' : '▶ 开始' }}
-        </button>
-        
-        <button 
-          v-if="currentStage.isDualSide"
-          @click="handleSwitchSide"
-          class="btn btn-lg btn-secondary px-8"
-          :disabled="!isTimerRunning"
-        >
-          ߔĠ切换
-        </button>
-        
-        <button 
-          @click="handleReset"
-          class="btn btn-lg btn-ghost px-8"
-        >
-          ⟲ 重置
-        </button>
-      </div>
-      
-      <!-- Keyboard Hints -->
-      <div class="text-center">
-        <p class="text-xl text-gray-400">
-          快捷键: <span class="kbd kbd-sm">Space</span> 开始/暂停 
-          <span v-if="currentStage.isDualSide">| <span class="kbd kbd-sm">S</span> 切换</span>
-          | <span class="kbd kbd-sm">R</span> 重置
-          | <span class="kbd kbd-sm">←</span> 上一阶段
-          | <span class="kbd kbd-sm">→</span> 下一阶段
-        </p>
-      </div>
-    </div>
-
-    <!-- Stage Navigation - Bottom Corners -->
+    <!-- Stage Navigation - Bottom Corners (Always visible) -->
     <div class="absolute bottom-4 left-4 right-4 flex justify-between items-end pointer-events-none">
       <!-- Previous Stage -->
       <div v-if="hasPreviousStage" class="flex flex-col items-start pointer-events-auto">
-        <button 
-          @click="previousStage"
-          class="btn btn-ghost btn-sm mb-2 opacity-70 hover:opacity-100"
-        >
+        <button class="btn btn-ghost btn-sm mb-2 opacity-70 hover:opacity-100" @click="navigateToPreviousStage">
           ← 上一阶段
         </button>
         <p class="text-lg text-gray-500 max-w-xs truncate">
@@ -141,19 +153,9 @@
       </div>
       <div v-else class="w-1"></div>
 
-      <!-- Stage Indicator -->
-      <div class="text-center pointer-events-auto">
-        <p class="text-xl text-gray-400">
-          {{ currentStageIndex + 1 }} / {{ totalStages }}
-        </p>
-      </div>
-
       <!-- Next Stage -->
       <div v-if="hasNextStage" class="flex flex-col items-end pointer-events-auto">
-        <button 
-          @click="nextStage"
-          class="btn btn-ghost btn-sm mb-2 opacity-70 hover:opacity-100"
-        >
+        <button class="btn btn-ghost btn-sm mb-2 opacity-70 hover:opacity-100" @click="navigateToNextStage">
           下一阶段 →
         </button>
         <p class="text-lg text-gray-500 max-w-xs truncate text-right">
@@ -161,6 +163,11 @@
         </p>
       </div>
       <div v-else class="w-1"></div>
+    </div>
+
+    <!-- Stage Indicator - Absolutely Centered -->
+    <div class="absolute bottom-4 left-1/2 transform -translate-x-1/2 pointer-events-none">
+      <p class="text-xl text-gray-400">{{ currentStageIndex + 1 }} / {{ totalStages }}</p>
     </div>
   </div>
 </template>
@@ -178,11 +185,15 @@ const emit = defineEmits<{
 }>();
 
 // State
-const currentStageIndex = ref(0); // 当前阶段索引
-const currentSideIndex = ref(0); // 当前活动的计时器索引
+const currentStageIndex = ref(0);
+const currentSideIndex = ref(0);
 const isTimerRunning = ref(false);
-const sideTimers = ref<number[]>([]); // 每个侧面的剩余时间（秒）
+const sideTimers = ref<number[]>([]); // 毫秒
 const intervalId = ref<number | null>(null);
+const showAllStages = ref(false);
+const firstBellRung = ref<boolean[]>([]); // 跟踪每个计时器是否已经响过第一次铃
+const bellsRung = ref<Set<number>>(new Set()); // 记录已经响过的铃声时间点
+const lastTick = ref<number | null>(null); // Date.now() 上一次tick时间
 
 // Computed properties for current stage
 const currentStage = computed<TimerStage | null>(() => {
@@ -206,77 +217,96 @@ const nextStageName = computed(() => {
 });
 
 // Initialize timers when data or stage changes
-watch([() => props.timerData, currentStageIndex], ([newData]) => {
-  if (newData && currentStage.value?.sides) {
-    sideTimers.value = currentStage.value.sides.map(side => side.currentTime ?? side.duration);
-    currentSideIndex.value = 0;
-    isTimerRunning.value = false;
-    pauseTimer(); // 确保停止之前的计时器
-  }
-}, { immediate: true });
+watch(
+  [() => props.timerData, currentStageIndex],
+  ([newData]) => {
+    if (newData && currentStage.value?.sides) {
+      sideTimers.value = currentStage.value.sides.map(side => (side.currentTime ?? side.duration) * 1000);
+      firstBellRung.value = currentStage.value.sides.map(() => false);
+      bellsRung.value = new Set(); // 重置已响铃记录
+      currentSideIndex.value = 0;
+      isTimerRunning.value = false;
+      pauseTimer();
+    }
+  },
+  { immediate: true },
+);
 
-// Format time as MM:SS
-const formatTime = (seconds: number): string => {
-  const mins = Math.floor(seconds / 60);
-  const secs = seconds % 60;
-  return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+// Format time as MM:SS.mmm (三位小数)
+const formatTime = (milliseconds: number): string => {
+  const totalSeconds = Math.floor(milliseconds / 1000);
+  const ms = milliseconds % 1000;
+  const mins = Math.floor(totalSeconds / 60);
+  const secs = totalSeconds % 60;
+  return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}.${ms.toString().padStart(3, '0')}`;
 };
 
-// Get time color based on remaining time
+// Get time color based on remaining time and bell state
 const getTimeColor = (sideIndex: number): string => {
-  if (!currentStage.value?.sides[sideIndex]) return 'text-gray-400';
-  
+  if (!currentStage.value?.sides[sideIndex]) return 'text-base-content';
+
   const remaining = sideTimers.value[sideIndex];
-  if (remaining === undefined) return 'text-gray-400';
-  
-  const duration = currentStage.value.sides[sideIndex].duration;
-  const percentage = (remaining / duration) * 100;
-  
-  if (percentage > 50) return 'text-green-400';
-  if (percentage > 20) return 'text-yellow-400';
-  return 'text-red-400';
+  if (remaining === undefined) return 'text-base-content';
+
+  // 最后5秒：红色
+  if (remaining <= 5000) return 'text-red-500';
+
+  // 第一次响铃后：黄色
+  if (firstBellRung.value[sideIndex]) return 'text-yellow-500';
+
+  // 默认：根据主题色
+  return 'text-base-content';
 };
 
 // Get progress percentage for progress bar
 const getProgressPercent = (sideIndex: number): number => {
   if (!currentStage.value?.sides[sideIndex]) return 0;
-  
+
   const remaining = sideTimers.value[sideIndex];
   if (remaining === undefined) return 0;
-  
-  const duration = currentStage.value.sides[sideIndex].duration;
-  return (remaining / duration) * 100;
+
+  const duration = currentStage.value.sides[sideIndex].duration * 1000;
+  const percent = (remaining / duration) * 100;
+  // 确保最小值为0，最大值为100
+  return Math.max(0, Math.min(100, percent));
 };
 
 // Check and play bell if needed
-const checkAndPlayBell = (elapsedTime: number) => {
+const checkAndPlayBell = (elapsedMilliseconds: number) => {
   if (!currentStage.value?.bellTimings) return;
-  
+
+  const elapsedSeconds = Math.floor(elapsedMilliseconds / 1000);
+
   currentStage.value.bellTimings.forEach(bell => {
-    if (bell.time === elapsedTime) {
+    // 检查是否到达铃声时间，且该铃声未响过
+    if (bell.time === elapsedSeconds && !bellsRung.value.has(bell.time)) {
       playBell(bell.type);
+      bellsRung.value.add(bell.time); // 标记该铃声已响过
+
+      // 记录第一次响铃（非start铃）
+      if (bell.type === 'warning' && !firstBellRung.value[currentSideIndex.value]) {
+        firstBellRung.value[currentSideIndex.value] = true;
+      }
     }
   });
 };
 
-// Play bell sound (placeholder - will be replaced with actual audio file)
+// Play bell sound
 const playBell = (type: 'start' | 'warning' | 'end') => {
-  // TODO: Implement actual bell audio playback
-  console.log(`ߔԠBell: ${type}`);
-  
-  // Use Web Audio API to create a simple beep
+  // eslint-disable-next-line no-console
+  console.log(`🔔 Bell: ${type}`);
+
   const audioContext = new AudioContext();
   const oscillator = audioContext.createOscillator();
   const gainNode = audioContext.createGain();
-  
+
   oscillator.connect(gainNode);
   gainNode.connect(audioContext.destination);
-  
-  // Different frequencies for different bell types
+
   oscillator.frequency.value = type === 'end' ? 800 : type === 'warning' ? 600 : 440;
   gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
   gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
-  
+
   oscillator.start(audioContext.currentTime);
   oscillator.stop(audioContext.currentTime + 0.5);
 };
@@ -290,127 +320,146 @@ const handleStartPause = () => {
   }
 };
 
-// Start the timer
+// Start the timer (use Date.now() delta for precise ms)
 const startTimer = () => {
   if (!currentStage.value?.sides) return;
-  
+
+  if (isTimerRunning.value) return;
+
   isTimerRunning.value = true;
-  
+  lastTick.value = Date.now();
+
   intervalId.value = window.setInterval(() => {
     if (!currentStage.value?.sides) return;
-    
-    const currentTimer = sideTimers.value[currentSideIndex.value];
-    
-    if (currentTimer !== undefined && currentTimer > 0) {
-      sideTimers.value[currentSideIndex.value] = currentTimer - 1;
-      
-      // Check for bell timing
-      const side = currentStage.value.sides[currentSideIndex.value];
-      if (side) {
-        const elapsed = side.duration - sideTimers.value[currentSideIndex.value]!;
-        checkAndPlayBell(elapsed);
-      }
-      
-      // Check if time is up
-      if (sideTimers.value[currentSideIndex.value] === 0) {
-        playBell('end');
-        emit('timerEnd', currentSideIndex.value);
-        
-        // In dual-side mode, auto switch to other side if available
-        if (currentStage.value?.isDualSide && currentStage.value.sides.length > 1) {
-          const otherSideIndex = currentSideIndex.value === 0 ? 1 : 0;
-          const otherTimer = sideTimers.value[otherSideIndex];
-          if (otherTimer !== undefined && otherTimer > 0) {
-            // Don't auto-switch, just pause
-            pauseTimer();
-          } else {
-            pauseTimer();
-          }
-        } else {
+    if (lastTick.value === null) {
+      lastTick.value = Date.now();
+      return;
+    }
+
+    const now = Date.now();
+    const delta = now - lastTick.value;
+    lastTick.value = now;
+
+    const idx = currentSideIndex.value;
+    const currentTimer = sideTimers.value[idx];
+    if (currentTimer === undefined) return;
+
+    sideTimers.value[idx] = Math.max(0, currentTimer - delta);
+
+    const side = currentStage.value.sides[idx];
+    if (side) {
+      const elapsed = side.duration * 1000 - sideTimers.value[idx];
+      checkAndPlayBell(elapsed);
+    }
+
+    if (sideTimers.value[idx] <= 0) {
+      sideTimers.value[idx] = 0;
+      playBell('end');
+      emit('timerEnd', idx);
+
+      // If dual-side and the other side still has time, switch focus to it and pause
+      if (currentStage.value?.isDualSide && currentStage.value.sides.length > 1) {
+        const otherSideIndex = idx === 0 ? 1 : 0;
+        const otherTimer = sideTimers.value[otherSideIndex];
+        if (otherTimer !== undefined && otherTimer > 0) {
+          // switch focus but keep paused
+          currentSideIndex.value = otherSideIndex;
           pauseTimer();
+          return; // stop further processing
         }
       }
+
+      pauseTimer();
     }
-  }, 1000);
+  }, 50); // 50ms tick for smooth ms display
 };
 
 // Pause the timer
 const pauseTimer = () => {
   isTimerRunning.value = false;
+  lastTick.value = null;
   if (intervalId.value !== null) {
     clearInterval(intervalId.value);
     intervalId.value = null;
   }
 };
 
-// Switch to the other side (dual-side only)
+// Switch to the other side
 const handleSwitchSide = () => {
   if (!currentStage.value?.isDualSide || !currentStage.value.sides || currentStage.value.sides.length < 2) return;
-  
-  // Switch to the other side
+
   currentSideIndex.value = currentSideIndex.value === 0 ? 1 : 0;
-  
-  // If timer was running, keep it running on the new side
-  if (isTimerRunning.value) {
-    // No need to restart, the interval will continue with new currentSideIndex
-  }
 };
 
 // Reset all timers
 const handleReset = () => {
   pauseTimer();
-  
+
   if (currentStage.value?.sides) {
-    sideTimers.value = currentStage.value.sides.map(side => side.duration);
+    sideTimers.value = currentStage.value.sides.map(side => side.duration * 1000);
+    firstBellRung.value = currentStage.value.sides.map(() => false);
+    bellsRung.value = new Set(); // 重置已响铃记录
   }
-  
+
   currentSideIndex.value = 0;
 };
 
-// Stage navigation
-const previousStage = () => {
-  if (hasPreviousStage.value) {
+/**
+ * Navigate to the previous stage
+ */
+const navigateToPreviousStage = () => {
+  if (currentStageIndex.value > 0) {
     pauseTimer();
     currentStageIndex.value--;
+    showAllStages.value = true;
+  } else if (showAllStages.value) {
+    // If we're at the first stage and showing all stages, go back to initial topic view
+    pauseTimer();
+    showAllStages.value = false;
   }
 };
 
-const nextStage = () => {
+/**
+ * Navigate to the next stage
+ */
+const navigateToNextStage = () => {
   if (hasNextStage.value) {
     pauseTimer();
     currentStageIndex.value++;
+    showAllStages.value = true;
+  } else if (!showAllStages.value) {
+    showAllStages.value = true;
   }
 };
 
 // Keyboard event handler
 const handleKeyPress = (event: KeyboardEvent) => {
-  // Prevent default for our hotkeys
   switch (event.key.toLowerCase()) {
-    case ' ': // Space
+    case ' ':
       event.preventDefault();
-      if (!currentStage.value?.hideTimer) {
+      if (!currentStage.value?.hideTimer && showAllStages.value) {
         handleStartPause();
       }
       break;
-    case 's': // Switch
-      if (currentStage.value?.isDualSide && isTimerRunning.value) {
+    case 's':
+      if (currentStage.value?.isDualSide && showAllStages.value) {
         event.preventDefault();
         handleSwitchSide();
       }
       break;
-    case 'r': // Reset
+    case 'r':
       event.preventDefault();
-      if (!currentStage.value?.hideTimer) {
+      if (!currentStage.value?.hideTimer && showAllStages.value) {
         handleReset();
       }
       break;
-    case 'arrowleft': // Previous stage
+    case 'arrowleft':
       event.preventDefault();
-      previousStage();
+      navigateToPreviousStage();
       break;
-    case 'arrowright': // Next stage
+    case 'arrowright':
       event.preventDefault();
-      nextStage();
+      navigateToNextStage();
       break;
   }
 };
@@ -424,11 +473,22 @@ onUnmounted(() => {
   window.removeEventListener('keydown', handleKeyPress);
   pauseTimer();
 });
+
+// Expose navigation functions for external use
+defineExpose({
+  navigateToPreviousStage,
+  navigateToNextStage,
+  handleStartPause,
+  handleReset,
+  handleSwitchSide,
+});
 </script>
 
 <style scoped>
 .timer-display {
-  font-family: 'D-DIN', 'Arial', sans-serif;
+  font-family: 'D-DIN', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'Roboto Mono', 'monospace';
+  /* Use tabular numbers to make digits fixed width */
+  font-variant-numeric: tabular-nums;
   letter-spacing: 0.05em;
 }
 
@@ -447,5 +507,15 @@ onUnmounted(() => {
 .btn:disabled {
   opacity: 0.4;
   cursor: not-allowed;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
 }
 </style>

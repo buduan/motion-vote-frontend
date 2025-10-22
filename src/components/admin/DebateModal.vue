@@ -145,7 +145,23 @@
                       />
                     </svg>
                   </button>
-                  <button class="btn btn-ghost btn-xs" @click="editDebate(debate)">
+                  <button class="btn btn-ghost btn-xs tooltip" data-tip="配置计时" @click="configureTimer(debate)">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      class="h-4 w-4"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
+                  </button>
+                  <button class="btn btn-ghost btn-xs tooltip" data-tip="编辑" @click="editDebate(debate)">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       class="h-4 w-4"
@@ -161,7 +177,7 @@
                       />
                     </svg>
                   </button>
-                  <button class="btn btn-ghost btn-xs text-error" @click="deleteDebate(debate)">
+                  <button class="btn btn-ghost btn-xs text-error tooltip" data-tip="删除" @click="deleteDebate(debate)">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       class="h-4 w-4"
@@ -404,6 +420,14 @@ const cancelForm = () => {
     estimatedDuration: undefined,
     order: undefined,
   };
+};
+
+// TODO: Configure timer function
+const configureTimer = (debate: Debate) => {
+  console.log('Configuring timer for debate:', debate.id);
+  // TODO: Open timer configuration modal
+  // This will be implemented when TimerConfigModal component is ready
+  toast.info('计时配置功能开发中...');
 };
 
 const isCurrentDebate = (debate: Debate) => {

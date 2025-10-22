@@ -21,11 +21,21 @@
             <span class="label">权限</span>
             <div class="flex flex-wrap gap-2">
               <label class="label cursor-pointer gap-2">
-                <input v-model="newCollaborator.permissions" type="checkbox" value="view" class="checkbox checkbox-sm" />
+                <input
+                  v-model="newCollaborator.permissions"
+                  type="checkbox"
+                  value="view"
+                  class="checkbox checkbox-sm"
+                />
                 <span class="label-text">查看</span>
               </label>
               <label class="label cursor-pointer gap-2">
-                <input v-model="newCollaborator.permissions" type="checkbox" value="edit" class="checkbox checkbox-sm" />
+                <input
+                  v-model="newCollaborator.permissions"
+                  type="checkbox"
+                  value="edit"
+                  class="checkbox checkbox-sm"
+                />
                 <span class="label-text">编辑</span>
               </label>
               <label class="label cursor-pointer gap-2">
@@ -42,7 +52,9 @@
         </div>
         <div v-else class="grid grid-cols-1 gap-4">
           <div>
-            <span class="label">协作者：{{ editingCollaborator.user.name }} ({{ editingCollaborator.user.email }})</span>
+            <span class="label">
+              协作者：{{ editingCollaborator.user.name }} ({{ editingCollaborator.user.email }})
+            </span>
             <div class="flex flex-wrap gap-2 mt-2">
               <label class="label cursor-pointer gap-2">
                 <input v-model="editingPermissions" type="checkbox" value="view" class="checkbox checkbox-sm" />
@@ -53,19 +65,18 @@
                 <span class="label-text">编辑</span>
               </label>
               <label class="label cursor-pointer gap-2">
-                <input
-                  v-model="editingPermissions"
-                  type="checkbox"
-                  value="control"
-                  class="checkbox checkbox-sm"
-                />
+                <input v-model="editingPermissions" type="checkbox" value="control" class="checkbox checkbox-sm" />
                 <span class="label-text">控制</span>
               </label>
             </div>
           </div>
         </div>
         <div class="flex gap-2 mt-4">
-          <button class="btn btn-primary btn-sm" :disabled="loading" @click="editingCollaborator ? updateCollaboratorPermissions() : inviteCollaborator()">
+          <button
+            class="btn btn-primary btn-sm"
+            :disabled="loading"
+            @click="editingCollaborator ? updateCollaboratorPermissions() : inviteCollaborator()"
+          >
             <span v-if="loading" class="loading loading-spinner loading-xs"></span>
             {{ editingCollaborator ? '更新权限' : '发送邀请' }}
           </button>
@@ -179,9 +190,21 @@
         </svg>
         <div class="text-sm">
           <p><strong>权限说明：</strong></p>
-          <p>• <strong>查看</strong>：可以查看活动数据和统计信息</p>
-          <p>• <strong>编辑</strong>：可以编辑活动信息、管理参与者和辩题</p>
-          <p>• <strong>控制</strong>：可以控制活动流程、切换辩题、管理大屏</p>
+          <p>
+            •
+            <strong>查看</strong>
+            ：可以查看活动数据和统计信息
+          </p>
+          <p>
+            •
+            <strong>编辑</strong>
+            ：可以编辑活动信息、管理参与者和辩题
+          </p>
+          <p>
+            •
+            <strong>控制</strong>
+            ：可以控制活动流程、切换辩题、管理大屏
+          </p>
         </div>
       </div>
     </div>
@@ -369,21 +392,26 @@ onMounted(() => {
 });
 
 // Watch for activityId changes
-watch(() => props.activityId, (newActivityId: string, oldActivityId: string) => {
-  if (newActivityId && newActivityId !== oldActivityId) {
-    console.log(`[CollaboratorModal] Activity changed from ${oldActivityId} to ${newActivityId}, clearing cache and reloading`);
-    // Clear current data when switching activities
-    collaborators.value = [];
-    showInviteForm.value = false;
-    editingCollaborator.value = null;
-    editingPermissions.value = [];
-    newCollaborator.value = {
-      email: '',
-      permissions: [],
-    };
-    loadCollaborators();
-  }
-});
+watch(
+  () => props.activityId,
+  (newActivityId: string, oldActivityId: string) => {
+    if (newActivityId && newActivityId !== oldActivityId) {
+      console.log(
+        `[CollaboratorModal] Activity changed from ${oldActivityId} to ${newActivityId}, clearing cache and reloading`,
+      );
+      // Clear current data when switching activities
+      collaborators.value = [];
+      showInviteForm.value = false;
+      editingCollaborator.value = null;
+      editingPermissions.value = [];
+      newCollaborator.value = {
+        email: '',
+        permissions: [],
+      };
+      loadCollaborators();
+    }
+  },
+);
 
 // Watch for modal close events
 const modalElement = ref<HTMLDialogElement>();

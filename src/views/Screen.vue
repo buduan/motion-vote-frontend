@@ -1,7 +1,7 @@
 <template>
-  <!-- Selector -->
+  <!-- Selector and Keyboard Shortcuts -->
   <Transition name="fade">
-    <div v-if="showSelector" class="absolute top-4 right-4">
+    <div v-if="showSelector" class="absolute top-4 right-4 flex gap-2 z-50">
       <div class="selector">
         <select v-model="selectedOption" class="select">
           <option value="topic">Topic</option>
@@ -11,23 +11,44 @@
           <option value="timer">Timer</option>
         </select>
       </div>
+      <button
+        v-if="selectedOption === 'timer'"
+        class="btn btn-ghost btn-sm"
+        :class="showKeyboardHints ? 'btn-active' : ''"
+        @click="showKeyboardHints = !showKeyboardHints"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"
+          />
+        </svg>
+        快捷键
+      </button>
     </div>
   </Transition>
 
   <!-- Logo -->
-  <div 
+  <div
     class="absolute h-12 w-auto logo-flying"
     :class="isLogoFlying ? '' : 'top-4 left-4'"
-    :style="isLogoFlying ? { 
-      top: logoPosition.y + 'px', 
-      left: logoPosition.x + 'px',
-      transform: `scale(${logoScale})`
-    } : {}"
+    :style="
+      isLogoFlying
+        ? {
+            top: logoPosition.y + 'px',
+            left: logoPosition.x + 'px',
+            transform: `scale(${logoScale})`,
+          }
+        : {}
+    "
   >
     <img src="@/assets/logo.jpg" alt="Logo" class="w-16 h-16" />
   </div>
 
   <div
+    v-if="selectedOption !== 'timer'"
     class="p-16 flex flex-col h-screen"
     :class="{
       'items-center align-center text-center': selectedOption === 'topic',
@@ -35,7 +56,6 @@
       'justify-center': selectedOption === 'topic',
       'justify-start': selectedOption === 'pro' || selectedOption === 'con' || selectedOption === 'both',
     }"
-    v-if="selectedOption !== 'timer'"
   >
     <!-- Debate Topic -->
     <div class="w-full mt-4" :class="{ 'h-3/5 overflow-hidden': selectedOption !== 'topic' }">
@@ -95,11 +115,39 @@
   </div>
 
   <!-- Timer View -->
-  <DebateTimer 
-    v-if="selectedOption === 'timer'" 
-    :timer-data="timerData"
-    @timer-end="handleTimerEnd"
-  />
+  <DebateTimer v-if="selectedOption === 'timer'" :timer-data="timerData" @timer-end="handleTimerEnd" />
+
+  <!-- Keyboard Hints Overlay (for Timer mode) -->
+  <Transition name="fade">
+    <div
+      v-if="selectedOption === 'timer' && showKeyboardHints"
+      class="absolute top-20 right-4 z-30 bg-base-200 rounded-box shadow-xl p-6 border border-base-300"
+    >
+      <h3 class="text-xl font-bold mb-4">快捷键说明</h3>
+      <div class="space-y-2">
+        <div class="flex items-center gap-4">
+          <kbd class="kbd kbd-sm">Space</kbd>
+          <span class="text-gray-400">开始/暂停计时</span>
+        </div>
+        <div class="flex items-center gap-4">
+          <kbd class="kbd kbd-sm">S</kbd>
+          <span class="text-gray-400">切换计时侧面</span>
+        </div>
+        <div class="flex items-center gap-4">
+          <kbd class="kbd kbd-sm">R</kbd>
+          <span class="text-gray-400">重置计时器</span>
+        </div>
+        <div class="flex items-center gap-4">
+          <kbd class="kbd kbd-sm">←</kbd>
+          <span class="text-gray-400">上一阶段</span>
+        </div>
+        <div class="flex items-center gap-4">
+          <kbd class="kbd kbd-sm">→</kbd>
+          <span class="text-gray-400">下一阶段</span>
+        </div>
+      </div>
+    </div>
+  </Transition>
 
   <!-- Connection Status - Bottom Right Corner -->
   <Transition name="fade">
@@ -128,6 +176,7 @@ const showSelector = ref(false);
 
 // Timer data state
 const timerData = ref<TimerData | null>(null);
+const showKeyboardHints = ref(false);
 
 // 彩蛋: 当在屏幕页面输入 "buduan" 时，logo 会开始飞行
 const keySequence = ref('');
@@ -154,29 +203,53 @@ const currentDebateStats = computed(() => statistics.value?.data?.currentDebateS
 
 // Timer handler
 const handleTimerEnd = (sideIndex: number) => {
+  // eslint-disable-next-line no-console
   console.log(`计时器结束: 侧面 ${sideIndex}`);
   // TODO: 添加额外的处理逻辑，如通知后端
 };
 
 // Load timer data when switching to timer mode
-watch(selectedOption, async (newOption) => {
+watch(selectedOption, async newOption => {
   if (newOption === 'timer' && activityId.value) {
     try {
       // 尝试从 API 加载计时器数据
       const response = await ScreenApi.getTimerConfig(activityId.value);
       if (response.success && response.data) {
-        timerData.value = response.data;
+        // 处理API返回的数据，补充默认bellTimings
+        const processedData = {
+          ...response.data,
+          stages: response.data.stages?.map(stage => ({
+            ...stage,
+            bellTimings: stage.bellTimings || generateDefaultBellTimings(stage.sides),
+          })),
+        };
+        timerData.value = processedData;
       } else {
         // API 失败时使用模拟数据
         loadMockTimerData();
       }
-    } catch (error) {
+    } catch {
       // API 尚未实现，使用模拟数据
+      // eslint-disable-next-line no-console
       console.log('Timer API not implemented yet, using mock data');
       loadMockTimerData();
     }
   }
 });
+
+// 生成默认的bellTimings（如果API没有提供）
+const generateDefaultBellTimings = (sides: { duration: number }[]) => {
+  if (!sides || sides.length === 0) return [];
+
+  // 获取最长的duration
+  const maxDuration = Math.max(...sides.map(side => side.duration || 0));
+
+  return [
+    { time: 0, type: 'start' as const },
+    { time: Math.max(0, maxDuration - 30), type: 'warning' as const }, // 倒数30秒
+    { time: maxDuration, type: 'end' as const },
+  ];
+};
 
 // Load mock timer data
 const loadMockTimerData = () => {
@@ -188,7 +261,10 @@ const loadMockTimerData = () => {
         stageName: '开场陈词',
         isDualSide: false,
         sides: [{ name: '主持人', duration: 60 }],
-        bellTimings: [{ time: 0, type: 'start' }, { time: 60, type: 'end' }],
+        bellTimings: [
+          { time: 0, type: 'start' },
+          { time: 60, type: 'end' },
+        ],
         hideTimer: true, // 不显示计时器
       },
       {
@@ -286,12 +362,12 @@ watch([x, y], () => {
 // Easter Egg: 键盘监听
 const handleKeyPress = (event: KeyboardEvent) => {
   keySequence.value += event.key.toLowerCase();
-  
+
   // 保持最近6个字符
   if (keySequence.value.length > 6) {
     keySequence.value = keySequence.value.slice(-6);
   }
-  
+
   // 检查是否输入了 "buduan"
   if (keySequence.value === 'buduan') {
     toggleLogoFlying();
@@ -302,7 +378,7 @@ const handleKeyPress = (event: KeyboardEvent) => {
 // 切换 logo 飞行状态
 const toggleLogoFlying = () => {
   isLogoFlying.value = !isLogoFlying.value;
-  
+
   if (isLogoFlying.value) {
     startLogoFlying();
   } else {
@@ -314,7 +390,7 @@ const toggleLogoFlying = () => {
 const startLogoFlying = () => {
   const windowWidth = window.innerWidth - 64; // 减去 logo 宽度
   const windowHeight = window.innerHeight - 64; // 减去 logo 高度
-  
+
   flyingInterval = window.setInterval(() => {
     logoPosition.value = {
       x: Math.random() * windowWidth,
@@ -340,7 +416,7 @@ const stopLogoFlying = () => {
 onMounted(() => {
   // 添加键盘事件监听
   window.addEventListener('keypress', handleKeyPress);
-  
+
   // 首先调用一次 display 接口以获取初始化数据
   if (activityId.value) {
     ScreenApi.getDisplay(activityId.value)
@@ -392,7 +468,7 @@ onUnmounted(() => {
 }
 
 .logo-flying {
-  transition: 
+  transition:
     top 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94),
     left 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94),
     transform 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94);
