@@ -1,5 +1,5 @@
 <template>
-  <dialog :id="modalId" class="modal">
+  <dialog :id="modalId" ref="modalRef" class="modal">
     <div class="modal-box max-w-5xl">
       <!-- Modal Header -->
       <div class="flex items-center justify-between mb-4">
@@ -450,8 +450,29 @@ onMounted(() => {
   }
 });
 
+// Modal ref
+const modalRef = ref<HTMLDialogElement | null>(null);
+
+// Modal control methods
+const open = () => {
+  modalRef.value?.showModal();
+  loadParticipants();
+};
+
+const close = () => {
+  modalRef.value?.close();
+  // Reset state on close
+  showAddForm.value = false;
+  newParticipant.value = { name: '', phone: '', note: '' };
+  searchQuery.value = '';
+  statusFilter.value = 'all';
+  currentPage.value = 1;
+};
+
 // Expose methods for parent component
 defineExpose({
   loadParticipants,
+  open,
+  close,
 });
 </script>

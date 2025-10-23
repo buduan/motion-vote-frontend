@@ -1,12 +1,12 @@
 <template>
-  <div class="container mx-auto px-4 mt-8">
+  <div class="container mx-auto px-4 py-8">
     <!-- Page Header -->
     <div class="flex items-center justify-between mb-6">
       <div>
         <h1 class="text-3xl font-bold">Activity List</h1>
         <p class="text-base-content/70 mt-1">Manage all your debate activities</p>
       </div>
-      <button class="btn btn-primary" @click="goToCreate">
+      <button class="btn btn-primary gap-2" @click="handleCreate">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
         </svg>
@@ -14,42 +14,59 @@
       </button>
     </div>
 
-    <!-- Filters -->
     <!-- Search and Filters -->
-    <div class="bg-base-100 rounded-lg p-4 mb-6 shadow-sm">
-      <div class="flex flex-col md:flex-row gap-4">
-        <!-- Search Input -->
-        <div class="flex-1">
-          <input
-            v-model="filters.search"
-            type="text"
-            placeholder="Search activities..."
-            class="input input-bordered w-full"
-            @input="debouncedSearch"
-          />
-        </div>
+    <div class="card bg-base-100 shadow-sm mb-6">
+      <div class="card-body p-4">
+        <div class="flex flex-col md:flex-row gap-4">
+          <!-- Search Input -->
+          <div class="form-control flex-1">
+            <input
+              v-model="filters.search"
+              type="text"
+              placeholder="Search activities..."
+              class="input input-bordered w-full"
+              @input="debouncedSearch"
+            />
+          </div>
 
-        <!-- Status Filter -->
-        <div class="w-full md:w-48">
-          <select v-model="filters.status" class="select select-bordered w-full">
-            <option value="">All Status</option>
-            <option value="upcoming">Upcoming</option>
-            <option value="ongoing">Ongoing</option>
-            <option value="ended">Ended</option>
-          </select>
-        </div>
+          <!-- Status Filter -->
+          <div class="form-control w-full md:w-48">
+            <select v-model="filters.status" class="select select-bordered w-full">
+              <option value="">All Status</option>
+              <option value="upcoming">Upcoming</option>
+              <option value="ongoing">Ongoing</option>
+              <option value="ended">Ended</option>
+            </select>
+          </div>
 
-        <!-- Role Filter -->
-        <div class="w-full md:w-48">
-          <select v-model="filters.role" class="select select-bordered w-full">
-            <option value="">All Roles</option>
-            <option value="creator">Created by me</option>
-            <option value="collaborator">Collaborated by me</option>
-          </select>
-        </div>
+          <!-- Role Filter -->
+          <div class="form-control w-full md:w-48">
+            <select v-model="filters.role" class="select select-bordered w-full">
+              <option value="">All Roles</option>
+              <option value="creator">Created by me</option>
+              <option value="collaborator">Collaborated by me</option>
+            </select>
+          </div>
 
-        <!-- Reset Button -->
-        <button class="btn btn-outline" @click="resetFilters">Reset</button>
+          <!-- Reset Button -->
+          <button class="btn btn-outline gap-2" @click="resetFilters">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-5 w-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+              />
+            </svg>
+            Reset
+          </button>
+        </div>
       </div>
     </div>
 
@@ -72,18 +89,15 @@
         @view-detail="handleViewDetail"
         @edit="handleEdit"
         @delete="handleDelete"
-        @show-in-screen="handleShowInScreen"
-        @control="handleControl"
-        @setup="handleSetup"
       />
     </div>
 
     <!-- Empty State -->
-    <div v-if="!loading && activities.length === 0" class="text-center py-12">
+    <div v-else class="flex flex-col items-center justify-center py-16">
       <div class="text-6xl mb-4">📋</div>
-      <h3 class="text-xl font-semibold mb-2">No activities yet</h3>
+      <h3 class="text-2xl font-bold mb-2">No activities yet</h3>
       <p class="text-base-content/70 mb-6">Create your first debate activity to get started</p>
-      <button class="btn btn-primary" @click="goToCreate">
+      <button class="btn btn-primary gap-2" @click="handleCreate">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
         </svg>
@@ -92,54 +106,74 @@
     </div>
 
     <!-- Pagination -->
-    <div v-if="totalPages > 1" class="flex justify-center mt-6">
+    <div v-if="!loading && totalPages > 1" class="flex justify-center mt-8">
       <div class="join">
-        <button class="join-item btn btn-sm" :disabled="currentPage === 1" @click="previousPage">«</button>
+        <button class="join-item btn btn-sm" :disabled="currentPage === 1" @click="previousPage">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+          </svg>
+        </button>
         <button class="join-item btn btn-sm">Page {{ currentPage }} / {{ totalPages }}</button>
-        <button class="join-item btn btn-sm" :disabled="currentPage === totalPages" @click="nextPage">»</button>
+        <button class="join-item btn btn-sm" :disabled="currentPage === totalPages" @click="nextPage">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
       </div>
     </div>
 
     <!-- Modals -->
     <ParticipantModal
-      v-if="selectedActivity"
-      ref="participantModal"
+      v-if="selectedActivityId"
+      ref="participantModalRef"
       modal-id="participant-modal"
-      :activity-id="selectedActivity.id"
+      :activity-id="selectedActivityId"
       @refresh="loadActivities"
     />
 
     <CollaboratorModal
-      v-if="selectedActivity"
-      ref="collaboratorModal"
+      v-if="selectedActivityId"
+      ref="collaboratorModalRef"
       modal-id="collaborator-modal"
-      :activity-id="selectedActivity.id"
+      :activity-id="selectedActivityId"
       @refresh="loadActivities"
     />
 
     <DebateModal
-      v-if="selectedActivity"
-      ref="debateModal"
+      v-if="selectedActivityId"
+      ref="debateModalRef"
       modal-id="debate-modal"
-      :activity-id="selectedActivity.id"
-      :current-debate="getCurrentDebate(selectedActivity.id)"
+      :activity-id="selectedActivityId"
+      :current-debate="getCurrentDebate(selectedActivityId)"
       @refresh="handleDebatesRefresh"
+      @configure-timer="handleConfigureTimer"
+    />
+
+    <TimerConfigModal
+      v-if="selectedDebateId"
+      ref="timerConfigModalRef"
+      :debate-id="selectedDebateId"
+      @save="handleTimerConfigSave"
+      @close="handleTimerConfigClose"
     />
 
     <!-- Switch Debate Modal -->
-    <dialog id="switch-debate-modal" class="modal">
+    <dialog id="switch-debate-modal" ref="switchDebateModalRef" class="modal">
       <div class="modal-box">
+        <form method="dialog">
+          <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+        </form>
         <h3 class="text-lg font-bold mb-4">Switch Debate</h3>
         <div class="space-y-2">
           <button
             v-for="debate in currentActivityDebates"
             :key="debate.id"
-            class="btn btn-outline btn-block justify-start"
+            class="btn btn-outline btn-block justify-start gap-2"
             :class="{ 'btn-primary': isCurrentDebate(debate.id) }"
             @click="switchToDebate(debate.id)"
           >
             <span class="flex-1 text-left">{{ debate.title }}</span>
-            <span v-if="isCurrentDebate(debate.id)" class="badge badge-sm badge-success">Current</span>
+            <span v-if="isCurrentDebate(debate.id)" class="badge badge-success badge-sm">Current</span>
           </button>
         </div>
         <div class="modal-action">
@@ -149,7 +183,7 @@
         </div>
       </div>
       <form method="dialog" class="modal-backdrop">
-        <button>Close</button>
+        <button>close</button>
       </form>
     </dialog>
   </div>
@@ -165,19 +199,26 @@ import ActivityCard from '@/components/admin/activityCard.vue';
 import ParticipantModal from '@/components/admin/ParticipantModal.vue';
 import CollaboratorModal from '@/components/admin/CollaboratorModal.vue';
 import DebateModal from '@/components/admin/DebateModal.vue';
+import TimerConfigModal from '@/components/admin/TimerConfigModal.vue';
 import toast from '@/utils/toast';
 
 const router = useRouter();
 
 // State
 const activities = ref<Activity[]>([]);
-const currentDebates = ref<Map<string, Debate>>(new Map());
-const allDebates = ref<Map<string, Debate[]>>(new Map());
 const loading = ref(false);
 const currentPage = ref(1);
 const totalPages = ref(1);
-const selectedActivity = ref<Activity | null>(null);
+const selectedActivityId = ref<string>('');
+const selectedDebateId = ref<string>('');
 const currentActivityDebates = ref<Debate[]>([]);
+
+// Modal refs
+const participantModalRef = ref<InstanceType<typeof ParticipantModal> | null>(null);
+const collaboratorModalRef = ref<InstanceType<typeof CollaboratorModal> | null>(null);
+const debateModalRef = ref<InstanceType<typeof DebateModal> | null>(null);
+const timerConfigModalRef = ref<InstanceType<typeof TimerConfigModal> | null>(null);
+const switchDebateModalRef = ref<HTMLDialogElement | null>(null);
 
 // Filters
 const filters = ref<ActivityListParams>({
@@ -191,13 +232,18 @@ const filters = ref<ActivityListParams>({
 // Debounce timer
 let searchTimer: ReturnType<typeof setTimeout> | null = null;
 
-// Computed
-const getCurrentDebate = (activityId: string) => {
-  return currentDebates.value.get(activityId) || null;
+// Get current debate for an activity - no caching, returns null (will be fetched on demand)
+const getCurrentDebate = (activityId: string): Debate | null => {
+  // Return the current debate from currentActivityDebates if it matches the selected activity
+  if (activityId === selectedActivityId.value) {
+    return currentActivityDebates.value.find(d => d.status === 'ongoing') || null;
+  }
+  return null;
 };
 
-const isCurrentDebate = (debateId: string) => {
-  return selectedActivity.value && getCurrentDebate(selectedActivity.value.id)?.id === debateId;
+// Check if debate is current
+const isCurrentDebate = (debateId: string): boolean => {
+  return currentActivityDebates.value.some(d => d.id === debateId && d.status === 'ongoing');
 };
 
 // Methods
@@ -218,11 +264,6 @@ const loadActivities = async () => {
       activities.value = response.items;
       totalPages.value = response.total_pages || 1;
       // console.log(`[DEBUG] Loaded ${activities.value.length} activities, total pages: ${totalPages.value}`);
-
-      // Load debates for each activity
-      for (const activity of activities.value) {
-        await loadActivityDebates(activity.id);
-      }
     } else {
       // console.warn(`[DEBUG] Invalid activities response format:`, response);
     }
@@ -250,15 +291,10 @@ const loadActivityDebates = async (activityId: string) => {
 
     // Debates API returns wrapped response {success, message, data: {items: [...], total, page, limit, total_pages}}
     if (response && response.success && response.data && response.data.items && Array.isArray(response.data.items)) {
-      allDebates.value.set(activityId, response.data.items);
-      // Find current debate (status = 'ongoing')
-      const current = response.data.items.find(d => d.status === 'ongoing');
-      // console.log(`[DEBUG] Current debate for activity ${activityId}:`, current);
-      if (current) {
-        currentDebates.value.set(activityId, current);
-      }
+      return response.data.items;
     } else {
       // console.warn(`[DEBUG] Invalid response format for activity ${activityId}:`, response);
+      return [];
     }
   } catch (error: unknown) {
     // console.error(`[DEBUG] Error loading debates for activity ${activityId}:`, error);
@@ -267,6 +303,7 @@ const loadActivityDebates = async (activityId: string) => {
     if (err?.response?.status !== 403) {
       // console.error(`Failed to load debates for activity ${activityId}:`, error);
     }
+    return [];
   }
 };
 
@@ -306,7 +343,7 @@ const nextPage = () => {
   }
 };
 
-const goToCreate = () => {
+const handleCreate = () => {
   router.push('/admin/activities/create');
 };
 
@@ -336,92 +373,77 @@ const handleDelete = async (activity: Activity) => {
 };
 
 const handleSwitchDebate = async (activity: Activity) => {
-  selectedActivity.value = activity;
-  currentActivityDebates.value = allDebates.value.get(activity.id) || [];
+  selectedActivityId.value = activity.id;
+  // Fetch debates fresh each time (no caching)
+  currentActivityDebates.value = await loadActivityDebates(activity.id);
 
   if (currentActivityDebates.value.length === 0) {
     toast.warning('This activity has no debates yet');
     return;
   }
 
-  const modal = document.getElementById('switch-debate-modal') as HTMLDialogElement;
-  modal?.showModal();
+  await nextTick();
+  switchDebateModalRef.value?.showModal();
 };
 
 const handleManageDebates = async (activity: Activity) => {
-  selectedActivity.value = activity;
-  currentActivityDebates.value = allDebates.value.get(activity.id) || [];
-  const modal = document.getElementById('debate-modal') as HTMLDialogElement;
-  modal?.showModal();
+  selectedActivityId.value = activity.id;
+  // Fetch debates fresh each time (no caching)
+  currentActivityDebates.value = await loadActivityDebates(activity.id);
+  await nextTick();
+  debateModalRef.value?.open();
 };
 
 const handleDebatesRefresh = async () => {
-  if (selectedActivity.value) {
-    await loadActivityDebates(selectedActivity.value.id);
+  if (selectedActivityId.value) {
+    await loadActivityDebates(selectedActivityId.value);
   }
 };
 
 const handleManageParticipants = async (activity: Activity) => {
-  // console.log(`[Activities] Opening participant modal for activity: ${activity.id} (${activity.name})`);
-  // console.log(
-  //   `[Activities] Previous selected activity: ${selectedActivity.value?.id} (${selectedActivity.value?.name})`,
-  // );
-  selectedActivity.value = activity;
-  // console.log(`[Activities] New selected activity set: ${selectedActivity.value.id} (${selectedActivity.value.name})`);
-  // Wait for next tick to ensure modal is updated with new activityId
+  selectedActivityId.value = activity.id;
   await nextTick();
-  // console.log(`[Activities] Modal should now have activityId: ${selectedActivity.value.id}`);
-  const modal = document.getElementById('participant-modal') as HTMLDialogElement;
-  modal?.showModal();
+  participantModalRef.value?.open();
 };
 
 const handleManageCollaborators = async (activity: Activity) => {
-  // console.log(`[Activities] Opening collaborator modal for activity: ${activity.id} (${activity.name})`);
-  // console.log(
-  //   `[Activities] Previous selected activity: ${selectedActivity.value?.id} (${selectedActivity.value?.name})`,
-  // );
-  selectedActivity.value = activity;
-  // console.log(`[Activities] New selected activity set: ${selectedActivity.value.id} (${selectedActivity.value.name})`);
-  // Wait for next tick to ensure modal is updated with new activityId
+  selectedActivityId.value = activity.id;
   await nextTick();
-  // console.log(`[Activities] Modal should now have activityId: ${selectedActivity.value.id}`);
-  const modal = document.getElementById('collaborator-modal') as HTMLDialogElement;
-  modal?.showModal();
+  collaboratorModalRef.value?.open();
 };
 
 const switchToDebate = async (debateId: string) => {
-  if (!selectedActivity.value) return;
+  if (!selectedActivityId.value) return;
 
   try {
-    // console.log(`[DEBUG] Switching to debate: ${debateId} for activity: ${selectedActivity.value.id}`);
-    const response = await DebatesApi.switchCurrentDebate(selectedActivity.value.id, debateId);
-    // console.log(`[DEBUG] Switch debate API response:`, response);
+    const response = await DebatesApi.switchCurrentDebate(selectedActivityId.value, debateId);
 
     if (response && response.success) {
       toast.success('Debate switched successfully');
-      await loadActivityDebates(selectedActivity.value.id);
-      const modal = document.getElementById('switch-debate-modal') as HTMLDialogElement;
-      modal?.close();
+      await loadActivityDebates(selectedActivityId.value);
+      switchDebateModalRef.value?.close();
     }
   } catch {
-    // console.error(`[DEBUG] Error switching debate:`, error);
     toast.error('Failed to switch debate');
   }
 };
 
-const handleSetup = async (activity: Activity) => {
-  // Navigate to setup/configuration page for the activity
-  router.push(`/admin/activities/${activity.id}/setup`);
+// Handle configure timer from DebateModal
+const handleConfigureTimer = async (debate: Debate) => {
+  selectedDebateId.value = debate.id;
+  await nextTick();
+  timerConfigModalRef.value?.open();
 };
 
-const handleControl = async (activity: Activity) => {
-  // Navigate to control panel for the activity
-  router.push(`/admin/activities/${activity.id}/control`);
+const handleTimerConfigSave = async () => {
+  toast.success('Timer configuration saved');
+  if (selectedActivityId.value) {
+    await loadActivityDebates(selectedActivityId.value);
+  }
 };
 
-const handleShowInScreen = async (activity: Activity) => {
-  // Open activity in screen view
-  window.open(`/screen?activity=${activity.id}`, '_blank');
+const handleTimerConfigClose = () => {
+  selectedDebateId.value = '';
 };
 
 // Load activities on mount

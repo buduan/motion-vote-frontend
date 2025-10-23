@@ -31,25 +31,26 @@ export class ParticipantsApi {
   /**
    * 批量创建参与者
    */
-  static async createParticipants(
-    activityId: string,
-    data: CreateParticipantsRequest,
-  ): Promise<Participant[]> {
+  static async createParticipants(activityId: string, data: CreateParticipantsRequest): Promise<Participant[]> {
     return HttpClient.postDirect<Participant[]>(`/activities/${activityId}/participants/batch`, data);
   }
 
   /**
    * 批量导入参与者
    */
-  static async batchImport(activityId: string, formData: FormData): Promise<{success: number; failed: number}> {
-    return HttpClient.postDirect<{success: number; failed: number}>(`/activities/${activityId}/participants/batch`, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
+  static async batchImport(activityId: string, formData: FormData): Promise<{ success: number; failed: number }> {
+    return HttpClient.postDirect<{ success: number; failed: number }>(
+      `/activities/${activityId}/participants/batch`,
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
       },
-    });
+    );
   }
 
-    /**
+  /**
    * 获取参与者详情
    */
   static async getParticipantById(activityId: string, participantId: string): Promise<Participant> {
@@ -59,10 +60,7 @@ export class ParticipantsApi {
   /**
    * 通过参与者编号获取参与者
    */
-  static async getParticipantByNumber(
-    activityId: string,
-    participantNumber: string,
-  ): Promise<Participant> {
+  static async getParticipantByNumber(activityId: string, participantNumber: string): Promise<Participant> {
     return HttpClient.getDirect<Participant>(`/activities/${activityId}/participants/number/${participantNumber}`);
   }
 

@@ -51,10 +51,7 @@ export class ActivitiesApi {
   /**
    * 邀请协作者
    */
-  static async inviteCollaborator(
-    activityId: string,
-    data: InviteCollaboratorRequest,
-  ): Promise<Collaborator> {
+  static async inviteCollaborator(activityId: string, data: InviteCollaboratorRequest): Promise<Collaborator> {
     return HttpClient.postDirect<Collaborator>(`/activities/${activityId}/collaborators`, data);
   }
 

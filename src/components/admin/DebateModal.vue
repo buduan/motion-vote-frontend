@@ -1,5 +1,5 @@
 <template>
-  <dialog :id="modalId" class="modal">
+  <dialog :id="modalId" ref="modalRef" class="modal">
     <div class="modal-box max-w-5xl">
       <!-- Modal Header -->
       <div class="flex items-center justify-between mb-4">
@@ -20,7 +20,8 @@
           />
         </svg>
         <div>
-          <strong>当前辩题：</strong>{{ currentDebate.title }}
+          <strong>当前辩题：</strong>
+          {{ currentDebate.title }}
         </div>
       </div>
 
@@ -110,7 +111,12 @@
             <tr v-else-if="debates.length === 0">
               <td colspan="7" class="text-center py-8 text-base-content/60">暂无辩题</td>
             </tr>
-            <tr v-for="debate in sortedDebates" v-else :key="debate.id" :class="{ 'bg-base-200': isCurrentDebate(debate) }">
+            <tr
+              v-for="debate in sortedDebates"
+              v-else
+              :key="debate.id"
+              :class="{ 'bg-base-200': isCurrentDebate(debate) }"
+            >
               <td>{{ debate.order }}</td>
               <td>
                 <div class="font-medium">{{ debate.title }}</div>
@@ -145,7 +151,23 @@
                       />
                     </svg>
                   </button>
-                  <button class="btn btn-ghost btn-xs" @click="editDebate(debate)">
+                  <button class="btn btn-ghost btn-xs tooltip" data-tip="配置计时" @click="configureTimer(debate)">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      class="h-4 w-4"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
+                  </button>
+                  <button class="btn btn-ghost btn-xs tooltip" data-tip="编辑" @click="editDebate(debate)">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       class="h-4 w-4"
@@ -161,7 +183,7 @@
                       />
                     </svg>
                   </button>
-                  <button class="btn btn-ghost btn-xs text-error" @click="deleteDebate(debate)">
+                  <button class="btn btn-ghost btn-xs text-error tooltip" data-tip="删除" @click="deleteDebate(debate)">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       class="h-4 w-4"
@@ -225,6 +247,7 @@ const props = withDefaults(defineProps<Props>(), {
 const emit = defineEmits<{
   refresh: [];
   'switch-debate': [debateId: string];
+  'configure-timer': [debate: Debate];
 }>();
 
 // State
@@ -248,11 +271,11 @@ const sortedDebates = computed(() => {
 });
 
 const ongoingCount = computed(() => {
-  return debates.value.filter((d) => d.status === 'ongoing').length;
+  return debates.value.filter(d => d.status === 'ongoing').length;
 });
 
 const pendingCount = computed(() => {
-  return debates.value.filter((d) => d.status === 'pending').length;
+  return debates.value.filter(d => d.status === 'pending').length;
 });
 
 // Methods
@@ -262,7 +285,7 @@ const loadDebates = async () => {
     console.log(`[DEBUG] Loading debates for activity: ${props.activityId}`);
     const response = await DebatesApi.getDebates(props.activityId);
     console.log(`[DEBUG] DebateModal debates API response:`, response);
-    
+
     // Debates API returns wrapped response {success, message, data: {items: [...], total, page, limit, total_pages}}
     if (response && response.success && response.data && response.data.items && Array.isArray(response.data.items)) {
       debates.value = response.data.items;
@@ -308,7 +331,7 @@ const saveDebate = async () => {
 
     if (editingDebate.value) {
       const response = await DebatesApi.updateDebate(editingDebate.value.id, debateForm.value);
-      
+
       if (response && response.success) {
         toast.success('更新辩题成功');
         await loadDebates();
@@ -317,7 +340,7 @@ const saveDebate = async () => {
       }
     } else {
       const response = await DebatesApi.createDebate(props.activityId, debateForm.value);
-      
+
       if (response && response.success) {
         toast.success('创建辩题成功');
         await loadDebates();
@@ -355,7 +378,7 @@ const deleteDebate = async (debate: Debate) => {
   try {
     loading.value = true;
     const response = await DebatesApi.deleteDebate(debate.id);
-    
+
     if (response && response.success) {
       toast.success('删除辩题成功');
       await loadDebates();
@@ -378,7 +401,7 @@ const switchToDebate = async (debate: Debate) => {
   try {
     loading.value = true;
     const response = await DebatesApi.switchCurrentDebate(props.activityId, debate.id);
-    
+
     if (response && response.success) {
       toast.success('切换辩题成功');
       await loadDebates();
@@ -401,9 +424,12 @@ const cancelForm = () => {
     proDescription: '',
     conDescription: '',
     background: '',
-    estimatedDuration: undefined,
     order: undefined,
   };
+};
+
+const configureTimer = (debate: Debate) => {
+  emit('configure-timer', debate);
 };
 
 const isCurrentDebate = (debate: Debate) => {
@@ -435,6 +461,30 @@ const getStatusBadgeClass = (status: string) => {
   }
 };
 
+// Modal ref
+const modalRef = ref<HTMLDialogElement | null>(null);
+
+// Modal control methods
+const open = () => {
+  modalRef.value?.showModal();
+  loadDebates();
+};
+
+const close = () => {
+  modalRef.value?.close();
+  // Reset state on close
+  showCreateForm.value = false;
+  editingDebate.value = null;
+  debateForm.value = {
+    title: '',
+    proDescription: '',
+    conDescription: '',
+    background: '',
+    estimatedDuration: undefined,
+    order: undefined,
+  };
+};
+
 // Load debates when mounted
 onMounted(() => {
   loadDebates();
@@ -443,5 +493,7 @@ onMounted(() => {
 // Expose methods for parent component
 defineExpose({
   loadDebates,
+  open,
+  close,
 });
 </script>

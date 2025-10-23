@@ -1,5 +1,5 @@
 import { HttpClient } from '@/utils/http';
-import type { ApiResponse, VoteRequest, VoteStatus, VoteResults, Vote, ParticipantEnterResponse } from '@/types/api';
+import type { ApiResponse, VoteRequest, VoteStatus, VoteStats, Vote, ParticipantEnterResponse } from '@/types/api';
 
 /**
  * 投票系统API
@@ -32,8 +32,8 @@ export class VotesApi {
   /**
    * 获取辩题投票结果
    */
-  static async getVoteResults(debateId: string): Promise<ApiResponse<VoteResults>> {
-    return HttpClient.get<VoteResults>(`/votes/debates/${debateId}/results`);
+  static async getVoteStats(debateId: string): Promise<ApiResponse<VoteStats>> {
+    return HttpClient.get<VoteStats>(`/votes/debates/${debateId}/results`);
   }
 
   /**
@@ -52,8 +52,8 @@ export class VotesApi {
   /**
    * 获取活动所有辩题的投票结果
    */
-  static async getActivityVoteResults(activityId: string): Promise<ApiResponse<VoteResults[]>> {
-    return HttpClient.get<VoteResults[]>(`/activities/${activityId}/results`);
+  static async getActivityVoteStats(activityId: string): Promise<ApiResponse<VoteStats[]>> {
+    return HttpClient.get<VoteStats[]>(`/activities/${activityId}/results`);
   }
 
   /**

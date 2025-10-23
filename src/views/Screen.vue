@@ -1,15 +1,32 @@
 <template>
-  <!-- Selector -->
+  <!-- Selector and Keyboard Shortcuts -->
   <Transition name="fade">
-    <div v-if="showSelector" class="absolute top-4 right-4">
+    <div v-if="showSelector" class="absolute top-4 right-4 flex gap-2 z-50">
       <div class="selector">
         <select v-model="selectedOption" class="select">
           <option value="topic">Topic</option>
           <option value="pro">Pros</option>
           <option value="con">Cons</option>
           <option value="both">Both</option>
+          <option value="timer">Timer</option>
         </select>
       </div>
+      <button
+        v-if="selectedOption === 'timer'"
+        class="btn btn-ghost btn-sm"
+        :class="showKeyboardHints ? 'btn-active' : ''"
+        @click="showKeyboardHints = !showKeyboardHints"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"
+          />
+        </svg>
+        快捷键
+      </button>
     </div>
   </Transition>
 
@@ -31,6 +48,7 @@
   </div>
 
   <div
+    v-if="selectedOption !== 'timer'"
     class="p-16 flex flex-col h-screen"
     :class="{
       'items-center align-center text-center': selectedOption === 'topic',
@@ -42,7 +60,7 @@
     <!-- Debate Topic -->
     <div class="w-full mt-4" :class="{ 'h-3/5 overflow-hidden': selectedOption !== 'topic' }">
       <h3 v-if="selectedOption === 'topic'" class="text-4xl/[1.5] font-bold mb-4">
-        {{ activityName || 'Loading...' }}
+        {{ activityName || '加载中...' }}
       </h3>
       <h1
         class="text-9xl/[1.5] font-black mb-4"
@@ -52,7 +70,7 @@
             : ''
         "
       >
-        {{ debateTitle || 'Waiting for motion...' }}
+        {{ debateTitle || '等待辩题...' }}
       </h1>
     </div>
 
@@ -61,46 +79,90 @@
       <!-- Pro Side -->
       <div v-if="selectedOption === 'pro' || selectedOption === 'both'" class="w-full mb-8">
         <div class="w-full flex justify-between">
-          <h2 class="text-8xl/[1.5] font-black mb-4">Pro</h2>
+          <h2 class="text-8xl/[1.5] font-black mb-4">正方</h2>
           <h2 class="text-8xl/[1.5] font-bold mb-4 font-number text-blue-500">
             {{ currentDebateStats.proPercentage.toFixed(1) }}%
           </h2>
         </div>
         <VoteBar side="pro" :percent="currentDebateStats.proPercentage" class="w-full h-16" />
-        <p class="text-2xl mt-2 text-gray-500">{{ currentDebateStats.proVotes }} votes</p>
+        <p class="text-2xl mt-2 text-gray-500">{{ currentDebateStats.proVotes }} 票</p>
       </div>
 
       <!-- Con Side -->
       <div v-if="selectedOption === 'con' || selectedOption === 'both'" class="w-full">
         <div class="w-full flex justify-between">
-          <h2 class="text-8xl/[1.5] font-black mb-4">Con</h2>
+          <h2 class="text-8xl/[1.5] font-black mb-4">反方</h2>
           <h2 class="text-8xl/[1.5] font-bold mb-4 font-number text-red-500">
             {{ currentDebateStats.conPercentage.toFixed(1) }}%
           </h2>
         </div>
         <VoteBar side="con" :percent="currentDebateStats.conPercentage" class="w-full h-16" />
-        <p class="text-2xl mt-2 text-gray-500">{{ currentDebateStats.conVotes }} votes</p>
+        <p class="text-2xl mt-2 text-gray-500">{{ currentDebateStats.conVotes }} 票</p>
       </div>
 
       <!-- Total Votes Info -->
       <div v-if="selectedOption === 'both'" class="w-full mt-4 text-center">
         <p class="text-xl text-gray-400">
-          Total Votes: {{ currentDebateStats.totalVotes }} | Abstain: {{ currentDebateStats.abstainVotes }}
+          总投票数: {{ currentDebateStats.totalVotes }} | 弃权: {{ currentDebateStats.abstainVotes }}
         </p>
       </div>
     </div>
 
     <!-- Loading State -->
     <div v-if="!currentDebateStats && selectedOption !== 'topic'" class="w-full text-center">
-      <p class="text-3xl text-gray-400">Waiting for vote data...</p>
+      <p class="text-3xl text-gray-400">等待投票数据...</p>
     </div>
   </div>
 
-  <!-- Connection Status - Bottom Right Corner -->
+  <!-- Timer View -->
+  <DebateTimer
+    v-if="selectedOption === 'timer'"
+    ref="debateTimerRef"
+    :timer-data="timerData"
+    @timer-end="handleTimerEnd"
+  />
+
+  <!-- Keyboard Hints Overlay (for Timer mode) -->
   <Transition name="fade">
-    <div v-if="showConnectionStatus" class="fixed bottom-4 right-4 z-50">
+    <div
+      v-if="selectedOption === 'timer' && showKeyboardHints"
+      class="absolute top-20 right-4 z-30 bg-base-200 rounded-box shadow-xl p-6 border border-base-300"
+    >
+      <h3 class="text-xl font-bold mb-4">快捷键说明</h3>
+      <div class="space-y-2">
+        <div class="flex items-center gap-4">
+          <kbd class="kbd kbd-sm">Space</kbd>
+          <span class="text-gray-400">开始/暂停计时</span>
+        </div>
+        <div class="flex items-center gap-4">
+          <kbd class="kbd kbd-sm">S</kbd>
+          <span class="text-gray-400">切换计时侧面</span>
+        </div>
+        <div class="flex items-center gap-4">
+          <kbd class="kbd kbd-sm">R</kbd>
+          <span class="text-gray-400">重置计时器</span>
+        </div>
+        <div class="flex items-center gap-4">
+          <kbd class="kbd kbd-sm">←</kbd>
+          <span class="text-gray-400">上一阶段</span>
+        </div>
+        <div class="flex items-center gap-4">
+          <kbd class="kbd kbd-sm">→</kbd>
+          <span class="text-gray-400">下一阶段</span>
+        </div>
+      </div>
+    </div>
+  </Transition>
+
+  <!-- Connection Status - Above Stage Navigation -->
+  <Transition name="fade">
+    <div
+      v-if="showConnectionStatus"
+      class="absolute right-4 z-50"
+      :class="selectedOption === 'timer' && hasNextStage ? 'bottom-16' : 'bottom-4'"
+    >
       <div class="badge" :class="isConnected ? 'badge-success' : 'badge-error'">
-        {{ isConnected ? 'Connected' : 'Disconnected' }}
+        {{ isConnected ? '已连接' : '未连接' }}
       </div>
     </div>
   </Transition>
@@ -113,12 +175,20 @@ import { useRoute } from 'vue-router';
 import { useMouse } from '@vueuse/core';
 import { useScreenWebSocket } from '@/composables/useScreenWebSocket';
 import VoteBar from '@/components/screen/voteBar.vue';
+import DebateTimer from '@/components/screen/debateTimer.vue';
 import { ScreenApi } from '@/api/screen';
-import type { ScreenStatistics } from '@/types/screen';
+import { DebatesApi } from '@/api/debates';
+import type { ScreenStatistics, TimerData } from '@/types/screen';
+import { getDefaultTimerStages } from '@/utils/timerDefaults';
 
 const route = useRoute();
 const selectedOption = ref('topic');
 const showSelector = ref(false);
+
+// Timer data state
+const timerData = ref<TimerData | null>(null);
+const showKeyboardHints = ref(false);
+const debateTimerRef = ref<InstanceType<typeof DebateTimer> | null>(null);
 
 // 彩蛋: 当在屏幕页面输入 "buduan" 时，logo 会开始飞行
 const keySequence = ref('');
@@ -142,6 +212,104 @@ const { statistics, isConnected, showConnectionStatus, connect, disconnect } = u
 const activityName = computed(() => statistics.value?.data?.activityName || '');
 const debateTitle = computed(() => statistics.value?.data?.currentDebate?.title || '等待辩题...');
 const currentDebateStats = computed(() => statistics.value?.data?.currentDebateStats);
+
+// Check if timer has next stage
+const hasNextStage = computed(() => {
+  return debateTimerRef.value?.$?.exposed?.hasNextStage ?? false;
+});
+
+// Timer handler
+const handleTimerEnd = (sideIndex: number) => {
+  // eslint-disable-next-line no-console
+  console.log(`计时器结束: 侧面 ${sideIndex}`);
+  // TODO: 添加额外的处理逻辑，如通知后端
+};
+
+// Load timer data from debates API
+const loadTimerData = async () => {
+  // Get current debate ID from statistics
+  const currentDebateId = statistics.value?.data?.currentDebate?.id;
+  
+  if (!currentDebateId) {
+    // No current debate, use mock data
+    loadMockTimerData();
+    return;
+  }
+
+  try {
+    // Fetch debate details from debates API (no caching, fetch every time)
+    const response = await DebatesApi.getDebateById(currentDebateId);
+    
+    if (response.success && response.data) {
+      const debate = response.data;
+      
+      // Transform debate data to TimerData format
+      if (debate.stages && debate.stages.length > 0) {
+        // Process stages and ensure bellTimings exist
+        const processedStages = debate.stages.map(stage => ({
+          stageName: stage.stageName,
+          isDualSide: stage.isDualSide,
+          sides: stage.sides.map(side => ({
+            name: side.name,
+            duration: side.duration,
+          })),
+          bellTimings: stage.bellTimings && stage.bellTimings.length > 0
+            ? stage.bellTimings
+            : generateDefaultBellTimings(stage.sides),
+          hideTimer: stage.hideTimer || false,
+        }));
+
+        timerData.value = {
+          activityName: activityName.value || '辩论赛活动',
+          debateTitle: debate.title,
+          stages: processedStages,
+          timestamp: new Date().toISOString(),
+        };
+      } else {
+        // No stages defined, use mock data
+        loadMockTimerData();
+      }
+    } else {
+      // API failed, use mock data
+      loadMockTimerData();
+    }
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error('Failed to load timer data from debates API:', error);
+    loadMockTimerData();
+  }
+};
+
+// Load timer data when switching to timer mode
+watch(selectedOption, async newOption => {
+  if (newOption === 'timer') {
+    await loadTimerData();
+  }
+});
+
+// 生成默认的bellTimings（如果API没有提供）
+const generateDefaultBellTimings = (sides: { duration: number }[]) => {
+  if (!sides || sides.length === 0) return [];
+
+  // 获取最长的duration
+  const maxDuration = Math.max(...sides.map(side => side.duration || 0));
+
+  return [
+    { time: 0, type: 'start' as const },
+    { time: Math.max(0, maxDuration - 30), type: 'warning' as const }, // 倒数30秒
+    { time: maxDuration, type: 'end' as const },
+  ];
+};
+
+// Load mock timer data
+const loadMockTimerData = () => {
+  timerData.value = {
+    activityName: activityName.value || '辩论赛活动',
+    debateTitle: debateTitle.value || '辩题',
+    stages: getDefaultTimerStages(),
+    timestamp: new Date().toISOString(),
+  };
+};
 
 // 使用VueUse的useMouse钩子获取鼠标位置
 const { x, y } = useMouse();

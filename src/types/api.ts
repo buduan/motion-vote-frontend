@@ -129,6 +129,20 @@ export interface CreateActivityRequest {
 }
 
 // Debate related types
+export interface DebateStage {
+  stageName: string;
+  isDualSide: boolean;
+  sides: {
+    name: string;
+    duration: number;
+  }[];
+  bellTimings: {
+    time: number;
+    type: 'start' | 'warning' | 'end';
+  }[];
+  hideTimer?: boolean;
+}
+
 export interface Debate {
   id: string;
   title: string;
@@ -141,6 +155,8 @@ export interface Debate {
   activityId: string;
   createdAt: string;
   updatedAt: string;
+  stages?: DebateStage[];
+  backgroundImageUrl?: string;
 }
 
 export interface CreateDebateRequest {
@@ -229,7 +245,7 @@ export interface VoteStatus {
   canChangeVote: boolean;
 }
 
-export interface VoteResults {
+export interface VoteStats {
   debateId: string;
   totalVotes: number;
   proVotes: number;
@@ -263,7 +279,7 @@ export interface ScreenConfig {
 export interface ScreenData {
   activity: Activity;
   currentDebate?: Debate;
-  voteResults?: VoteResults;
+  VoteStats?: VoteStats;
   config: ScreenConfig;
 }
 
@@ -291,7 +307,7 @@ export interface ActivityReport {
   };
   debates: Array<{
     debate: Debate;
-    results: VoteResults;
+    results: VoteStats;
     participation: number;
   }>;
   timeline: Array<{
