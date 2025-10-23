@@ -206,8 +206,6 @@ const router = useRouter();
 
 // State
 const activities = ref<Activity[]>([]);
-const currentDebates = ref<Map<string, Debate>>(new Map());
-const allDebates = ref<Map<string, Debate[]>>(new Map());
 const loading = ref(false);
 const currentPage = ref(1);
 const totalPages = ref(1);
@@ -234,16 +232,18 @@ const filters = ref<ActivityListParams>({
 // Debounce timer
 let searchTimer: ReturnType<typeof setTimeout> | null = null;
 
-// Get current debate for an activity
+// Get current debate for an activity - no caching, returns null (will be fetched on demand)
 const getCurrentDebate = (activityId: string): Debate | null => {
-  return currentDebates.value.get(activityId) || null;
+  // Return the current debate from currentActivityDebates if it matches the selected activity
+  if (activityId === selectedActivityId.value) {
+    return currentActivityDebates.value.find(d => d.status === 'ongoing') || null;
+  }
+  return null;
 };
 
 // Check if debate is current
 const isCurrentDebate = (debateId: string): boolean => {
-  if (!selectedActivityId.value) return false;
-  const currentDebate = getCurrentDebate(selectedActivityId.value);
-  return currentDebate?.id === debateId;
+  return currentActivityDebates.value.some(d => d.id === debateId && d.status === 'ongoing');
 };
 
 // Methods
@@ -264,11 +264,6 @@ const loadActivities = async () => {
       activities.value = response.items;
       totalPages.value = response.total_pages || 1;
       // console.log(`[DEBUG] Loaded ${activities.value.length} activities, total pages: ${totalPages.value}`);
-
-      // Load debates for each activity
-      for (const activity of activities.value) {
-        await loadActivityDebates(activity.id);
-      }
     } else {
       // console.warn(`[DEBUG] Invalid activities response format:`, response);
     }
@@ -296,15 +291,10 @@ const loadActivityDebates = async (activityId: string) => {
 
     // Debates API returns wrapped response {success, message, data: {items: [...], total, page, limit, total_pages}}
     if (response && response.success && response.data && response.data.items && Array.isArray(response.data.items)) {
-      allDebates.value.set(activityId, response.data.items);
-      // Find current debate (status = 'ongoing')
-      const current = response.data.items.find(d => d.status === 'ongoing');
-      // console.log(`[DEBUG] Current debate for activity ${activityId}:`, current);
-      if (current) {
-        currentDebates.value.set(activityId, current);
-      }
+      return response.data.items;
     } else {
       // console.warn(`[DEBUG] Invalid response format for activity ${activityId}:`, response);
+      return [];
     }
   } catch (error: unknown) {
     // console.error(`[DEBUG] Error loading debates for activity ${activityId}:`, error);
@@ -313,6 +303,7 @@ const loadActivityDebates = async (activityId: string) => {
     if (err?.response?.status !== 403) {
       // console.error(`Failed to load debates for activity ${activityId}:`, error);
     }
+    return [];
   }
 };
 
@@ -383,7 +374,8 @@ const handleDelete = async (activity: Activity) => {
 
 const handleSwitchDebate = async (activity: Activity) => {
   selectedActivityId.value = activity.id;
-  currentActivityDebates.value = allDebates.value.get(activity.id) || [];
+  // Fetch debates fresh each time (no caching)
+  currentActivityDebates.value = await loadActivityDebates(activity.id);
 
   if (currentActivityDebates.value.length === 0) {
     toast.warning('This activity has no debates yet');
@@ -396,7 +388,8 @@ const handleSwitchDebate = async (activity: Activity) => {
 
 const handleManageDebates = async (activity: Activity) => {
   selectedActivityId.value = activity.id;
-  currentActivityDebates.value = allDebates.value.get(activity.id) || [];
+  // Fetch debates fresh each time (no caching)
+  currentActivityDebates.value = await loadActivityDebates(activity.id);
   await nextTick();
   debateModalRef.value?.open();
 };

@@ -1,5 +1,5 @@
 import { HttpClient } from '@/utils/http';
-import type { ApiResponse, PaginatedResponse, Debate, CreateDebateRequest } from '@/types/api';
+import type { ApiResponse, PaginatedResponse, Debate, CreateDebateRequest, DebateStage } from '@/types/api';
 
 /**
  * 辩题管理API
@@ -55,5 +55,12 @@ export class DebatesApi {
    */
   static async switchCurrentDebate(activityId: string, debateId: string): Promise<ApiResponse<void>> {
     return HttpClient.putDirect<ApiResponse<void>>(`/activities/${activityId}/current-debate`, { debateId });
+  }
+
+  /**
+   * 更新辩题阶段配置（计时器配置）
+   */
+  static async updateDebateStages(debateId: string, stages: DebateStage[]): Promise<ApiResponse<void>> {
+    return HttpClient.putDirect<ApiResponse<void>>(`/debates/${debateId}/stages`, stages);
   }
 }

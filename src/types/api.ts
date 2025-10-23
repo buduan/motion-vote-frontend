@@ -129,6 +129,20 @@ export interface CreateActivityRequest {
 }
 
 // Debate related types
+export interface DebateStage {
+  stageName: string;
+  isDualSide: boolean;
+  sides: {
+    name: string;
+    duration: number;
+  }[];
+  bellTimings: {
+    time: number;
+    type: 'start' | 'warning' | 'end';
+  }[];
+  hideTimer?: boolean;
+}
+
 export interface Debate {
   id: string;
   title: string;
@@ -141,6 +155,8 @@ export interface Debate {
   activityId: string;
   createdAt: string;
   updatedAt: string;
+  stages?: DebateStage[];
+  backgroundImageUrl?: string;
 }
 
 export interface CreateDebateRequest {

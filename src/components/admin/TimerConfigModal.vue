@@ -495,10 +495,8 @@ const handleSave = async () => {
   try {
     loading.value = true;
 
-    // Note: stages 字段不是标准的 Debate 字段
-    // 这里使用 any 绕过类型检查，待后端实现专门的 timer config API
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const response = await DebatesApi.updateDebate(props.debateId, { stages: stages.value } as any);
+    // 使用专用的 stages 更新接口
+    const response = await DebatesApi.updateDebateStages(props.debateId, stages.value);
 
     if (response && response.success) {
       toast.success('配置保存成功');

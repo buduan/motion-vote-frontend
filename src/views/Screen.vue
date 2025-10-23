@@ -177,6 +177,7 @@ import { useScreenWebSocket } from '@/composables/useScreenWebSocket';
 import VoteBar from '@/components/screen/voteBar.vue';
 import DebateTimer from '@/components/screen/debateTimer.vue';
 import { ScreenApi } from '@/api/screen';
+import { DebatesApi } from '@/api/debates';
 import type { ScreenStatistics, TimerData } from '@/types/screen';
 import { getDefaultTimerStages } from '@/utils/timerDefaults';
 
@@ -224,32 +225,65 @@ const handleTimerEnd = (sideIndex: number) => {
   // TODO: 添加额外的处理逻辑，如通知后端
 };
 
-// Load timer data when switching to timer mode
-watch(selectedOption, async newOption => {
-  if (newOption === 'timer' && activityId.value) {
-    try {
-      // 尝试从 API 加载计时器数据
-      const response = await ScreenApi.getTimerConfig(activityId.value);
-      if (response.success && response.data) {
-        // 处理API返回的数据，补充默认bellTimings
-        const processedData = {
-          ...response.data,
-          stages: response.data.stages?.map(stage => ({
-            ...stage,
-            bellTimings: stage.bellTimings || generateDefaultBellTimings(stage.sides),
+// Load timer data from debates API
+const loadTimerData = async () => {
+  // Get current debate ID from statistics
+  const currentDebateId = statistics.value?.data?.currentDebate?.id;
+  
+  if (!currentDebateId) {
+    // No current debate, use mock data
+    loadMockTimerData();
+    return;
+  }
+
+  try {
+    // Fetch debate details from debates API (no caching, fetch every time)
+    const response = await DebatesApi.getDebateById(currentDebateId);
+    
+    if (response.success && response.data) {
+      const debate = response.data;
+      
+      // Transform debate data to TimerData format
+      if (debate.stages && debate.stages.length > 0) {
+        // Process stages and ensure bellTimings exist
+        const processedStages = debate.stages.map(stage => ({
+          stageName: stage.stageName,
+          isDualSide: stage.isDualSide,
+          sides: stage.sides.map(side => ({
+            name: side.name,
+            duration: side.duration,
           })),
+          bellTimings: stage.bellTimings && stage.bellTimings.length > 0
+            ? stage.bellTimings
+            : generateDefaultBellTimings(stage.sides),
+          hideTimer: stage.hideTimer || false,
+        }));
+
+        timerData.value = {
+          activityName: activityName.value || '辩论赛活动',
+          debateTitle: debate.title,
+          stages: processedStages,
+          timestamp: new Date().toISOString(),
         };
-        timerData.value = processedData;
       } else {
-        // API 失败时使用模拟数据
+        // No stages defined, use mock data
         loadMockTimerData();
       }
-    } catch {
-      // API 尚未实现，使用模拟数据
-      // eslint-disable-next-line no-console
-      console.log('Timer API not implemented yet, using mock data');
+    } else {
+      // API failed, use mock data
       loadMockTimerData();
     }
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error('Failed to load timer data from debates API:', error);
+    loadMockTimerData();
+  }
+};
+
+// Load timer data when switching to timer mode
+watch(selectedOption, async newOption => {
+  if (newOption === 'timer') {
+    await loadTimerData();
   }
 });
 
@@ -273,7 +307,7 @@ const loadMockTimerData = () => {
     activityName: activityName.value || '辩论赛活动',
     debateTitle: debateTitle.value || '辩题',
     stages: getDefaultTimerStages(),
-    timestamp: '2025-10-23T01:17:44Z',
+    timestamp: new Date().toISOString(),
   };
 };
 
