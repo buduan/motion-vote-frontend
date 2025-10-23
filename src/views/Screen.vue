@@ -229,7 +229,7 @@ const handleTimerEnd = (sideIndex: number) => {
 const loadTimerData = async () => {
   // Get current debate ID from statistics
   const currentDebateId = statistics.value?.data?.currentDebate?.id;
-  
+
   if (!currentDebateId) {
     // No current debate, use mock data
     loadMockTimerData();
@@ -239,10 +239,10 @@ const loadTimerData = async () => {
   try {
     // Fetch debate details from debates API (no caching, fetch every time)
     const response = await DebatesApi.getDebateById(currentDebateId);
-    
+
     if (response.success && response.data) {
       const debate = response.data;
-      
+
       // Transform debate data to TimerData format
       if (debate.stages && debate.stages.length > 0) {
         // Process stages and ensure bellTimings exist
@@ -253,9 +253,10 @@ const loadTimerData = async () => {
             name: side.name,
             duration: side.duration,
           })),
-          bellTimings: stage.bellTimings && stage.bellTimings.length > 0
-            ? stage.bellTimings
-            : generateDefaultBellTimings(stage.sides),
+          bellTimings:
+            stage.bellTimings && stage.bellTimings.length > 0
+              ? stage.bellTimings
+              : generateDefaultBellTimings(stage.sides),
           hideTimer: stage.hideTimer || false,
         }));
 
