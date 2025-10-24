@@ -75,6 +75,24 @@
       <!-- Card Actions -->
       <div class="card-actions justify-between mt-4 pt-4 border-t border-base-content/10">
         <div class="flex gap-2 flex-wrap">
+          <button class="btn btn-sm" @click="$emit('goto-screen', activity)">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-4 w-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+              />
+            </svg>
+            Goto Screen
+          </button>
+
           <button class="btn btn-sm" @click="$emit('switch-debate', activity)">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -156,6 +174,7 @@ interface Props {
 const props = defineProps<Props>();
 
 defineEmits<{
+  'goto-screen': [activity: Activity];
   'switch-debate': [activity: Activity];
   'manage-debates': [activity: Activity];
   'manage-participants': [activity: Activity];

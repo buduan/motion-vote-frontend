@@ -21,6 +21,7 @@
             :key="activity.id"
             :activity="activity"
             :current-debate="getCurrentDebate(activity.id)"
+            @goto-screen="handleGotoScreen"
             @switch-debate="handleSwitchDebate"
             @manage-debates="handleManageDebates"
             @manage-participants="handleManageParticipants"
@@ -46,6 +47,7 @@
             :key="activity.id"
             :activity="activity"
             :current-debate="getCurrentDebate(activity.id)"
+            @goto-screen="handleGotoScreen"
             @switch-debate="handleSwitchDebate"
             @manage-debates="handleManageDebates"
             @manage-participants="handleManageParticipants"
@@ -230,6 +232,10 @@ const loadActivityDebates = async (activityId: string) => {
 
 const handleViewDetail = (activity: Activity) => {
   router.push(`/admin/activities/${activity.id}`);
+};
+
+const handleGotoScreen = (activity: Activity) => {
+  router.push(`/screen/${activity.id}`);
 };
 
 const handleEdit = (activity: Activity) => {

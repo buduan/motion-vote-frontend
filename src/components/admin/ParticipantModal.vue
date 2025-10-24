@@ -40,9 +40,16 @@
           </svg>
           导出数据
         </button>
-        <button class="btn btn-success btn-sm" @click="exportQRCodes" :disabled="exportingQRCodes">
+        <button class="btn btn-success btn-sm" :disabled="exportingQRCodes" @click="exportQRCodes">
           <span v-if="exportingQRCodes" class="loading loading-spinner loading-xs"></span>
-          <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg
+            v-else
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-4 w-4"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
             <path
               stroke-linecap="round"
               stroke-linejoin="round"
