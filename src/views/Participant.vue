@@ -110,18 +110,13 @@ const handleEnter = async () => {
       return;
     }
 
-    const { sessionToken, activity, participant } = enterResponse.data;
+    const { session_token, activity, participant } = enterResponse.data;
     console.log('[Participant] 解析响应数据:');
-    console.log('  - sessionToken (camelCase):', sessionToken);
-    console.log('  - session_token (snake_case):', enterResponse.data.session_token);
+    console.log('  - session_token:', session_token);
     console.log('  - activity:', activity);
     console.log('  - participant:', participant);
 
-    // 处理后端返回的snake_case字段名
-    const actualSessionToken = sessionToken || enterResponse.data.session_token;
-    console.log('[Participant] 实际使用的sessionToken:', actualSessionToken);
-
-    if (!actualSessionToken) {
+    if (!session_token) {
       const errorMsg = '未获取到会话令牌';
       console.error('[Participant] 错误:', errorMsg);
       console.error('[Participant] 响应数据结构:', enterResponse.data);
@@ -132,7 +127,7 @@ const handleEnter = async () => {
     console.log('[Participant] 入场成功，准备存储sessionToken到Cookie');
 
     // 存储 sessionToken 到 Cookie（24小时过期）
-    setCookie('sessionToken', actualSessionToken, 1);
+    setCookie('sessionToken', session_token, 1);
     console.log('[Participant] sessionToken已存储到Cookie');
 
     // 保存信息用于显示和跳转

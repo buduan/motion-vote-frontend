@@ -35,7 +35,7 @@
         <div class="flex flex-col sm:flex-row sm:items-center sm:gap-4 text-sm">
           <div class="flex items-center gap-2">
             <span class="font-medium">参与者:</span>
-            <span class="badge badge-primary badge-lg">{{ participantNumber || '未设置' }}</span>
+            <span class="badge badge-primary badge-lg">{{ participantCode || '未设置' }}</span>
           </div>
           <div class="divider divider-horizontal hidden sm:flex"></div>
           <span class="text-base-content/70">
@@ -249,23 +249,10 @@ const activityId = computed(() => {
   return fromQuery || fromStorage || '';
 });
 
-<<<<<<< Updated upstream
-const participantNumber = computed(() => {
-  const fromQuery = route.query.participantNumber as string;
-  const fromStorage = localStorage.getItem('participantNumber');
-  const result = fromQuery || fromStorage || '';
-  // console.log('[Vote Page] Participant Number:', {
-  //   fromQuery,
-  //   fromStorage,
-  //   result,
-  // });
-  return result;
-=======
 const participantCode = computed(() => {
   const fromQuery = route.query.participantCode as string;
   const fromStorage = localStorage.getItem('participantCode');
   return fromQuery || fromStorage || '';
->>>>>>> Stashed changes
 });
 
 // debateId 不再从 URL 读取，只从活动中获取当前辩题
@@ -318,53 +305,6 @@ const loadData = async () => {
     currentDebate.value =
       debates.find((d: Debate) => ['ongoing', 'active', 'final_vote'].includes(d.status)) || debates[0] || null;
 
-<<<<<<< Updated upstream
-    if (debateId.value) {
-      currentDebate.value =
-        debates.find((d: Debate) => d.id === debateId.value) ||
-        debates.find((d: Debate) => ['ongoing', 'active', 'final_vote'].includes(d.status)) ||
-        null;
-    } else {
-      currentDebate.value =
-        debates.find((d: Debate) => ['ongoing', 'active', 'final_vote'].includes(d.status)) || debates[0] || null;
-    }
-
-    // 如果有参与者信息和辩题，加载投票状态
-    if (participantNumber.value && currentDebate.value) {
-      // 先尝试参与者入场获取 sessionToken
-      if (!sessionToken.value) {
-        try {
-          const enterResponse = await VotesApi.participantEnter(activityId.value, participantNumber.value);
-          if (enterResponse.success && enterResponse.data?.sessionToken) {
-            sessionToken.value = enterResponse.data.sessionToken;
-          }
-        } catch (err: unknown) {
-          // Failed to enter - show warning toast
-          const errorMsg =
-            err && typeof err === 'object' && 'message' in err
-              ? (err as { message: string }).message
-              : 'Failed to check in';
-          toast.warning(errorMsg);
-        }
-      }
-
-      // 如果有 sessionToken，获取投票状态
-      if (sessionToken.value) {
-        try {
-          const statusResponse = await HttpClient.get<VoteStatus>(`/votes/debates/${currentDebate.value.id}`, {
-            params: { sessionToken: sessionToken.value },
-          });
-          if (statusResponse.success) {
-            voteStatus.value = statusResponse.data || null;
-          }
-        } catch (err: unknown) {
-          // Failed to get vote status - show warning toast
-          const errorMsg =
-            err && typeof err === 'object' && 'message' in err
-              ? (err as { message: string }).message
-              : 'Failed to get vote status';
-          toast.warning(errorMsg);
-=======
     // 如果有当前辩题，加载投票状态
     if (currentDebate.value) {
       try {
@@ -373,7 +313,6 @@ const loadData = async () => {
         });
         if (statusResponse.success) {
           voteStatus.value = statusResponse.data || null;
->>>>>>> Stashed changes
         }
       } catch (err: unknown) {
         // Failed to get vote status - show warning toast
@@ -411,16 +350,9 @@ const loadData = async () => {
 
 // 投票函数
 const vote = async (position: 'pro' | 'con') => {
-<<<<<<< Updated upstream
-  if (!activityId.value || !participantNumber.value || !currentDebate.value) {
-    const missingParams = [];
-    if (!activityId.value) missingParams.push('activityId');
-    if (!participantNumber.value) missingParams.push('participantNumber');
-=======
   if (!activityId.value || !currentDebate.value) {
     const missingParams = [];
     if (!activityId.value) missingParams.push('activityId');
->>>>>>> Stashed changes
     if (!currentDebate.value) missingParams.push('currentDebate');
 
     toast.error('Missing required parameters: ' + missingParams.join(', '));
