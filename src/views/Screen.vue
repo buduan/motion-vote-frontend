@@ -11,7 +11,7 @@
           <option value="timer">Timer</option>
         </select>
       </div>
-      <button
+      <!--<button
         v-if="selectedOption === 'timer'"
         class="btn btn-ghost btn-sm"
         :class="showKeyboardHints ? 'btn-active' : ''"
@@ -26,7 +26,7 @@
           />
         </svg>
         快捷键
-      </button>
+      </button>-->
     </div>
   </Transition>
 
