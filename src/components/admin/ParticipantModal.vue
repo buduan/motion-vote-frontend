@@ -40,6 +40,18 @@
           </svg>
           导出数据
         </button>
+        <button class="btn btn-success btn-sm" @click="exportQRCodes" :disabled="exportingQRCodes">
+          <span v-if="exportingQRCodes" class="loading loading-spinner loading-xs"></span>
+          <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"
+            />
+          </svg>
+          导出二维码
+        </button>
       </div>
 
       <!-- Add Participant Form -->
@@ -219,6 +231,7 @@ const searchQuery = ref('');
 const statusFilter = ref('all');
 const currentPage = ref(1);
 const pageSize = 10;
+const exportingQRCodes = ref(false);
 
 const newParticipant = ref({
   name: '',
@@ -385,6 +398,37 @@ const exportParticipants = async () => {
   } catch (error) {
     toast.error('Export failed');
     console.error('Failed to export participants:', error);
+  }
+};
+
+const exportQRCodes = async () => {
+  if (participants.value.length === 0) {
+    toast.warning('没有参与者可以导出');
+    return;
+  }
+
+  try {
+    exportingQRCodes.value = true;
+    toast.info('正在生成二维码，请稍候...');
+
+    const blob = await ParticipantsApi.exportQRCodes(props.activityId);
+
+    // 创建下载链接
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `participants_qrcode_${props.activityId}.zip`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+
+    toast.success('二维码导出成功！');
+  } catch (error) {
+    toast.error('二维码导出失败');
+    console.error('Failed to export QR codes:', error);
+  } finally {
+    exportingQRCodes.value = false;
   }
 };
 

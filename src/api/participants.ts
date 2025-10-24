@@ -92,4 +92,22 @@ export class ParticipantsApi {
     }
     throw new Error(response.message || 'Failed to get participant link');
   }
+
+  /**
+   * 导出所有参与者二维码
+   */
+  static async exportQRCodes(activityId: string): Promise<Blob> {
+    const response = await fetch(`/api/participants/qrcode?activity_id=${activityId}`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
+      },
+    });
+    
+    if (!response.ok) {
+      throw new Error('Failed to export QR codes');
+    }
+    
+    return response.blob();
+  }
 }
