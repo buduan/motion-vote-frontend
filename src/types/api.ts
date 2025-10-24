@@ -260,12 +260,23 @@ export interface VoteStats {
   debateId: string;
   totalVotes: number;
   proVotes: number;
+  proPreviousVotes: number;
+  proToConVotes: number;
   conVotes: number;
+  conPreviousVotes: number;
+  conToProVotes: number;
   abstainVotes: number;
-  proPercentage: number;
-  conPercentage: number;
+  abstainPreviousVotes: number;
+  abstainToProVotes: number;
+  abstainToConVotes: number;
+  proScore: number;
+  conScore: number;
   abstainPercentage: number;
-  voteHistory: VoteHistoryItem[];
+  totalParticipants: number;
+  nonVotingParticipants: number;
+  winner: string | null;
+  isLocked: boolean;
+  lockedAt: string | null;
 }
 
 export interface VoteHistoryItem {

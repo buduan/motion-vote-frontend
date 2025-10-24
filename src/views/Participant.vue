@@ -9,12 +9,7 @@
     <!-- 错误状态 -->
     <div v-else-if="error" class="max-w-md w-full">
       <div role="alert" class="alert alert-error">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          class="stroke-current shrink-0 h-6 w-6"
-          fill="none"
-          viewBox="0 0 24 24"
-        >
+        <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
           <path
             stroke-linecap="round"
             stroke-linejoin="round"
@@ -27,20 +22,13 @@
           <div class="text-sm">{{ error }}</div>
         </div>
       </div>
-      <button class="btn btn-primary btn-block mt-4" @click="retry">
-        重试
-      </button>
+      <button class="btn btn-primary btn-block mt-4" @click="retry">重试</button>
     </div>
 
     <!-- 成功状态 -->
     <div v-else-if="success" class="max-w-md w-full text-center space-y-4">
       <div role="alert" class="alert alert-success">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          class="stroke-current shrink-0 h-6 w-6"
-          fill="none"
-          viewBox="0 0 24 24"
-        >
+        <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
           <path
             stroke-linecap="round"
             stroke-linejoin="round"
@@ -83,7 +71,7 @@ const handleEnter = async () => {
     success.value = false;
 
     // 获取 participantID
-    const participantId = route.query.participantID as string || route.query.participantId as string;
+    const participantId = (route.query.participantID as string) || (route.query.participantId as string);
     console.log('[Participant] URL查询参数:', route.query);
     console.log('[Participant] 解析的participantId:', participantId);
 
@@ -157,11 +145,11 @@ const handleEnter = async () => {
       console.log('[Participant] 跳转到投票页面:', targetUrl);
       router.push(targetUrl);
     }, 1000);
-
   } catch (err: unknown) {
-    const errorMsg = err && typeof err === 'object' && 'message' in err
-      ? (err as { message: string }).message
-      : '入场失败，请稍后重试';
+    const errorMsg =
+      err && typeof err === 'object' && 'message' in err
+        ? (err as { message: string }).message
+        : '入场失败，请稍后重试';
     console.error('[Participant] 异常捕获:', err);
     console.error('[Participant] 错误信息:', errorMsg);
     error.value = errorMsg;

@@ -8,25 +8,8 @@
           <option value="pro">Pros</option>
           <option value="con">Cons</option>
           <option value="both">Both</option>
-          <option value="timer">Timer</option>
         </select>
       </div>
-      <!--<button
-        v-if="selectedOption === 'timer'"
-        class="btn btn-ghost btn-sm"
-        :class="showKeyboardHints ? 'btn-active' : ''"
-        @click="showKeyboardHints = !showKeyboardHints"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"
-          />
-        </svg>
-        快捷键
-      </button>-->
     </div>
   </Transition>
 
@@ -48,7 +31,7 @@
   </div>
 
   <div
-    v-if="selectedOption !== 'timer'"
+    v-if="selectedOption !== 'topic' || (selectedOption === 'topic' && !isTimerMode)"
     class="p-16 flex flex-col h-screen"
     :class="{
       'items-center align-center text-center': selectedOption === 'topic',
@@ -70,41 +53,91 @@
             : ''
         "
       >
-        {{ debateTitle || '等待辩题...' }}
+        {{ debateTitle }}
       </h1>
     </div>
 
     <!-- Vote Statistics -->
     <div v-if="selectedOption !== 'topic' && currentDebateStats" class="w-full">
-      <!-- Pro Side -->
-      <div v-if="selectedOption === 'pro' || selectedOption === 'both'" class="w-full mb-8">
+      <!-- Both View - Merged Display using existing VoteBar -->
+      <div v-if="selectedOption === 'both'" class="w-full">
+        <!-- 顶部：显示双方名称和分数 -->
+        <div class="flex justify-between items-center mb-6">
+          <!-- 左侧：正方 -->
+          <div class="flex items-center gap-4">
+            <h2 class="text-6xl font-black text-blue-500">正方</h2>
+            <h2 class="text-6xl font-bold text-blue-500 font-number">
+              {{ currentDebateStats.proScore.toFixed(1) }}
+            </h2>
+          </div>
+
+          <!-- 右侧：反方 -->
+          <div class="flex items-center gap-4">
+            <h2 class="text-6xl font-bold text-red-500 font-number">
+              {{ currentDebateStats.conScore.toFixed(1) }}
+            </h2>
+            <h2 class="text-6xl font-black text-red-500">反方</h2>
+          </div>
+        </div>
+
+        <!-- 合并的进度条容器 - 显示：正方票数|未投票人数|反方票数 -->
+        <div class="relative w-full h-16 mb-4 bg-gray-200 rounded-full border-4 border-base-content/30">
+          <!-- 正方进度条 (从左开始，宽度为正方票数比例) -->
+          <div
+            class="absolute top-0 left-0 h-full bg-blue-500 rounded-l-full transition-all duration-500 ease-out"
+            :style="{ width: `${currentDebateStats.proProgressPercentage}%` }"
+          ></div>
+
+          <!-- 反方进度条 (从右开始，宽度为反方票数比例) -->
+          <div
+            class="absolute top-0 right-0 h-full bg-red-500 rounded-r-full transition-all duration-500 ease-out"
+            :style="{ width: `${currentDebateStats.conProgressPercentage}%` }"
+          ></div>
+
+          <!-- 中间是灰色区域，代表未投票人数，无需额外div -->
+        </div>
+
+        <!-- 底部：票数统计 -->
+        <div class="flex justify-between items-center">
+          <!-- 左侧：正方票数 -->
+          <div class="text-blue-500">
+            <span class="text-2xl font-bold">{{ currentDebateStats.proVotes }} 票</span>
+          </div>
+
+          <!-- 中间：未投票人数 -->
+          <div class="text-gray-400">
+            <span class="text-xl">未投票 {{ currentDebateStats.nonVotingParticipants }} 人</span>
+          </div>
+
+          <!-- 右侧：反方票数 -->
+          <div class="text-red-500">
+            <span class="text-2xl font-bold">{{ currentDebateStats.conVotes }} 票</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pro Side Only -->
+      <div v-if="selectedOption === 'pro'" class="w-full mb-8">
         <div class="w-full flex justify-between">
           <h2 class="text-8xl/[1.5] font-black mb-4">正方</h2>
           <h2 class="text-8xl/[1.5] font-bold mb-4 font-number text-blue-500">
-            {{ currentDebateStats.proPercentage.toFixed(1) }}%
+            {{ currentDebateStats.proScore.toFixed(1) }}
           </h2>
         </div>
-        <VoteBar side="pro" :percent="currentDebateStats.proPercentage" class="w-full h-16" />
+        <VoteBar side="pro" :percent="currentDebateStats.proProgressPercentage" class="w-full h-16" />
         <p class="text-2xl mt-2 text-gray-500">{{ currentDebateStats.proVotes }} 票</p>
       </div>
 
-      <!-- Con Side -->
-      <div v-if="selectedOption === 'con' || selectedOption === 'both'" class="w-full">
+      <!-- Con Side Only -->
+      <div v-if="selectedOption === 'con'" class="w-full">
         <div class="w-full flex justify-between">
           <h2 class="text-8xl/[1.5] font-black mb-4">反方</h2>
           <h2 class="text-8xl/[1.5] font-bold mb-4 font-number text-red-500">
-            {{ currentDebateStats.conPercentage.toFixed(1) }}%
+            {{ currentDebateStats.conScore.toFixed(1) }}
           </h2>
         </div>
-        <VoteBar side="con" :percent="currentDebateStats.conPercentage" class="w-full h-16" />
+        <VoteBar side="con" :percent="currentDebateStats.conProgressPercentage" class="w-full h-16" />
         <p class="text-2xl mt-2 text-gray-500">{{ currentDebateStats.conVotes }} 票</p>
-      </div>
-
-      <!-- Total Votes Info -->
-      <div v-if="selectedOption === 'both'" class="w-full mt-4 text-center">
-        <p class="text-xl text-gray-400">
-          总投票数: {{ currentDebateStats.totalVotes }} | 弃权: {{ currentDebateStats.abstainVotes }}
-        </p>
       </div>
     </div>
 
@@ -116,7 +149,7 @@
 
   <!-- Timer View -->
   <DebateTimer
-    v-if="selectedOption === 'timer'"
+    v-if="selectedOption === 'topic' && isTimerMode"
     ref="debateTimerRef"
     :timer-data="timerData"
     @timer-end="handleTimerEnd"
@@ -125,7 +158,7 @@
   <!-- Keyboard Hints Overlay (for Timer mode) -->
   <Transition name="fade">
     <div
-      v-if="selectedOption === 'timer' && showKeyboardHints"
+      v-if="selectedOption === 'topic' && isTimerMode && showKeyboardHints"
       class="absolute top-20 right-4 z-30 bg-base-200 rounded-box shadow-xl p-6 border border-base-300"
     >
       <h3 class="text-xl font-bold mb-4">快捷键说明</h3>
@@ -159,7 +192,7 @@
     <div
       v-if="showConnectionStatus"
       class="absolute right-4 z-50"
-      :class="selectedOption === 'timer' && hasNextStage ? 'bottom-16' : 'bottom-4'"
+      :class="selectedOption === 'topic' && isTimerMode && hasNextStage ? 'bottom-16' : 'bottom-4'"
     >
       <div class="badge" :class="isConnected ? 'badge-success' : 'badge-error'">
         {{ isConnected ? '已连接' : '未连接' }}
@@ -190,6 +223,9 @@ const timerData = ref<TimerData | null>(null);
 const showKeyboardHints = ref(false);
 const debateTimerRef = ref<InstanceType<typeof DebateTimer> | null>(null);
 
+// Screen control state - true = show timer, false = show topic cover
+const isTimerMode = ref(false);
+
 // 彩蛋: 当在屏幕页面输入 "buduan" 时，logo 会开始飞行
 const keySequence = ref('');
 const isLogoFlying = ref(false);
@@ -202,16 +238,124 @@ const activityId = computed(() => {
   return (route.params.activityId as string) || '';
 });
 
-// WebSocket 连接
+// Screen control handler
+const handleScreenControl = (data: { action: string }) => {
+  const { action } = data;
+
+  switch (action) {
+    case 'toggle_cover_page':
+      // Toggle between topic cover and timer display
+      if (selectedOption.value === 'topic') {
+        isTimerMode.value = !isTimerMode.value;
+        if (isTimerMode.value) {
+          // Switching to timer mode - load timer data if needed
+          loadTimerData();
+        }
+      }
+      break;
+
+    case 'next_stage':
+      // Only works in timer mode
+      if (selectedOption.value === 'topic' && isTimerMode.value) {
+        if (debateTimerRef.value) {
+          debateTimerRef.value.navigateToNextStage?.();
+        }
+      }
+      break;
+
+    case 'previous_stage':
+      // Only works in timer mode
+      if (selectedOption.value === 'topic' && isTimerMode.value) {
+        if (debateTimerRef.value) {
+          debateTimerRef.value.navigateToPreviousStage?.();
+        }
+      }
+      break;
+
+    default:
+      // eslint-disable-next-line no-console
+      console.warn('Unknown screen control action:', action);
+  }
+};
+
+// WebSocket 连接 with screen control handler
 const { statistics, isConnected, showConnectionStatus, connect, disconnect } = useScreenWebSocket({
   activityId: activityId.value,
   autoConnect: false,
+  handlers: {
+    onScreenControl: handleScreenControl,
+    onStatisticsUpdate: () => {
+      // Statistics update handler - data is automatically updated via the statistics ref
+      // No additional processing needed here as the composable handles it
+    },
+    onDebateChange: () => {
+      // 辩题切换时重新加载计时器数据
+      if (selectedOption.value === 'topic' && isTimerMode.value) {
+        loadTimerData();
+      }
+    },
+  },
 });
 
 // 从统计数据中提取信息
-const activityName = computed(() => statistics.value?.data?.activityName || '');
-const debateTitle = computed(() => statistics.value?.data?.currentDebate?.title || '等待辩题...');
-const currentDebateStats = computed(() => statistics.value?.data?.currentDebateStats);
+const activityName = computed(() => {
+  const name = statistics.value?.data?.activityName;
+  return name || '';
+});
+
+const debateTitle = computed(() => {
+  const title = statistics.value?.data?.currentDebate?.title;
+  return title || '等待辩题...';
+});
+
+const currentDebateStats = computed(() => {
+  const stats = statistics.value?.data?.voteStats;
+
+  // 如果没有统计数据，返回null
+  if (!stats) return null;
+
+  const proVotes = stats.proVotes || 0;
+  const conVotes = stats.conVotes || 0;
+  const abstainVotes = stats.abstainVotes || 0; // 现在包含未投票人数
+  const totalVotes = stats.totalVotes || 0;
+  const proScore = stats.proScore || 0;
+  const conScore = stats.conScore || 0;
+
+  // 计算参与者信息：
+  // totalParticipants = totalVotes (因为现在包含了所有人，包括未投票的)
+  // nonVotingParticipants = abstainVotes - 实际的abstain投票数
+  // 但我们无法直接区分，所以使用abstainVotes作为未投票人数的上限
+  const totalParticipants = totalVotes;
+  const nonVotingParticipants = abstainVotes; // 现在abstainVotes包含未投票人数
+
+  // 计算进度条比例：正方票数、未投票人数、反方票数
+  const totalForProgress = totalParticipants > 0 ? totalParticipants : Math.max(totalVotes, 1);
+  const proProgressPercentage = (proVotes / totalForProgress) * 100;
+  const conProgressPercentage = (conVotes / totalForProgress) * 100;
+  const nonVotingPercentage = (nonVotingParticipants / totalForProgress) * 100;
+
+  // 计算分数比例（用于分数显示）
+  const totalScore = proScore + conScore;
+  const proScorePercentage = totalScore > 0 ? (proScore / totalScore) * 100 : 0;
+  const conScorePercentage = totalScore > 0 ? (conScore / totalScore) * 100 : 0;
+
+  return {
+    totalVotes,
+    proVotes,
+    conVotes,
+    proScore,
+    conScore,
+    totalParticipants,
+    nonVotingParticipants,
+    // 进度条用的百分比（基于人数）
+    proProgressPercentage,
+    conProgressPercentage,
+    nonVotingPercentage,
+    // 分数用的百分比（基于分数）
+    proScorePercentage,
+    conScorePercentage,
+  };
+});
 
 // Check if timer has next stage
 const hasNextStage = computed(() => {
@@ -280,13 +424,6 @@ const loadTimerData = async () => {
     loadMockTimerData();
   }
 };
-
-// Load timer data when switching to timer mode
-watch(selectedOption, async newOption => {
-  if (newOption === 'timer') {
-    await loadTimerData();
-  }
-});
 
 // 生成默认的bellTimings（如果API没有提供）
 const generateDefaultBellTimings = (sides: { duration: number }[]) => {
@@ -402,11 +539,8 @@ onMounted(() => {
             type: 'statistics_update',
             activity_id: res.data.activityId,
             data: res.data,
-            timestamp: res.data.timestamp,
+            timestamp: res.data.timestamp || new Date().toISOString(),
           } as ScreenStatistics;
-
-          // 设置展示文本
-          // 这些是 computed 的源数据，因此我们 don't mutate computed directly; using underlying refs via statistics
         }
       })
       .catch(() => {
@@ -448,5 +582,9 @@ onUnmounted(() => {
     left 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94),
     transform 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   will-change: top, left, transform;
+}
+
+.font-number {
+  font-variant-numeric: tabular-nums;
 }
 </style>

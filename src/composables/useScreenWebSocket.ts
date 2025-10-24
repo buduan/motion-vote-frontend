@@ -89,6 +89,10 @@ export function useScreenWebSocket(options: UseScreenWebSocketOptions) {
       latestDebateStatus.value = data;
       handlers.onDebateStatus?.(data);
     },
+
+    onScreenControl: data => {
+      handlers.onScreenControl?.(data);
+    },
   };
 
   // 连接
