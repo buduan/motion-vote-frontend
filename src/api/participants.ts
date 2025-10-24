@@ -81,4 +81,15 @@ export class ParticipantsApi {
   static async deleteParticipant(activityId: string, participantId: string): Promise<void> {
     return HttpClient.deleteDirect<void>(`/activities/${activityId}/participants/${participantId}`);
   }
+
+  /**
+   * 获取参与者链接信息（通过 participantId 直接获取 activityId 和 code）
+   */
+  static async getParticipantLink(participantId: string): Promise<{ activityId: string; code: string; participantId: string }> {
+    const response = await HttpClient.get<{ activityId: string; code: string; participantId: string }>(`/participants/${participantId}/link`);
+    if (response.success && response.data) {
+      return response.data;
+    }
+    throw new Error(response.message || 'Failed to get participant link');
+  }
 }

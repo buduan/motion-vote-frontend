@@ -224,10 +224,16 @@ export interface Vote {
 
 export interface ParticipantEnterResponse {
   sessionToken: string;
+  activity?: {
+    id: string;
+    name: string;
+    status: string;
+  };
   participant: {
     id: string;
     code: string;
-    activityId: string;
+    name?: string;
+    activityId?: string;
   };
 }
 

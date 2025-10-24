@@ -64,19 +64,19 @@
             </div>
             <h1 class="text-4xl md:text-5xl lg:text-6xl font-black leading-tight">
               <span class="bg-gradient-to-r from-blue-600 via-purple-600 to-red-600 bg-clip-text text-transparent">
-                {{ currentDebate?.title || '暂无辩题' }}
+                为当前辩题投票
               </span>
             </h1>
           </div>
 
-          <!-- 背景信息 -->
-          <div v-if="currentDebate?.background" class="collapse collapse-arrow bg-base-100 mt-4">
+          <!-- 背景信息 - 隐藏具体辩题内容 -->
+          <!-- <div v-if="currentDebate?.background" class="collapse collapse-arrow bg-base-100 mt-4">
             <input type="checkbox" />
             <div class="collapse-title font-semibold">📋 背景信息</div>
             <div class="collapse-content">
               <p class="text-base-content/70">{{ currentDebate.background }}</p>
             </div>
-          </div>
+          </div> -->
         </div>
       </div>
 
@@ -222,6 +222,7 @@ import { useRoute } from 'vue-router';
 import { VotesApi } from '@/api/votes';
 import { ActivitiesApi } from '@/api/activities';
 import { HttpClient } from '@/utils/http';
+import { getCookie } from '@/utils/cookie';
 import toast from '@/utils/toast';
 import type { Debate, VoteStatus, VoteStats, ActivityDetail } from '@/types/api';
 
@@ -237,22 +238,18 @@ const activityInfo = ref<ActivityDetail | null>(null);
 const currentDebate = ref<Debate | null>(null);
 const voteStatus = ref<VoteStatus | null>(null);
 const VoteStats = ref<VoteStats | null>(null);
-const sessionToken = ref<string>(''); // 会话令牌
+
+// 从 Cookie 读取 sessionToken
+const sessionToken = computed(() => getCookie('sessionToken') || '');
 
 // 从URL或localStorage获取参数
 const activityId = computed(() => {
   const fromQuery = (route.query.activityId as string) || (route.query.activityID as string);
   const fromStorage = localStorage.getItem('activityId');
-  const result = fromQuery || fromStorage || '';
-  // console.log('[Vote Page] Activity ID:', {
-  //   fromQuery,
-  //   fromStorage,
-  //   result,
-  //   allQueryParams: route.query,
-  // });
-  return result;
+  return fromQuery || fromStorage || '';
 });
 
+<<<<<<< Updated upstream
 const participantNumber = computed(() => {
   const fromQuery = route.query.participantNumber as string;
   const fromStorage = localStorage.getItem('participantNumber');
@@ -263,19 +260,15 @@ const participantNumber = computed(() => {
   //   result,
   // });
   return result;
+=======
+const participantCode = computed(() => {
+  const fromQuery = route.query.participantCode as string;
+  const fromStorage = localStorage.getItem('participantCode');
+  return fromQuery || fromStorage || '';
+>>>>>>> Stashed changes
 });
 
-const debateId = computed(() => {
-  const fromQuery = (route.query.debateId as string) || (route.query.debateID as string);
-  const fromStorage = localStorage.getItem('debateId');
-  const result = fromQuery || fromStorage || '';
-  // console.log('[Vote Page] Debate ID:', {
-  //   fromQuery,
-  //   fromStorage,
-  //   result,
-  // });
-  return result;
-});
+// debateId 不再从 URL 读取，只从活动中获取当前辩题
 
 // 获取辩题状态文本
 const getDebateStatusText = (status?: string) => {
@@ -307,15 +300,25 @@ const loadData = async () => {
       return;
     }
 
+    // 检查是否有 sessionToken
+    if (!sessionToken.value) {
+      error.value = 'Missing session token, please enter via participant page';
+      toast.error('请通过参与者页面进入');
+      return;
+    }
+
     // 获取活动信息
     const activityData = await ActivitiesApi.getActivityById(activityId.value);
 
     // 设置活动信息
     activityInfo.value = activityData;
 
-    // 获取当前辩题
+    // 获取当前辩题（从活动的辩题列表中找到正在进行的辩题）
     const debates = activityData.debates || [];
+    currentDebate.value =
+      debates.find((d: Debate) => ['ongoing', 'active', 'final_vote'].includes(d.status)) || debates[0] || null;
 
+<<<<<<< Updated upstream
     if (debateId.value) {
       currentDebate.value =
         debates.find((d: Debate) => d.id === debateId.value) ||
@@ -361,7 +364,24 @@ const loadData = async () => {
               ? (err as { message: string }).message
               : 'Failed to get vote status';
           toast.warning(errorMsg);
+=======
+    // 如果有当前辩题，加载投票状态
+    if (currentDebate.value) {
+      try {
+        const statusResponse = await HttpClient.get<VoteStatus>(`/votes/debates/${currentDebate.value.id}`, {
+          params: { sessionToken: sessionToken.value },
+        });
+        if (statusResponse.success) {
+          voteStatus.value = statusResponse.data || null;
+>>>>>>> Stashed changes
         }
+      } catch (err: unknown) {
+        // Failed to get vote status - show warning toast
+        const errorMsg =
+          err && typeof err === 'object' && 'message' in err
+            ? (err as { message: string }).message
+            : 'Failed to get vote status';
+        toast.warning(errorMsg);
       }
 
       // 加载投票结果（如果需要）
@@ -391,10 +411,16 @@ const loadData = async () => {
 
 // 投票函数
 const vote = async (position: 'pro' | 'con') => {
+<<<<<<< Updated upstream
   if (!activityId.value || !participantNumber.value || !currentDebate.value) {
     const missingParams = [];
     if (!activityId.value) missingParams.push('activityId');
     if (!participantNumber.value) missingParams.push('participantNumber');
+=======
+  if (!activityId.value || !currentDebate.value) {
+    const missingParams = [];
+    if (!activityId.value) missingParams.push('activityId');
+>>>>>>> Stashed changes
     if (!currentDebate.value) missingParams.push('currentDebate');
 
     toast.error('Missing required parameters: ' + missingParams.join(', '));
@@ -408,9 +434,9 @@ const vote = async (position: 'pro' | 'con') => {
   try {
     isVoting.value = true;
 
-    // 检查是否有 sessionToken
+    // 检查是否有 sessionToken（从 Cookie）
     if (!sessionToken.value) {
-      toast.error('Missing session token, please refresh the page and try again');
+      toast.error('Missing session token, please enter via participant page');
       return;
     }
 

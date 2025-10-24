@@ -43,6 +43,11 @@ const router = createRouter({
           component: () => import('@/views/Vote.vue'),
         },
         {
+          path: 'participant',
+          name: 'participant',
+          component: () => import('@/views/Participant.vue'),
+        },
+        {
           path: 'timer-demo',
           name: 'timer-demo',
           component: () => import('@/views/demo/Timer.vue'),

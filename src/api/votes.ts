@@ -50,6 +50,29 @@ export class VotesApi {
   }
 
   /**
+   * 参与者通过 ID 直接入场（推荐方式）
+   */
+  static async participantEnterById(
+    participantId: string,
+    deviceFingerprint?: string,
+  ): Promise<ApiResponse<ParticipantEnterResponse>> {
+    const requestData = {
+      participant_id: participantId,
+      device_fingerprint: deviceFingerprint,
+    };
+    console.log('[VotesApi.participantEnterById] 发送请求:');
+    console.log('  - URL: /votes/enter');
+    console.log('  - 请求数据:', requestData);
+    
+    const result = await HttpClient.post<ParticipantEnterResponse>('/votes/enter', requestData);
+    
+    console.log('[VotesApi.participantEnterById] 收到响应:');
+    console.log('  - 完整响应:', result);
+    
+    return result;
+  }
+
+  /**
    * 获取活动所有辩题的投票结果
    */
   static async getActivityVoteStats(activityId: string): Promise<ApiResponse<VoteStats[]>> {
