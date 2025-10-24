@@ -32,15 +32,9 @@
             d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
           ></path>
         </svg>
-        <div class="flex flex-col sm:flex-row sm:items-center sm:gap-4 text-sm">
-          <div class="flex items-center gap-2">
-            <span class="font-medium">参与者:</span>
-            <span class="badge badge-primary badge-lg">{{ participantCode || '未设置' }}</span>
-          </div>
-          <div class="divider divider-horizontal hidden sm:flex"></div>
-          <span class="text-base-content/70">
-            {{ activityInfo?.name || '加载中...' }}
-          </span>
+        <div class="flex items-center gap-2 text-sm">
+          <span class="font-medium">活动：</span>
+          <span class="badge badge-primary badge-lg">{{ activityInfo?.name || '加载中...' }}</span>
         </div>
       </div>
 
@@ -87,31 +81,14 @@
           <!-- 正方按钮 - 左半边 -->
           <button
             class="btn btn-info btn-lg flex flex-col items-center justify-center gap-4 p-8 rounded-r-none border-0"
-            :disabled="isVoting || voteStatus?.currentVote?.position === 'pro'"
+            :disabled="isVoting"
             :class="{
-              'btn-active ring-4 ring-info ring-inset': voteStatus?.currentVote?.position === 'pro',
               'btn-disabled opacity-60': isVoting,
             }"
             style="aspect-ratio: 1.618 / 1; width: 100%; height: auto"
             @click="vote('pro')"
           >
             <svg
-              v-if="voteStatus?.currentVote?.position === 'pro'"
-              xmlns="http://www.w3.org/2000/svg"
-              class="h-16 w-16 md:h-20 md:w-20"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
-            <svg
-              v-else
               xmlns="http://www.w3.org/2000/svg"
               class="h-16 w-16 md:h-20 md:w-20"
               fill="none"
@@ -126,39 +103,19 @@
               />
             </svg>
             <span class="text-3xl md:text-5xl font-black">正方</span>
-            <span v-if="voteStatus?.currentVote?.position === 'pro'" class="text-lg md:text-xl font-normal">
-              ✓ 已投票
-            </span>
           </button>
 
           <!-- 反方按钮 - 右半边 -->
           <button
-            :disabled="isVoting || voteStatus?.currentVote?.position === 'con'"
+            :disabled="isVoting"
             class="btn btn-error btn-lg flex flex-col items-center justify-center gap-4 p-8 rounded-l-none border-0"
             :class="{
-              'btn-active ring-4 ring-error ring-inset': voteStatus?.currentVote?.position === 'con',
               'btn-disabled opacity-60': isVoting,
             }"
             style="aspect-ratio: 1.618 / 1; width: 100%; height: auto"
             @click="vote('con')"
           >
             <svg
-              v-if="voteStatus?.currentVote?.position === 'con'"
-              xmlns="http://www.w3.org/2000/svg"
-              class="h-16 w-16 md:h-20 md:w-20"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
-            <svg
-              v-else
               xmlns="http://www.w3.org/2000/svg"
               class="h-16 w-16 md:h-20 md:w-20"
               fill="none"
@@ -173,9 +130,6 @@
               />
             </svg>
             <span class="text-3xl md:text-5xl font-black">反方</span>
-            <span v-if="voteStatus?.currentVote?.position === 'con'" class="text-lg md:text-xl font-normal">
-              ✓ 已投票
-            </span>
           </button>
         </div>
 
@@ -194,9 +148,13 @@
               d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
             ></path>
           </svg>
-          <span v-if="!voteStatus?.hasVoted">💡 请选择您支持的立场进行投票</span>
-          <span v-else-if="voteStatus?.canChangeVote">✏️ 您已投票，可以修改投票</span>
-          <span v-else>🔒 您已投票，投票已锁定</span>
+          <div class="flex flex-col gap-1">
+            <span v-if="!voteStatus?.hasVoted">💡 请选择您支持的立场进行投票</span>
+            <span v-else-if="voteStatus?.remainingChanges !== undefined && voteStatus.remainingChanges > 0">
+              🔄 剩余改票次数: {{ voteStatus.remainingChanges }}
+            </span>
+            <span v-else-if="voteStatus?.hasVoted">✅ 投票已完成</span>
+          </div>
         </div>
       </div>
 
@@ -375,8 +333,17 @@ const vote = async (position: 'pro' | 'con') => {
     const response = await VotesApi.submitVote(currentDebate.value.id, sessionToken.value, position);
     if (response.success) {
       toast.success(position === 'pro' ? 'Voted for Pro' : 'Voted for Con');
-      // 刷新投票状态
-      await loadData();
+
+      // 直接更新本地状态，不刷新页面
+      voteStatus.value = {
+        hasVoted: true,
+        currentVote: {
+          position: position,
+          votedAt: new Date().toISOString(),
+        },
+        canChangeVote: (response.data?.remaining_changes ?? 0) > 0,
+        remainingChanges: response.data?.remaining_changes,
+      };
     } else {
       toast.error(response.message || 'Failed to submit vote');
     }

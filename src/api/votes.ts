@@ -1,5 +1,5 @@
 import { HttpClient } from '@/utils/http';
-import type { ApiResponse, VoteRequest, VoteStatus, VoteStats, Vote, ParticipantEnterResponse } from '@/types/api';
+import type { ApiResponse, VoteRequest, VoteStatus, VoteStats, Vote, ParticipantEnterResponse, VoteResponse } from '@/types/api';
 
 /**
  * 投票系统API
@@ -12,12 +12,12 @@ export class VotesApi {
     debateId: string,
     sessionToken: string,
     position: 'pro' | 'con' | 'abstain',
-  ): Promise<ApiResponse<Vote>> {
+  ): Promise<ApiResponse<VoteResponse>> {
     const voteData: VoteRequest = {
       sessionToken,
       position,
     };
-    return HttpClient.post<Vote>(`/votes/debates/${debateId}`, voteData);
+    return HttpClient.post<VoteResponse>(`/votes/debates/${debateId}`, voteData);
   }
 
   /**

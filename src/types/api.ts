@@ -222,6 +222,11 @@ export interface Vote {
   updatedAt: string;
 }
 
+export interface VoteResponse {
+  vote_id: string;
+  remaining_changes: number;
+}
+
 export interface ParticipantEnterResponse {
   session_token: string;
   activity: {
@@ -248,6 +253,7 @@ export interface VoteStatus {
     votedAt: string;
   };
   canChangeVote: boolean;
+  remainingChanges?: number;
 }
 
 export interface VoteStats {
