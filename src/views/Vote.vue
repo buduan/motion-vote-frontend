@@ -414,4 +414,48 @@ onUnmounted(() => {
 
 <style scoped>
 /* daisyUI components with Tailwind utilities */
+
+/* 投票按钮的自定义样式 */
+.btn-vote {
+  transition: all 0.3s ease;
+}
+
+.btn-vote:hover:not(.btn-disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.btn-vote:active:not(.btn-disabled) {
+  transform: translateY(0);
+}
+
+/* 投票按钮的黄金比例样式 */
+.vote-button-container {
+  aspect-ratio: 1.618 / 1;
+}
+
+/* 加载状态的动画优化 */
+.loading-spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* 响应式设计优化 */
+@media (max-width: 768px) {
+  .vote-button-container {
+    aspect-ratio: 1.2 / 1;
+  }
+
+  .btn-vote {
+    padding: 1.5rem;
+  }
+}
 </style>
