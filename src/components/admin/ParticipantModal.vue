@@ -317,15 +317,17 @@ const addParticipant = async () => {
 
   try {
     loading.value = true;
-    const response = await ParticipantsApi.addParticipant(props.activityId, newParticipant.value);
-    if (response) {
-      toast.success('Participant added successfully');
+    // 使用 createParticipants 方法创建单个参与者
+    const response = await ParticipantsApi.createParticipants(props.activityId, { count: 1 });
+    if (response && response.length > 0) {
+      // 创建成功后，更新参与者信息（如果需要的话）
+      toast.success('参与者添加成功');
       await loadParticipants();
       cancelAdd();
       emit('refresh');
     }
   } catch {
-    toast.error('Failed to add participant:');
+    toast.error('添加参与者失败');
     // console.error('Failed to add participant:', error);
   } finally {
     loading.value = false;
@@ -426,7 +428,9 @@ const handleFileImport = async (event: Event) => {
             // not JSON
           }
           if (parsed && parsed.success === true) {
-            toast.success(`Import successful: ${parsed.data?.success || 0} succeeded, ${parsed.data?.failed || 0} failed`);
+            toast.success(
+              `Import successful: ${parsed.data?.success || 0} succeeded, ${parsed.data?.failed || 0} failed`,
+            );
           } else {
             toast.success('Import completed (fetch fallback).');
             // eslint-disable-next-line no-console
@@ -456,8 +460,8 @@ const exportParticipants = async () => {
     const url = window.URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-  // backend returns CSV for participant export
-  link.download = `participants_${props.activityId}.csv`;
+    // backend returns CSV for participant export
+    link.download = `participants_${props.activityId}.csv`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);

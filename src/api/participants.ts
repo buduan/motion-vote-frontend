@@ -1,11 +1,5 @@
 import { HttpClient } from '@/utils/http';
-import type {
-  PaginatedResponse,
-  Participant,
-  ParticipantListParams,
-  CreateParticipantsRequest,
-  AddParticipantRequest,
-} from '@/types/api';
+import type { PaginatedResponse, Participant, ParticipantListParams, CreateParticipantsRequest } from '@/types/api';
 
 /**
  * 参与者管理API
