@@ -26,6 +26,28 @@ export interface CurrentDebateStats {
   abstainPercentage: number;
 }
 
+// 完整的投票统计数据（匹配后端VoteStats）
+export interface VoteStats {
+  debateId: string;
+  totalVotes: number;
+  proVotes: number;
+  proPreviousVotes: number;
+  proToConVotes: number;
+  conVotes: number;
+  conPreviousVotes: number;
+  conToProVotes: number;
+  abstainVotes: number;
+  abstainPreviousVotes: number;
+  abstainToProVotes: number;
+  abstainToConVotes: number;
+  proScore: number;
+  conScore: number;
+  abstainPercentage: number;
+  winner: string | null;
+  isLocked: boolean;
+  lockedAt: string | null;
+}
+
 // 实时统计数据
 export interface RealTimeStats {
   totalParticipants: number;
@@ -41,8 +63,7 @@ export interface ScreenStatisticsData {
   activityName: string;
   activityStatus: string;
   currentDebate: DebateData | null;
-  currentDebateStats: CurrentDebateStats | null;
-  realTimeStats: RealTimeStats;
+  voteStats: VoteStats | null;
   timestamp: string;
 }
 

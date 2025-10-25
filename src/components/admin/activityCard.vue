@@ -75,6 +75,24 @@
       <!-- Card Actions -->
       <div class="card-actions justify-between mt-4 pt-4 border-t border-base-content/10">
         <div class="flex gap-2 flex-wrap">
+          <button class="btn btn-sm" @click="$emit('goto-screen', activity)">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-4 w-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+              />
+            </svg>
+            Goto Screen
+          </button>
+
           <button class="btn btn-sm" @click="$emit('switch-debate', activity)">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -130,111 +148,13 @@
               />
             </svg>
           </summary>
-          <ul
-            class="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow-lg border border-base-content/10"
-          >
-            <li>
-              <button class="btn btn-sm" @click="$emit('manage-participants', activity)">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  class="h-4 w-4"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
-                  />
-                </svg>
-                Manage Participants
-              </button>
-            </li>
-            <li>
-              <button class="btn btn-sm" @click="$emit('manage-collaborators', activity)">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  class="h-4 w-4"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"
-                  />
-                </svg>
-                Manage Collaborators
-              </button>
-            </li>
-            <li class="divider"></li>
-            <li>
-              <button class="btn btn-sm" @click="$emit('view-detail', activity)">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  class="h-4 w-4"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                  />
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                  />
-                </svg>
-                View Details
-              </button>
-            </li>
-            <li>
-              <button class="btn btn-sm" @click="$emit('edit', activity)">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  class="h-4 w-4"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                  />
-                </svg>
-                Edit Activity
-              </button>
-            </li>
-            <li>
-              <button class="btn btn-sm text-error" @click="$emit('delete', activity)">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  class="h-4 w-4"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                  />
-                </svg>
-                Delete Activity
-              </button>
-            </li>
+          <ul class="menu dropdown-content bg-base-100 rounded-box z-10 w-52 p-2 shadow-xl">
+            <li><a @click="$emit('manage-participants', activity)">Manage Participants</a></li>
+            <li><a @click="$emit('manage-collaborators', activity)">Manage Collaborators</a></li>
+            <li class="menu-title"><span>Actions</span></li>
+            <li><a @click="$emit('view-detail', activity)">View Details</a></li>
+            <li><a @click="$emit('edit', activity)">Edit Activity</a></li>
+            <li><a class="text-error" @click="$emit('delete', activity)">Delete Activity</a></li>
           </ul>
         </details>
       </div>
@@ -254,6 +174,7 @@ interface Props {
 const props = defineProps<Props>();
 
 defineEmits<{
+  'goto-screen': [activity: Activity];
   'switch-debate': [activity: Activity];
   'manage-debates': [activity: Activity];
   'manage-participants': [activity: Activity];

@@ -20,6 +20,7 @@ export interface WebSocketEventHandlers {
   onStatisticsUpdate?: (data: ScreenStatistics) => void;
   onDebateChange?: (data: DebateChange) => void;
   onDebateStatus?: (data: DebateStatus) => void;
+  onScreenControl?: (data: { action: string; activity_id: string }) => void;
 }
 
 interface WebSocketMessage {
@@ -171,7 +172,7 @@ class ScreenWebSocketManager {
         break;
 
       case 'statistics_update':
-        this.handlers.onStatisticsUpdate?.(message.data as ScreenStatistics);
+        this.handlers.onStatisticsUpdate?.(message as unknown as ScreenStatistics);
         break;
 
       case 'debate_change':
@@ -180,6 +181,14 @@ class ScreenWebSocketManager {
 
       case 'debate_status':
         this.handlers.onDebateStatus?.(message as unknown as DebateStatus);
+        break;
+
+      case 'screen_control':
+        // 处理大屏控制指令
+        this.handlers.onScreenControl?.({
+          action: message.action as string,
+          activity_id: message.activity_id as string,
+        });
         break;
 
       case 'error':

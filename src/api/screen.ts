@@ -21,4 +21,17 @@ export class ScreenApi {
   static async getTimerConfig(activityId: string): Promise<ApiResponse<TimerData>> {
     return HttpClient.get<TimerData>(`/screen/${activityId}/timer`);
   }
+
+  /**
+   * 控制大屏显示
+   * @param activityId 活动 ID
+   * @param action 控制操作: toggle_cover_page | next_stage | previous_stage
+   * @returns 操作结果
+   */
+  static async controlScreen(
+    activityId: string,
+    action: 'toggle_cover_page' | 'next_stage' | 'previous_stage',
+  ): Promise<ApiResponse<{ message: string }>> {
+    return HttpClient.post<{ message: string }>(`/screen/${activityId}/control`, { action });
+  }
 }

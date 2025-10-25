@@ -82,6 +82,7 @@
         :key="activity.id"
         :activity="activity"
         :current-debate="getCurrentDebate(activity.id)"
+        @goto-screen="handleGotoScreen"
         @switch-debate="handleSwitchDebate"
         @manage-debates="handleManageDebates"
         @manage-participants="handleManageParticipants"
@@ -343,8 +344,8 @@ const nextPage = () => {
   }
 };
 
-const handleCreate = () => {
-  router.push('/admin/activities/create');
+const handleGotoScreen = (activity: Activity) => {
+  router.push(`/screen/${activity.id}`);
 };
 
 const handleViewDetail = (activity: Activity) => {
@@ -444,6 +445,11 @@ const handleTimerConfigSave = async () => {
 
 const handleTimerConfigClose = () => {
   selectedDebateId.value = '';
+};
+
+// Create activity handler
+const handleCreate = () => {
+  router.push('/admin/activities/create');
 };
 
 // Load activities on mount

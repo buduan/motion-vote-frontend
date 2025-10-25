@@ -114,7 +114,17 @@ export class HttpClient {
   }
 
   static async post<T = unknown>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
+    console.log('[HttpClient.post] 发送POST请求:');
+    console.log('  - URL:', url);
+    console.log('  - 数据:', data);
+    console.log('  - 配置:', config);
+
     const response = await http.post<ApiResponse<T>>(url, data as unknown, config);
+
+    console.log('[HttpClient.post] 收到响应:');
+    console.log('  - 状态码:', response.status);
+    console.log('  - 响应数据:', response.data);
+
     return response.data;
   }
 

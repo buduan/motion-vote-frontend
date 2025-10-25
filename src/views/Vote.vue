@@ -32,15 +32,9 @@
             d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
           ></path>
         </svg>
-        <div class="flex flex-col sm:flex-row sm:items-center sm:gap-4 text-sm">
-          <div class="flex items-center gap-2">
-            <span class="font-medium">参与者:</span>
-            <span class="badge badge-primary badge-lg">{{ participantNumber || '未设置' }}</span>
-          </div>
-          <div class="divider divider-horizontal hidden sm:flex"></div>
-          <span class="text-base-content/70">
-            {{ activityInfo?.name || '加载中...' }}
-          </span>
+        <div class="flex items-center gap-2 text-sm">
+          <span class="font-medium">活动：</span>
+          <span class="badge badge-primary badge-lg">{{ activityInfo?.name || '加载中...' }}</span>
         </div>
       </div>
 
@@ -62,21 +56,19 @@
                 {{ getDebateStatusText(currentDebate?.status) }}
               </span>
             </div>
-            <h1 class="text-4xl md:text-5xl lg:text-6xl font-black leading-tight">
-              <span class="bg-gradient-to-r from-blue-600 via-purple-600 to-red-600 bg-clip-text text-transparent">
-                {{ currentDebate?.title || '暂无辩题' }}
-              </span>
+            <h1 class="text-4xl md:text-5xl lg:text-6xl font-black leading-tight text-base-content">
+              为当前辩题投票
             </h1>
           </div>
 
-          <!-- 背景信息 -->
-          <div v-if="currentDebate?.background" class="collapse collapse-arrow bg-base-100 mt-4">
+          <!-- 背景信息 - 隐藏具体辩题内容 -->
+          <!-- <div v-if="currentDebate?.background" class="collapse collapse-arrow bg-base-100 mt-4">
             <input type="checkbox" />
             <div class="collapse-title font-semibold">📋 背景信息</div>
             <div class="collapse-content">
               <p class="text-base-content/70">{{ currentDebate.background }}</p>
             </div>
-          </div>
+          </div> -->
         </div>
       </div>
 
@@ -87,31 +79,14 @@
           <!-- 正方按钮 - 左半边 -->
           <button
             class="btn btn-info btn-lg flex flex-col items-center justify-center gap-4 p-8 rounded-r-none border-0"
-            :disabled="isVoting || voteStatus?.currentVote?.position === 'pro'"
+            :disabled="isVoting || isLastVotedPosition('pro')"
             :class="{
-              'btn-active ring-4 ring-info ring-inset': voteStatus?.currentVote?.position === 'pro',
-              'btn-disabled opacity-60': isVoting,
+              'btn-disabled opacity-60': isVoting || isLastVotedPosition('pro'),
             }"
             style="aspect-ratio: 1.618 / 1; width: 100%; height: auto"
             @click="vote('pro')"
           >
             <svg
-              v-if="voteStatus?.currentVote?.position === 'pro'"
-              xmlns="http://www.w3.org/2000/svg"
-              class="h-16 w-16 md:h-20 md:w-20"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
-            <svg
-              v-else
               xmlns="http://www.w3.org/2000/svg"
               class="h-16 w-16 md:h-20 md:w-20"
               fill="none"
@@ -126,56 +101,34 @@
               />
             </svg>
             <span class="text-3xl md:text-5xl font-black">正方</span>
-            <span v-if="voteStatus?.currentVote?.position === 'pro'" class="text-lg md:text-xl font-normal">
-              ✓ 已投票
-            </span>
           </button>
 
           <!-- 反方按钮 - 右半边 -->
           <button
-            :disabled="isVoting || voteStatus?.currentVote?.position === 'con'"
+            :disabled="isVoting || isLastVotedPosition('con')"
             class="btn btn-error btn-lg flex flex-col items-center justify-center gap-4 p-8 rounded-l-none border-0"
             :class="{
-              'btn-active ring-4 ring-error ring-inset': voteStatus?.currentVote?.position === 'con',
-              'btn-disabled opacity-60': isVoting,
+              'btn-disabled opacity-60': isVoting || isLastVotedPosition('con'),
             }"
             style="aspect-ratio: 1.618 / 1; width: 100%; height: auto"
             @click="vote('con')"
           >
             <svg
-              v-if="voteStatus?.currentVote?.position === 'con'"
               xmlns="http://www.w3.org/2000/svg"
               class="h-16 w-16 md:h-20 md:w-20"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
+              transform="scale(-1,1)"
             >
               <path
                 stroke-linecap="round"
                 stroke-linejoin="round"
                 stroke-width="2"
-                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
-            <svg
-              v-else
-              xmlns="http://www.w3.org/2000/svg"
-              class="h-16 w-16 md:h-20 md:w-20"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M10 14H5.236a2 2 0 01-1.789-2.894l3.5-7A2 2 0 018.736 3h4.018a2 2 0 01.485.06l3.76.94m-7 10v5a2 2 0 002 2h.096c.5 0 .905-.405.905-.904 0-.715.211-1.413.608-2.008L17 13V4m-7 10h2m5-10h2a2 2 0 012 2v6a2 2 0 01-2 2h-2.5"
+                d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"
               />
             </svg>
             <span class="text-3xl md:text-5xl font-black">反方</span>
-            <span v-if="voteStatus?.currentVote?.position === 'con'" class="text-lg md:text-xl font-normal">
-              ✓ 已投票
-            </span>
           </button>
         </div>
 
@@ -194,9 +147,16 @@
               d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
             ></path>
           </svg>
-          <span v-if="!voteStatus?.hasVoted">💡 请选择您支持的立场进行投票</span>
-          <span v-else-if="voteStatus?.canChangeVote">✏️ 您已投票，可以修改投票</span>
-          <span v-else>🔒 您已投票，投票已锁定</span>
+          <div class="flex flex-col gap-1">
+            <span v-if="!voteStatus?.hasVoted">💡 请选择您支持的立场进行投票</span>
+            <span v-else-if="voteStatus?.remainingChanges !== undefined && voteStatus.remainingChanges > 0">
+              🔄 剩余改票次数: {{ voteStatus.remainingChanges }}
+            </span>
+            <span v-else-if="voteStatus?.hasVoted">✅ 投票已完成</span>
+            <span v-if="voteStatus?.currentVote?.position" class="text-xs opacity-75">
+              📝 上次选择: {{ voteStatus.currentVote.position === 'pro' ? '正方' : '反方' }}
+            </span>
+          </div>
         </div>
       </div>
 
@@ -217,11 +177,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, onUnmounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { VotesApi } from '@/api/votes';
 import { ActivitiesApi } from '@/api/activities';
 import { HttpClient } from '@/utils/http';
+import { getCookie } from '@/utils/cookie';
 import toast from '@/utils/toast';
 import type { Debate, VoteStatus, VoteStats, ActivityDetail } from '@/types/api';
 
@@ -237,45 +198,24 @@ const activityInfo = ref<ActivityDetail | null>(null);
 const currentDebate = ref<Debate | null>(null);
 const voteStatus = ref<VoteStatus | null>(null);
 const VoteStats = ref<VoteStats | null>(null);
-const sessionToken = ref<string>(''); // 会话令牌
+
+// 从 Cookie 读取 sessionToken
+const sessionToken = computed(() => getCookie('sessionToken') || '');
 
 // 从URL或localStorage获取参数
 const activityId = computed(() => {
   const fromQuery = (route.query.activityId as string) || (route.query.activityID as string);
   const fromStorage = localStorage.getItem('activityId');
-  const result = fromQuery || fromStorage || '';
-  // console.log('[Vote Page] Activity ID:', {
-  //   fromQuery,
-  //   fromStorage,
-  //   result,
-  //   allQueryParams: route.query,
-  // });
-  return result;
+  return fromQuery || fromStorage || '';
 });
 
-const participantNumber = computed(() => {
-  const fromQuery = route.query.participantNumber as string;
-  const fromStorage = localStorage.getItem('participantNumber');
-  const result = fromQuery || fromStorage || '';
-  // console.log('[Vote Page] Participant Number:', {
-  //   fromQuery,
-  //   fromStorage,
-  //   result,
-  // });
-  return result;
+const participantCode = computed(() => {
+  const fromQuery = route.query.participantCode as string;
+  const fromStorage = localStorage.getItem('participantCode');
+  return fromQuery || fromStorage || '';
 });
 
-const debateId = computed(() => {
-  const fromQuery = (route.query.debateId as string) || (route.query.debateID as string);
-  const fromStorage = localStorage.getItem('debateId');
-  const result = fromQuery || fromStorage || '';
-  // console.log('[Vote Page] Debate ID:', {
-  //   fromQuery,
-  //   fromStorage,
-  //   result,
-  // });
-  return result;
-});
+// debateId 不再从 URL 读取，只从活动中获取当前辩题
 
 // 获取辩题状态文本
 const getDebateStatusText = (status?: string) => {
@@ -294,6 +234,30 @@ const getDebateStatusText = (status?: string) => {
   }
 };
 
+// Check if position is the last voted position
+const isLastVotedPosition = (position: 'pro' | 'con') => {
+  return voteStatus.value?.currentVote?.position === position;
+};
+
+// Auto refresh every 15 minutes
+let refreshTimer: number | null = null;
+
+const startAutoRefresh = () => {
+  if (refreshTimer) {
+    clearInterval(refreshTimer);
+  }
+  refreshTimer = window.setInterval(() => {
+    window.location.reload();
+  }, 15 * 60 * 1000); // 15 minutes
+};
+
+const stopAutoRefresh = () => {
+  if (refreshTimer) {
+    clearInterval(refreshTimer);
+    refreshTimer = null;
+  }
+};
+
 // 加载数据
 const loadData = async () => {
   try {
@@ -307,61 +271,40 @@ const loadData = async () => {
       return;
     }
 
+    // 检查是否有 sessionToken
+    if (!sessionToken.value) {
+      error.value = 'Missing session token, please enter via participant page';
+      toast.error('请通过参与者页面进入');
+      return;
+    }
+
     // 获取活动信息
     const activityData = await ActivitiesApi.getActivityById(activityId.value);
 
     // 设置活动信息
     activityInfo.value = activityData;
 
-    // 获取当前辩题
+    // 获取当前辩题（从活动的辩题列表中找到正在进行的辩题）
     const debates = activityData.debates || [];
+    currentDebate.value =
+      debates.find((d: Debate) => ['ongoing', 'active', 'final_vote'].includes(d.status)) || debates[0] || null;
 
-    if (debateId.value) {
-      currentDebate.value =
-        debates.find((d: Debate) => d.id === debateId.value) ||
-        debates.find((d: Debate) => ['ongoing', 'active', 'final_vote'].includes(d.status)) ||
-        null;
-    } else {
-      currentDebate.value =
-        debates.find((d: Debate) => ['ongoing', 'active', 'final_vote'].includes(d.status)) || debates[0] || null;
-    }
-
-    // 如果有参与者信息和辩题，加载投票状态
-    if (participantNumber.value && currentDebate.value) {
-      // 先尝试参与者入场获取 sessionToken
-      if (!sessionToken.value) {
-        try {
-          const enterResponse = await VotesApi.participantEnter(activityId.value, participantNumber.value);
-          if (enterResponse.success && enterResponse.data?.sessionToken) {
-            sessionToken.value = enterResponse.data.sessionToken;
-          }
-        } catch (err: unknown) {
-          // Failed to enter - show warning toast
-          const errorMsg =
-            err && typeof err === 'object' && 'message' in err
-              ? (err as { message: string }).message
-              : 'Failed to check in';
-          toast.warning(errorMsg);
+    // 如果有当前辩题，加载投票状态
+    if (currentDebate.value) {
+      try {
+        const statusResponse = await HttpClient.get<VoteStatus>(`/votes/debates/${currentDebate.value.id}`, {
+          params: { sessionToken: sessionToken.value },
+        });
+        if (statusResponse.success) {
+          voteStatus.value = statusResponse.data || null;
         }
-      }
-
-      // 如果有 sessionToken，获取投票状态
-      if (sessionToken.value) {
-        try {
-          const statusResponse = await HttpClient.get<VoteStatus>(`/votes/debates/${currentDebate.value.id}`, {
-            params: { sessionToken: sessionToken.value },
-          });
-          if (statusResponse.success) {
-            voteStatus.value = statusResponse.data || null;
-          }
-        } catch (err: unknown) {
-          // Failed to get vote status - show warning toast
-          const errorMsg =
-            err && typeof err === 'object' && 'message' in err
-              ? (err as { message: string }).message
-              : 'Failed to get vote status';
-          toast.warning(errorMsg);
-        }
+      } catch (err: unknown) {
+        // Failed to get vote status - show warning toast
+        const errorMsg =
+          err && typeof err === 'object' && 'message' in err
+            ? (err as { message: string }).message
+            : 'Failed to get vote status';
+        toast.warning(errorMsg);
       }
 
       // 加载投票结果（如果需要）
@@ -391,10 +334,9 @@ const loadData = async () => {
 
 // 投票函数
 const vote = async (position: 'pro' | 'con') => {
-  if (!activityId.value || !participantNumber.value || !currentDebate.value) {
+  if (!activityId.value || !currentDebate.value) {
     const missingParams = [];
     if (!activityId.value) missingParams.push('activityId');
-    if (!participantNumber.value) missingParams.push('participantNumber');
     if (!currentDebate.value) missingParams.push('currentDebate');
 
     toast.error('Missing required parameters: ' + missingParams.join(', '));
@@ -408,17 +350,26 @@ const vote = async (position: 'pro' | 'con') => {
   try {
     isVoting.value = true;
 
-    // 检查是否有 sessionToken
+    // 检查是否有 sessionToken（从 Cookie）
     if (!sessionToken.value) {
-      toast.error('Missing session token, please refresh the page and try again');
+      toast.error('Missing session token, please enter via participant page');
       return;
     }
 
     const response = await VotesApi.submitVote(currentDebate.value.id, sessionToken.value, position);
     if (response.success) {
       toast.success(position === 'pro' ? 'Voted for Pro' : 'Voted for Con');
-      // 刷新投票状态
-      await loadData();
+
+      // 直接更新本地状态，不刷新页面
+      voteStatus.value = {
+        hasVoted: true,
+        currentVote: {
+          position: position,
+          votedAt: new Date().toISOString(),
+        },
+        canChangeVote: (response.data?.remaining_changes ?? 0) > 0,
+        remainingChanges: response.data?.remaining_changes,
+      };
     } else {
       toast.error(response.message || 'Failed to submit vote');
     }
@@ -437,6 +388,12 @@ const vote = async (position: 'pro' | 'con') => {
 // 组件挂载时加载数据
 onMounted(() => {
   loadData();
+  startAutoRefresh();
+});
+
+// 组件卸载时清理定时器
+onUnmounted(() => {
+  stopAutoRefresh();
 });
 </script>
 

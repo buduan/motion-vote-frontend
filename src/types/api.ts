@@ -222,12 +222,22 @@ export interface Vote {
   updatedAt: string;
 }
 
+export interface VoteResponse {
+  vote_id: string;
+  remaining_changes: number;
+}
+
 export interface ParticipantEnterResponse {
-  sessionToken: string;
+  session_token: string;
+  activity: {
+    id: string;
+    name: string;
+    status: string;
+  };
   participant: {
     id: string;
     code: string;
-    activityId: string;
+    name?: string;
   };
 }
 
@@ -243,18 +253,30 @@ export interface VoteStatus {
     votedAt: string;
   };
   canChangeVote: boolean;
+  remainingChanges?: number;
 }
 
 export interface VoteStats {
   debateId: string;
   totalVotes: number;
   proVotes: number;
+  proPreviousVotes: number;
+  proToConVotes: number;
   conVotes: number;
+  conPreviousVotes: number;
+  conToProVotes: number;
   abstainVotes: number;
-  proPercentage: number;
-  conPercentage: number;
+  abstainPreviousVotes: number;
+  abstainToProVotes: number;
+  abstainToConVotes: number;
+  proScore: number;
+  conScore: number;
   abstainPercentage: number;
-  voteHistory: VoteHistoryItem[];
+  totalParticipants: number;
+  nonVotingParticipants: number;
+  winner: string | null;
+  isLocked: boolean;
+  lockedAt: string | null;
 }
 
 export interface VoteHistoryItem {

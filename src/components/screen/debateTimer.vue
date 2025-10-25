@@ -46,12 +46,12 @@
             <h2
               :class="[
                 currentStage.hideTimer
-                  ? 'text-9xl/[1.5] font-black text-black whitespace-nowrap overflow-visible'
+                  ? 'text-9xl/[1.5] font-black text-base-content whitespace-nowrap overflow-visible'
                   : 'text-8xl/[1.5] font-black',
                 !currentStage.hideTimer
                   ? currentSideIndex === 0 && isTimerRunning
-                    ? 'text-blue-500'
-                    : 'text-gray-500'
+                    ? 'text-blue-400'
+                    : 'text-base-content/70'
                   : '',
               ]"
             >
@@ -74,12 +74,12 @@
             <h2
               :class="[
                 currentStage.hideTimer
-                  ? 'text-9xl/[1.5] font-black text-black whitespace-nowrap overflow-visible'
+                  ? 'text-9xl/[1.5] font-black text-base-content whitespace-nowrap overflow-visible'
                   : 'text-8xl/[1.5] font-black',
                 !currentStage.hideTimer
                   ? currentSideIndex === 1 && isTimerRunning
-                    ? 'text-red-500'
-                    : 'text-gray-500'
+                    ? 'text-red-400'
+                    : 'text-base-content/70'
                   : '',
               ]"
             >
@@ -106,7 +106,7 @@
         <button class="btn btn-ghost btn-sm mb-2 opacity-70 hover:opacity-100" @click="navigateToPreviousStage">
           ← 上一阶段
         </button>
-        <p class="text-lg text-gray-500 max-w-xs truncate">
+        <p class="text-lg text-base-content/70 max-w-xs truncate">
           {{ previousStageName }}
         </p>
       </div>
@@ -117,7 +117,7 @@
         <button class="btn btn-ghost btn-sm mb-2 opacity-70 hover:opacity-100" @click="navigateToNextStage">
           下一阶段 →
         </button>
-        <p class="text-lg text-gray-500 max-w-xs truncate text-right">
+        <p class="text-lg text-base-content/70 max-w-xs truncate text-right">
           {{ nextStageName }}
         </p>
       </div>
@@ -126,7 +126,7 @@
 
     <!-- Stage Indicator - Absolutely Centered -->
     <div class="absolute bottom-4 left-1/2 transform -translate-x-1/2 pointer-events-none">
-      <p class="text-xl text-gray-400">{{ currentStageIndex + 1 }} / {{ totalStages }}</p>
+      <p class="text-xl text-base-content/60">{{ currentStageIndex + 1 }} / {{ totalStages }}</p>
     </div>
   </div>
 </template>
@@ -407,16 +407,17 @@ const handleKeyPress = (event: KeyboardEvent) => {
       event.preventDefault();
       navigateToNextStage();
       break;
+    // Note: Escape key is not handled here, allowing it to bubble up to parent
   }
 };
 
 // Lifecycle
 onMounted(() => {
-  window.addEventListener('keydown', handleKeyPress);
+  window.addEventListener('keydown', handleKeyPress, true);
 });
 
 onUnmounted(() => {
-  window.removeEventListener('keydown', handleKeyPress);
+  window.removeEventListener('keydown', handleKeyPress, true);
   pauseTimer();
 });
 

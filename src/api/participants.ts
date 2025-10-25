@@ -20,12 +20,13 @@ export class ParticipantsApi {
   ): Promise<PaginatedResponse<Participant>> {
     return HttpClient.getDirect<PaginatedResponse<Participant>>(`/activities/${activityId}/participants`, { params });
   }
-
   /**
-   * 添加单个参与者
+   * 导出所有参与者数据（xlsx/csv）
    */
-  static async addParticipant(activityId: string, data: AddParticipantRequest): Promise<Participant> {
-    return HttpClient.postDirect<Participant>(`/activities/${activityId}/participants`, data);
+  static async exportParticipants(activityId: string): Promise<Blob> {
+    return await HttpClient.getDirect<Blob>(`/activities/${activityId}/participants/export`, {
+      responseType: 'blob',
+    });
   }
 
   /**
@@ -39,14 +40,10 @@ export class ParticipantsApi {
    * 批量导入参与者
    */
   static async batchImport(activityId: string, formData: FormData): Promise<{ success: number; failed: number }> {
+    // Let the browser/axios set the Content-Type (including boundary) for FormData
     return HttpClient.postDirect<{ success: number; failed: number }>(
       `/activities/${activityId}/participants/batch`,
       formData,
-      {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      },
     );
   }
 
@@ -80,5 +77,38 @@ export class ParticipantsApi {
    */
   static async deleteParticipant(activityId: string, participantId: string): Promise<void> {
     return HttpClient.deleteDirect<void>(`/activities/${activityId}/participants/${participantId}`);
+  }
+
+  /**
+   * 获取参与者链接信息（通过 participantId 直接获取 activityId 和 code）
+   */
+  static async getParticipantLink(
+    participantId: string,
+  ): Promise<{ activityId: string; code: string; participantId: string }> {
+    const response = await HttpClient.get<{ activityId: string; code: string; participantId: string }>(
+      `/participants/${participantId}/link`,
+    );
+    if (response.success && response.data) {
+      return response.data;
+    }
+    throw new Error(response.message || 'Failed to get participant link');
+  }
+
+  /**
+   * 导出所有参与者二维码
+   */
+  static async exportQRCodes(activityId: string): Promise<Blob> {
+    const response = await fetch(`/api/participants/qrcode?activity_id=${activityId}`, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('auth_token')}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to export QR codes');
+    }
+
+    return response.blob();
   }
 }
