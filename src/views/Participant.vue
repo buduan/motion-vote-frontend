@@ -256,6 +256,12 @@ const handleEnter = async (participantId: string) => {
     success.value = true;
     console.log('[Participant] 标记成功状态，准备跳转');
 
+    // 存储 activityId 到 localStorage 以便 Vote 页面使用
+    if (activityId) {
+      localStorage.setItem('activityId', activityId);
+      console.log('[Participant] activityId已存储到localStorage:', activityId);
+    }
+
     // 1秒后跳转到vote页面
     setTimeout(() => {
       const targetUrl = {
@@ -265,7 +271,11 @@ const handleEnter = async (participantId: string) => {
         },
       };
       console.log('[Participant] 跳转到vote页面:', targetUrl);
-      router.push(targetUrl);
+      router.push(targetUrl).catch(err => {
+        console.error('[Participant] 路由跳转失败:', err);
+        // 如果路由跳转失败，尝试直接跳转
+        window.location.href = `/vote?activityId=${activityId}`;
+      });
     }, 1000);
   } catch (err: unknown) {
     const errorMsg =
