@@ -72,14 +72,32 @@
 
       <!-- 投票区域 -->
       <div v-if="['ongoing', 'active', 'final_vote'].includes(currentDebate?.status as string)">
+        <!-- 如果没有sessionToken，显示提示 -->
+        <div v-if="!sessionToken" class="alert alert-warning mb-4">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="stroke-current shrink-0 h-6 w-6"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"
+            />
+          </svg>
+          <span>请通过参与者页面进入以参与投票</span>
+        </div>
+
         <!-- 投票按钮 - 横向并列各占一半，黄金比例 1.618:1 -->
         <div class="grid grid-cols-2 gap-0">
           <!-- 正方按钮 - 左半边 -->
           <button
             class="btn btn-info btn-lg flex flex-col items-center justify-center gap-4 p-8 rounded-r-none border-0"
-            :disabled="isVoting || isLastVotedPosition('pro')"
+            :disabled="!sessionToken || isVoting || isLastVotedPosition('pro')"
             :class="{
-              'btn-disabled opacity-60': isVoting || isLastVotedPosition('pro'),
+              'btn-disabled opacity-60': !sessionToken || isVoting || isLastVotedPosition('pro'),
             }"
             style="aspect-ratio: 1.618 / 1; width: 100%; height: auto"
             @click="vote('pro')"
@@ -103,10 +121,10 @@
 
           <!-- 反方按钮 - 右半边 -->
           <button
-            :disabled="isVoting || isLastVotedPosition('con')"
+            :disabled="!sessionToken || isVoting || isLastVotedPosition('con')"
             class="btn btn-error btn-lg flex flex-col items-center justify-center gap-4 p-8 rounded-l-none border-0"
             :class="{
-              'btn-disabled opacity-60': isVoting || isLastVotedPosition('con'),
+              'btn-disabled opacity-60': !sessionToken || isVoting || isLastVotedPosition('con'),
             }"
             style="aspect-ratio: 1.618 / 1; width: 100%; height: auto"
             @click="vote('con')"
@@ -266,11 +284,10 @@ const loadData = async () => {
       return;
     }
 
-    // 检查是否有 sessionToken
-    if (!sessionToken.value) {
-      error.value = 'Missing session token, please enter via participant page';
-      toast.error('请通过参与者页面进入');
-      return;
+    // 检查是否有 sessionToken - 如果没有，仍然可以查看活动信息，但不能投票
+    const hasSessionToken = !!sessionToken.value;
+    if (!hasSessionToken) {
+      console.warn('No session token found - user can view activity but cannot vote');
     }
 
     // 获取活动信息
@@ -286,20 +303,23 @@ const loadData = async () => {
 
     // 如果有当前辩题，加载投票状态
     if (currentDebate.value) {
-      try {
-        const statusResponse = await HttpClient.get<VoteStatus>(`/votes/debates/${currentDebate.value.id}`, {
-          params: { sessionToken: sessionToken.value },
-        });
-        if (statusResponse.success) {
-          voteStatus.value = statusResponse.data || null;
+      // 只有在有sessionToken时才加载投票状态
+      if (hasSessionToken) {
+        try {
+          const statusResponse = await HttpClient.get<VoteStatus>(`/votes/debates/${currentDebate.value.id}`, {
+            params: { sessionToken: sessionToken.value },
+          });
+          if (statusResponse.success) {
+            voteStatus.value = statusResponse.data || null;
+          }
+        } catch (err: unknown) {
+          // Failed to get vote status - show warning toast
+          const errorMsg =
+            err && typeof err === 'object' && 'message' in err
+              ? (err as { message: string }).message
+              : 'Failed to get vote status';
+          toast.warning(errorMsg);
         }
-      } catch (err: unknown) {
-        // Failed to get vote status - show warning toast
-        const errorMsg =
-          err && typeof err === 'object' && 'message' in err
-            ? (err as { message: string }).message
-            : 'Failed to get vote status';
-        toast.warning(errorMsg);
       }
 
       // 加载投票结果（如果需要）

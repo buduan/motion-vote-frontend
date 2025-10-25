@@ -33,4 +33,25 @@ export default defineConfig({
       },
     },
   },
+  preview: {
+    proxy: {
+      '/api': {
+        target: 'https://vote.hnrobert.space',
+        changeOrigin: true,
+        secure: true,
+        followRedirects: true,
+        configure: proxy => {
+          proxy.on('error', err => {
+            console.error('Proxy error:', err);
+          });
+          proxy.on('proxyRes', (_proxyRes, _req, res) => {
+            // 添加 CORS 头
+            res.setHeader('Access-Control-Allow-Origin', '*');
+            res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+            res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+          });
+        },
+      },
+    },
+  },
 });
