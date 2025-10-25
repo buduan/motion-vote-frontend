@@ -385,8 +385,60 @@ const handleFileImport = async (event: Event) => {
     const formData = new FormData();
     formData.append('file', file);
 
-    const response = await ParticipantsApi.batchImport(props.activityId, formData);
-    toast.success(`Import successful: ${response.success} succeeded, ${response.failed} failed`);
+    // Debug: log FormData entries (for development only)
+    try {
+      // eslint-disable-next-line no-console
+      for (const pair of formData.entries()) {
+        console.debug('[Import] formData entry:', pair[0], pair[1]);
+      }
+    } catch (e) {
+      // ignore
+    }
+
+    // First try the axios-based helper
+    try {
+      const response = await ParticipantsApi.batchImport(props.activityId, formData);
+      toast.success(`Import successful: ${response.success} succeeded, ${response.failed} failed`);
+    } catch (err) {
+      // If axios failed, attempt a plain fetch to surface backend validation errors
+      // This helps identify whether the backend rejected the upload or proxy altered the request
+      try {
+        // eslint-disable-next-line no-console
+        console.warn('[Import] axios upload failed, attempting fetch fallback', err);
+        const fetchRes = await fetch(`/api/activities/${props.activityId}/participants/batch`, {
+          method: 'POST',
+          body: formData,
+          // do not set Content-Type; browser will set the multipart boundary
+        });
+
+        const text = await fetchRes.text();
+        if (!fetchRes.ok) {
+          // show detailed backend response when possible
+          toast.error(`Import failed: ${fetchRes.status} ${fetchRes.statusText}`);
+          // eslint-disable-next-line no-console
+          console.error('[Import] fetch fallback response:', fetchRes.status, fetchRes.statusText, text);
+        } else {
+          // Try parse JSON if backend returned structured result
+          let parsed = null;
+          try {
+            parsed = JSON.parse(text);
+          } catch (e) {
+            // not JSON
+          }
+          if (parsed && parsed.success === true) {
+            toast.success(`Import successful: ${parsed.data?.success || 0} succeeded, ${parsed.data?.failed || 0} failed`);
+          } else {
+            toast.success('Import completed (fetch fallback).');
+            // eslint-disable-next-line no-console
+            console.debug('[Import] fetch fallback body:', text);
+          }
+        }
+      } catch (fetchErr) {
+        // eslint-disable-next-line no-console
+        console.error('[Import] fetch fallback error:', fetchErr);
+        throw err; // rethrow original axios error
+      }
+    }
     await loadParticipants();
     emit('refresh');
   } catch (error) {
@@ -400,7 +452,16 @@ const handleFileImport = async (event: Event) => {
 
 const exportParticipants = async () => {
   try {
-    window.open(`/api/activities/${props.activityId}/participants/export`, '_blank');
+    const blob = await ParticipantsApi.exportParticipants(props.activityId);
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+  // backend returns CSV for participant export
+  link.download = `participants_${props.activityId}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
     toast.success('Export successful');
   } catch (error) {
     toast.error('Export failed');

@@ -20,12 +20,13 @@ export class ParticipantsApi {
   ): Promise<PaginatedResponse<Participant>> {
     return HttpClient.getDirect<PaginatedResponse<Participant>>(`/activities/${activityId}/participants`, { params });
   }
-
   /**
-   * 添加单个参与者
+   * 导出所有参与者数据（xlsx/csv）
    */
-  static async addParticipant(activityId: string, data: AddParticipantRequest): Promise<Participant> {
-    return HttpClient.postDirect<Participant>(`/activities/${activityId}/participants`, data);
+  static async exportParticipants(activityId: string): Promise<Blob> {
+    return await HttpClient.getDirect<Blob>(`/activities/${activityId}/participants/export`, {
+      responseType: 'blob',
+    });
   }
 
   /**
@@ -39,14 +40,10 @@ export class ParticipantsApi {
    * 批量导入参与者
    */
   static async batchImport(activityId: string, formData: FormData): Promise<{ success: number; failed: number }> {
+    // Let the browser/axios set the Content-Type (including boundary) for FormData
     return HttpClient.postDirect<{ success: number; failed: number }>(
       `/activities/${activityId}/participants/batch`,
       formData,
-      {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      },
     );
   }
 

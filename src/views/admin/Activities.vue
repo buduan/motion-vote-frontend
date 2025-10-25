@@ -447,6 +447,11 @@ const handleTimerConfigClose = () => {
   selectedDebateId.value = '';
 };
 
+// Create activity handler
+const handleCreate = () => {
+  router.push('/admin/activities/create');
+};
+
 // Load activities on mount
 onMounted(() => {
   loadActivities();
