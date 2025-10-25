@@ -56,9 +56,7 @@
                 {{ getDebateStatusText(currentDebate?.status) }}
               </span>
             </div>
-            <h1 class="text-4xl md:text-5xl lg:text-6xl font-black leading-tight text-base-content">
-              为当前辩题投票
-            </h1>
+            <h1 class="text-4xl md:text-5xl lg:text-6xl font-black leading-tight text-base-content">为当前辩题投票</h1>
           </div>
 
           <!-- 背景信息 - 隐藏具体辩题内容 -->
@@ -209,12 +207,6 @@ const activityId = computed(() => {
   return fromQuery || fromStorage || '';
 });
 
-const participantCode = computed(() => {
-  const fromQuery = route.query.participantCode as string;
-  const fromStorage = localStorage.getItem('participantCode');
-  return fromQuery || fromStorage || '';
-});
-
 // debateId 不再从 URL 读取，只从活动中获取当前辩题
 
 // 获取辩题状态文本
@@ -246,9 +238,12 @@ const startAutoRefresh = () => {
   if (refreshTimer) {
     clearInterval(refreshTimer);
   }
-  refreshTimer = window.setInterval(() => {
-    window.location.reload();
-  }, 15 * 60 * 1000); // 15 minutes
+  refreshTimer = window.setInterval(
+    () => {
+      window.location.reload();
+    },
+    15 * 60 * 1000,
+  ); // 15 minutes
 };
 
 const stopAutoRefresh = () => {
