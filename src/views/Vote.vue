@@ -56,10 +56,8 @@
                 {{ getDebateStatusText(currentDebate?.status) }}
               </span>
             </div>
-            <h1 class="text-4xl md:text-5xl lg:text-6xl font-black leading-tight">
-              <span class="bg-gradient-to-r from-blue-600 via-purple-600 to-red-600 bg-clip-text text-transparent">
-                为当前辩题投票
-              </span>
+            <h1 class="text-4xl md:text-5xl lg:text-6xl font-black leading-tight text-base-content">
+              为当前辩题投票
             </h1>
           </div>
 
@@ -81,9 +79,9 @@
           <!-- 正方按钮 - 左半边 -->
           <button
             class="btn btn-info btn-lg flex flex-col items-center justify-center gap-4 p-8 rounded-r-none border-0"
-            :disabled="isVoting"
+            :disabled="isVoting || isLastVotedPosition('pro')"
             :class="{
-              'btn-disabled opacity-60': isVoting,
+              'btn-disabled opacity-60': isVoting || isLastVotedPosition('pro'),
             }"
             style="aspect-ratio: 1.618 / 1; width: 100%; height: auto"
             @click="vote('pro')"
@@ -107,10 +105,10 @@
 
           <!-- 反方按钮 - 右半边 -->
           <button
-            :disabled="isVoting"
+            :disabled="isVoting || isLastVotedPosition('con')"
             class="btn btn-error btn-lg flex flex-col items-center justify-center gap-4 p-8 rounded-l-none border-0"
             :class="{
-              'btn-disabled opacity-60': isVoting,
+              'btn-disabled opacity-60': isVoting || isLastVotedPosition('con'),
             }"
             style="aspect-ratio: 1.618 / 1; width: 100%; height: auto"
             @click="vote('con')"
@@ -121,12 +119,13 @@
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
+              transform="scale(-1,1)"
             >
               <path
                 stroke-linecap="round"
                 stroke-linejoin="round"
                 stroke-width="2"
-                d="M10 14H5.236a2 2 0 01-1.789-2.894l3.5-7A2 2 0 018.736 3h4.018a2 2 0 01.485.06l3.76.94m-7 10v5a2 2 0 002 2h.096c.5 0 .905-.405.905-.904 0-.715.211-1.413.608-2.008L17 13V4m-7 10h2m5-10h2a2 2 0 012 2v6a2 2 0 01-2 2h-2.5"
+                d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"
               />
             </svg>
             <span class="text-3xl md:text-5xl font-black">反方</span>
@@ -154,6 +153,9 @@
               🔄 剩余改票次数: {{ voteStatus.remainingChanges }}
             </span>
             <span v-else-if="voteStatus?.hasVoted">✅ 投票已完成</span>
+            <span v-if="voteStatus?.currentVote?.position" class="text-xs opacity-75">
+              📝 上次选择: {{ voteStatus.currentVote.position === 'pro' ? '正方' : '反方' }}
+            </span>
           </div>
         </div>
       </div>
@@ -175,7 +177,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, onUnmounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { VotesApi } from '@/api/votes';
 import { ActivitiesApi } from '@/api/activities';
@@ -229,6 +231,30 @@ const getDebateStatusText = (status?: string) => {
       return '已结束';
     default:
       return '未知';
+  }
+};
+
+// Check if position is the last voted position
+const isLastVotedPosition = (position: 'pro' | 'con') => {
+  return voteStatus.value?.currentVote?.position === position;
+};
+
+// Auto refresh every 15 minutes
+let refreshTimer: number | null = null;
+
+const startAutoRefresh = () => {
+  if (refreshTimer) {
+    clearInterval(refreshTimer);
+  }
+  refreshTimer = window.setInterval(() => {
+    window.location.reload();
+  }, 15 * 60 * 1000); // 15 minutes
+};
+
+const stopAutoRefresh = () => {
+  if (refreshTimer) {
+    clearInterval(refreshTimer);
+    refreshTimer = null;
   }
 };
 
@@ -362,6 +388,12 @@ const vote = async (position: 'pro' | 'con') => {
 // 组件挂载时加载数据
 onMounted(() => {
   loadData();
+  startAutoRefresh();
+});
+
+// 组件卸载时清理定时器
+onUnmounted(() => {
+  stopAutoRefresh();
 });
 </script>
 

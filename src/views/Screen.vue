@@ -50,7 +50,7 @@
         :class="
           selectedOption === 'topic'
             ? ' bg-gradient-to-r from-blue-600 via-purple-600 to-red-600 bg-clip-text text-transparent'
-            : ''
+            : 'text-base-content'
         "
       >
         {{ debateTitle }}
@@ -65,18 +65,18 @@
         <div class="flex justify-between items-center mb-6">
           <!-- 左侧：正方 -->
           <div class="flex items-center gap-4">
-            <h2 class="text-6xl font-black text-blue-500">正方</h2>
-            <h2 class="text-6xl font-bold text-blue-500 font-number">
+            <h2 class="text-6xl font-black text-blue-400">正方</h2>
+            <h2 class="text-6xl font-bold text-blue-400 font-number">
               {{ currentDebateStats.proScore.toFixed(1) }}
             </h2>
           </div>
 
           <!-- 右侧：反方 -->
           <div class="flex items-center gap-4">
-            <h2 class="text-6xl font-bold text-red-500 font-number">
+            <h2 class="text-6xl font-bold text-red-400 font-number">
               {{ currentDebateStats.conScore.toFixed(1) }}
             </h2>
-            <h2 class="text-6xl font-black text-red-500">反方</h2>
+            <h2 class="text-6xl font-black text-red-400">反方</h2>
           </div>
         </div>
 
@@ -100,17 +100,17 @@
         <!-- 底部：票数统计 -->
         <div class="flex justify-between items-center">
           <!-- 左侧：正方票数 -->
-          <div class="text-blue-500">
+          <div class="text-blue-400">
             <span class="text-2xl font-bold">{{ currentDebateStats.proVotes }} 票</span>
           </div>
 
           <!-- 中间：未投票人数 -->
-          <div class="text-gray-400">
+          <div class="text-base-content/60">
             <span class="text-xl">未投票 {{ currentDebateStats.nonVotingParticipants }} 人</span>
           </div>
 
           <!-- 右侧：反方票数 -->
-          <div class="text-red-500">
+          <div class="text-red-400">
             <span class="text-2xl font-bold">{{ currentDebateStats.conVotes }} 票</span>
           </div>
         </div>
@@ -120,30 +120,30 @@
       <div v-if="selectedOption === 'pro'" class="w-full mb-8">
         <div class="w-full flex justify-between">
           <h2 class="text-8xl/[1.5] font-black mb-4">正方</h2>
-          <h2 class="text-8xl/[1.5] font-bold mb-4 font-number text-blue-500">
+          <h2 class="text-8xl/[1.5] font-bold mb-4 font-number text-blue-400">
             {{ currentDebateStats.proScore.toFixed(1) }}
           </h2>
         </div>
         <VoteBar side="pro" :percent="currentDebateStats.proProgressPercentage" class="w-full h-16" />
-        <p class="text-2xl mt-2 text-gray-500">{{ currentDebateStats.proVotes }} 票</p>
+        <p class="text-2xl mt-2 text-base-content/70">{{ currentDebateStats.proVotes }} 票</p>
       </div>
 
       <!-- Con Side Only -->
       <div v-if="selectedOption === 'con'" class="w-full">
         <div class="w-full flex justify-between">
           <h2 class="text-8xl/[1.5] font-black mb-4">反方</h2>
-          <h2 class="text-8xl/[1.5] font-bold mb-4 font-number text-red-500">
+          <h2 class="text-8xl/[1.5] font-bold mb-4 font-number text-red-400">
             {{ currentDebateStats.conScore.toFixed(1) }}
           </h2>
         </div>
         <VoteBar side="con" :percent="currentDebateStats.conProgressPercentage" class="w-full h-16" />
-        <p class="text-2xl mt-2 text-gray-500">{{ currentDebateStats.conVotes }} 票</p>
+        <p class="text-2xl mt-2 text-base-content/70">{{ currentDebateStats.conVotes }} 票</p>
       </div>
     </div>
 
     <!-- Loading State -->
     <div v-if="!currentDebateStats && selectedOption !== 'topic'" class="w-full text-center">
-      <p class="text-3xl text-gray-400">等待投票数据...</p>
+      <p class="text-3xl text-base-content/60">等待投票数据...</p>
     </div>
   </div>
 
@@ -164,24 +164,32 @@
       <h3 class="text-xl font-bold mb-4">快捷键说明</h3>
       <div class="space-y-2">
         <div class="flex items-center gap-4">
+          <kbd class="kbd kbd-sm">Enter</kbd>
+          <span class="text-base-content/70">进入计时页面</span>
+        </div>
+        <div class="flex items-center gap-4">
+          <kbd class="kbd kbd-sm">Esc</kbd>
+          <span class="text-base-content/70">回到封面</span>
+        </div>
+        <div class="flex items-center gap-4">
           <kbd class="kbd kbd-sm">Space</kbd>
-          <span class="text-gray-400">开始/暂停计时</span>
+          <span class="text-base-content/70">开始/暂停计时</span>
         </div>
         <div class="flex items-center gap-4">
           <kbd class="kbd kbd-sm">S</kbd>
-          <span class="text-gray-400">切换计时侧面</span>
+          <span class="text-base-content/70">切换计时侧面</span>
         </div>
         <div class="flex items-center gap-4">
           <kbd class="kbd kbd-sm">R</kbd>
-          <span class="text-gray-400">重置计时器</span>
+          <span class="text-base-content/70">重置计时器</span>
         </div>
         <div class="flex items-center gap-4">
           <kbd class="kbd kbd-sm">←</kbd>
-          <span class="text-gray-400">上一阶段</span>
+          <span class="text-base-content/70">上一阶段</span>
         </div>
         <div class="flex items-center gap-4">
           <kbd class="kbd kbd-sm">→</kbd>
-          <span class="text-gray-400">下一阶段</span>
+          <span class="text-base-content/70">下一阶段</span>
         </div>
       </div>
     </div>
@@ -473,6 +481,23 @@ watch([x, y], () => {
 
 // Easter Egg: 键盘监听
 const handleKeyPress = (event: KeyboardEvent) => {
+  // Handle screen control shortcuts
+  if (event.key === 'Enter') {
+    // Enter key: toggle to timer mode
+    event.preventDefault();
+    if (selectedOption.value === 'topic' && !isTimerMode.value) {
+      isTimerMode.value = true;
+      loadTimerData();
+    }
+  } else if (event.key === 'Escape') {
+    // Escape key: back to cover page
+    event.preventDefault();
+    if (selectedOption.value === 'topic' && isTimerMode.value) {
+      isTimerMode.value = false;
+    }
+  }
+
+  // Easter egg: "buduan" sequence
   keySequence.value += event.key.toLowerCase();
 
   // 保持最近6个字符
@@ -526,8 +551,8 @@ const stopLogoFlying = () => {
 
 // 组件挂载时连接 WebSocket
 onMounted(() => {
-  // 添加键盘事件监听
-  window.addEventListener('keypress', handleKeyPress);
+  // 添加键盘事件监听 (使用捕获阶段，确保在子组件之前处理)
+  window.addEventListener('keydown', handleKeyPress, true);
 
   // 首先调用一次 display 接口以获取初始化数据
   if (activityId.value) {
@@ -557,7 +582,7 @@ onMounted(() => {
 // 组件卸载时断开连接
 onUnmounted(() => {
   // 移除键盘事件监听
-  window.removeEventListener('keypress', handleKeyPress);
+  window.removeEventListener('keydown', handleKeyPress, true);
   // 停止飞行动画
   stopLogoFlying();
   // 断开 WebSocket
